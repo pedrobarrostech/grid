@@ -57,10 +57,10 @@ And initialize the grid by passing the `sheets` prop
 <SpreadSheet sheets={sheets}>
 ```
 
-### Cell Config has the following structure
+### `Cells` Typescript definition
 
 ```jsx
-export interface CellConfig extends CellFormatting {
+export interface CellConfig  {
   /**
    * Text that will be displayed in the cell.
    * For formulas, result will be displayed instead
