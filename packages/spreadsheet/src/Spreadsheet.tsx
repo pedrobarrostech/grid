@@ -144,8 +144,23 @@ export interface SpreadSheetProps {
    * Callback when active cell changes
    */
   onActiveCellChange?: (
+    /* Sheet id */
     id: SheetID,
+    /* Cell coords */
     cell: CellInterface | null,
+    /* Value of the active cell */
+    value?: React.ReactText
+  ) => void;
+
+  /**
+   * Callback When active cell values changes
+   */
+  onActiveCellValueChange?: (
+    /* Sheet id */
+    id: SheetID,
+    /* Cell coords  */
+    cell: CellInterface | null,
+    /* Value of the active cell */
     value?: React.ReactText
   ) => void;
   /**
@@ -340,6 +355,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       minHeight = 400,
       CellEditor = Editor,
       onActiveCellChange,
+      onActiveCellValueChange,
       onSelectionChange,
       selectionMode,
       showTabStrip = true,
@@ -769,14 +785,18 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       (id: SheetID, cell: CellInterface | null, value) => {
         if (!cell) return;
         setFormulaInput(value || "");
-        onActiveCellChange?.(id, cell);
+        onActiveCellChange?.(id, cell, value);
       },
       []
     );
 
-    const handleActiveCellValueChange = useCallback((value) => {
-      setFormulaInput(value);
-    }, []);
+    const handleActiveCellValueChange = useCallback(
+      (id: SheetID, activeCell: CellInterface | null, value) => {
+        setFormulaInput(value);
+        onActiveCellValueChange?.(id, activeCell, value);
+      },
+      [activeCell]
+    );
 
     /**
      * Formula bar focus event

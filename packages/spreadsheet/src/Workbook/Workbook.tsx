@@ -59,7 +59,11 @@ export interface WorkbookProps
     index: number,
     dimension: number
   ) => void;
-  onActiveCellValueChange: (value: string) => void;
+  onActiveCellValueChange: (
+    id: SheetID,
+    activeCell: CellInterface | null,
+    value: React.ReactText | undefined
+  ) => void;
   rowSizes?: SizeType;
   columnSizes?: SizeType;
   onKeyDown?: (
@@ -274,6 +278,14 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       []
     );
 
+    const handleActiveCellValueChange = useCallback(
+      (value: React.ReactText | undefined, cell: CellInterface | null) => {
+        if (isNull(selectedSheetRef.current)) return;
+        onActiveCellValueChange?.(selectedSheetRef.current, cell, value);
+      },
+      []
+    );
+
     const handleSelectionChange = useCallback(
       (cell: CellInterface | null, selections: SelectionArea[]) => {
         if (isNull(selectedSheetRef.current)) return;
@@ -320,7 +332,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             ref={forwardedRef}
             onResize={handleResize}
             onDelete={handleDelete}
-            onActiveCellValueChange={onActiveCellValueChange}
+            onActiveCellValueChange={handleActiveCellValueChange}
             onActiveCellChange={handleActiveCellChange}
             onSelectionChange={handleSelectionChange}
             selectedSheet={selectedSheet}

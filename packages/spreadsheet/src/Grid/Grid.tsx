@@ -95,7 +95,10 @@ export interface GridProps {
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
-  onActiveCellValueChange: (value: string) => void;
+  onActiveCellValueChange: (
+    value: React.ReactText | undefined,
+    activeCell: CellInterface | null
+  ) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
   formatter?: Formatter;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
@@ -1072,7 +1075,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       }
       const text = formulae[checked ? 0 : 1];
       onChange?.(text, cell);
-      onActiveCellValueChange?.(text);
+      onActiveCellValueChange?.(text, cell);
     }, []);
 
     const itemRenderer = useCallback(
