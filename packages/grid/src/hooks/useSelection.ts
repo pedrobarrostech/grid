@@ -846,11 +846,54 @@ const useSelection = ({
     gridRef?.current.scrollToItem({ rowIndex }, Align.end);
   };
 
+  // Page right
+  const pageRight = () => {
+    if (!activeCell || !gridRef?.current) return;
+    const {
+      visibleColumnStartIndex,
+      visibleColumnStopIndex,
+    } = gridRef.current.getViewPort();
+    const pageSize = visibleColumnStopIndex - visibleColumnStartIndex;
+    const columnIndex = Math.min(
+      activeCell.columnIndex + pageSize,
+      selectionRightBound
+    );
+    const newActiveCell = {
+      columnIndex,
+      rowIndex: activeCell.rowIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    gridRef?.current.scrollToItem({ columnIndex }, Align.end);
+  };
+
+  // Page left
+  const pageLeft = () => {
+    if (!activeCell || !gridRef?.current) return;
+    const {
+      visibleColumnStartIndex,
+      visibleColumnStopIndex,
+    } = gridRef.current.getViewPort();
+    const pageSize = visibleColumnStopIndex - visibleColumnStartIndex;
+    const columnIndex = Math.max(
+      activeCell.columnIndex - pageSize,
+      selectionLeftBound
+    );
+    const newActiveCell = {
+      columnIndex,
+      rowIndex: activeCell.rowIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    gridRef?.current.scrollToItem({ columnIndex }, Align.end);
+  };
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (!gridRef?.current) return;
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
+      const isAltKey = e.nativeEvent.altKey;
       switch (e.nativeEvent.which) {
         case KeyCodes.Right:
           keyNavigate(Direction.Right, isShiftKey, isMetaKey);
@@ -935,11 +978,15 @@ const useSelection = ({
           break;
 
         case KeyCodes.PageDown:
-          pageDown();
+          if (isAltKey) {
+            pageRight();
+          } else pageDown();
           break;
 
         case KeyCodes.PageUp:
-          pageUp();
+          if (isAltKey) {
+            pageLeft();
+          } else pageUp();
           break;
       }
     },
