@@ -807,6 +807,45 @@ const useSelection = ({
     gridRef?.current.scrollToItem(activeCell, Align.smart);
   };
 
+  // Page down
+  const pageDown = () => {
+    if (!activeCell || !gridRef?.current) return;
+    const {
+      visibleRowStartIndex,
+      visibleRowStopIndex,
+    } = gridRef.current.getViewPort();
+    const pageSize = visibleRowStopIndex - visibleRowStartIndex;
+    const rowIndex = Math.min(activeCell.rowIndex + pageSize, rowCount - 1);
+    const newActiveCell = {
+      rowIndex,
+      columnIndex: activeCell.columnIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    gridRef?.current.scrollToItem({ rowIndex }, Align.end);
+  };
+
+  // Page up
+  const pageUp = () => {
+    if (!activeCell || !gridRef?.current) return;
+    const {
+      visibleRowStartIndex,
+      visibleRowStopIndex,
+    } = gridRef.current.getViewPort();
+    const pageSize = visibleRowStopIndex - visibleRowStartIndex;
+    const rowIndex = Math.max(
+      activeCell.rowIndex - pageSize,
+      selectionTopBound
+    );
+    const newActiveCell = {
+      rowIndex,
+      columnIndex: activeCell.columnIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    gridRef?.current.scrollToItem({ rowIndex }, Align.end);
+  };
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (!gridRef?.current) return;
@@ -893,6 +932,14 @@ const useSelection = ({
             }
           }
           e.preventDefault();
+          break;
+
+        case KeyCodes.PageDown:
+          pageDown();
+          break;
+
+        case KeyCodes.PageUp:
+          pageUp();
           break;
       }
     },

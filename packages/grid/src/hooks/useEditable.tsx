@@ -421,13 +421,13 @@ const useEditable = ({
         const value = initialValue || getValueRef.current(coords) || "";
 
         /* Trigger onChange handlers */
-        handleChange?.(value, coords);
+        handleChange?.(value, coords, value);
         setAutoFocus(autoFocus);
         setPosition(getCellPosition(pos, scrollPosition));
         showEditor();
       }
     },
-    []
+    [value]
   );
 
   /**
@@ -479,6 +479,8 @@ const useEditable = ({
       KeyCodes.Home,
       KeyCodes.End,
       KeyCodes.CapsLock,
+      KeyCodes.PageDown,
+      KeyCodes.PageUp,
     ].includes(keyCode);
   }, []);
 
@@ -649,10 +651,11 @@ const useEditable = ({
   );
 
   const handleChange = useCallback(
-    (newValue: string, activeCell) => {
+    (newValue: string, activeCell, prevValue: string) => {
       if (!currentActiveCellRef.current) return;
+      const previousValue = prevValue === void 0 ? value : prevValue;
       /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
-      isDirtyRef.current = newValue !== value;
+      isDirtyRef.current = newValue !== previousValue;
       setValue(newValue);
       onChange?.(newValue, activeCell);
     },
