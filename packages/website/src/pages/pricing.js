@@ -78,7 +78,7 @@ function Home() {
               <Text fontWeight="bold" pb={5} fontSize="2xl">
                 Developer license
               </Text>
-              <Text fontSize="xl">US $199</Text>
+              <Text fontSize="xl">US $199 / developer</Text>
             </Box>
 
             <List pt={5} pb={8} maxWidth={300} margin="auto">
