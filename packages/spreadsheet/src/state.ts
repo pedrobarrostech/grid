@@ -11,6 +11,7 @@ import {
   Filter,
   FilterDefinition,
   isNull,
+  Direction,
 } from "@rowsncolumns/grid";
 import {
   CellFormatting,
@@ -126,6 +127,7 @@ export type ActionTypes =
       id: SheetID;
       activeCell: CellInterface;
       fillSelection: SelectionArea;
+      selections: SelectionArea[];
       undoable?: boolean;
     }
   | { type: ACTION_TYPE.DELETE_SHEET; id: SheetID; undoable?: boolean }
@@ -343,19 +345,91 @@ export const createStateReducer = ({
             break;
           }
 
+          /**
+           * Todo Move logic to action handler
+           */
           case ACTION_TYPE.UPDATE_FILL: {
             const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
-              const { selections } = sheet;
-              const { activeCell, fillSelection } = action;
-              const { rowIndex, columnIndex } = activeCell;
-              const cellValue = sheet.cells[rowIndex]?.[columnIndex];
-              const { bounds } = fillSelection;
-              for (let i = bounds.top; i <= bounds.bottom; i++) {
-                sheet.cells[i] = sheet.cells[i] ?? {};
-                for (let j = bounds.left; j <= bounds.right; j++) {
-                  if (i === rowIndex && j === columnIndex) continue;
-                  sheet.cells[i][j] = cellValue;
+              const { activeCell, fillSelection, selections } = action;
+              const sel = selections.length
+                ? selections[selections.length - 1]
+                : { bounds: getCellBounds(activeCell) as AreaProps };
+              const { bounds: fillBounds } = fillSelection;
+              const direction =
+                fillBounds.bottom > sel.bounds?.bottom
+                  ? Direction.Down
+                  : fillBounds.top < sel.bounds.top
+                  ? Direction.Up
+                  : fillBounds.left < sel.bounds.left
+                  ? Direction.Left
+                  : Direction.Right;
+              if (direction === Direction.Down) {
+                const start = sel.bounds.bottom + 1;
+                const end = fillBounds.bottom;
+                let counter = 0;
+                for (let i = start; i <= end; i++) {
+                  let curSelRowIndex = sel.bounds.top + counter;
+                  if (curSelRowIndex > sel.bounds.bottom) {
+                    counter = 0;
+                    curSelRowIndex = sel.bounds.top;
+                  }
+                  sheet.cells[i] = sheet.cells[i] ?? {};
+                  for (let j = sel.bounds.left; j <= sel.bounds.right; j++) {
+                    sheet.cells[i][j] = sheet.cells[curSelRowIndex][j];
+                  }
+                  counter++;
+                }
+              }
+              if (direction === Direction.Up) {
+                const start = sel.bounds.top - 1;
+                const end = fillBounds.top;
+                let counter = 0;
+                for (let i = start; i >= end; i--) {
+                  let curSelRowIndex = sel.bounds.bottom + counter;
+                  if (curSelRowIndex > sel.bounds.top) {
+                    counter = 0;
+                    curSelRowIndex = sel.bounds.bottom;
+                  }
+                  sheet.cells[i] = sheet.cells[i] ?? {};
+                  for (let j = sel.bounds.left; j <= sel.bounds.right; j++) {
+                    sheet.cells[i][j] = sheet.cells[curSelRowIndex][j];
+                  }
+                  counter++;
+                }
+              }
+              if (direction === Direction.Left) {
+                for (let i = sel.bounds.top; i <= sel.bounds.bottom; i++) {
+                  sheet.cells[i] = sheet.cells[i] ?? {};
+                  const start = sel.bounds.left - 1;
+                  const end = fillBounds.left;
+                  let counter = 0;
+                  for (let j = start; j >= end; j--) {
+                    let curSelColumnIndex = sel.bounds.right + counter;
+                    if (curSelColumnIndex < sel.bounds.left) {
+                      counter = 0;
+                      curSelColumnIndex = sel.bounds.right;
+                    }
+                    sheet.cells[i][j] = sheet.cells[i][curSelColumnIndex];
+                    counter--;
+                  }
+                }
+              }
+              if (direction === Direction.Right) {
+                for (let i = sel.bounds.top; i <= sel.bounds.bottom; i++) {
+                  sheet.cells[i] = sheet.cells[i] ?? {};
+                  const start = sel.bounds.right + 1;
+                  const end = fillBounds.right;
+                  let counter = 0;
+                  for (let j = start; j <= end; j++) {
+                    let curSelColumnIndex = sel.bounds.left + counter;
+                    if (curSelColumnIndex > sel.bounds.right) {
+                      counter = 0;
+                      curSelColumnIndex = sel.bounds.left;
+                    }
+                    sheet.cells[i][j] = sheet.cells[i][curSelColumnIndex];
+                    counter++;
+                  }
                 }
               }
               /* Keep reference of active cell, so we can focus back */

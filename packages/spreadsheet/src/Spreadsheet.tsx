@@ -878,7 +878,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       (
         id: SheetID,
         activeCell: CellInterface,
-        fillSelection: SelectionArea | null
+        fillSelection: SelectionArea | null,
+        selections: SelectionArea[]
       ) => {
         if (!fillSelection) return;
 
@@ -887,6 +888,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id,
           activeCell,
           fillSelection,
+          selections,
         });
 
         /* Focus on the new grid */
