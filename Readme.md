@@ -17,7 +17,7 @@ This monorepo contains
 
 ### SpreadSheet Grid Documentation
 
-If you are looking for documentation of SpreadSheet Grid, its located here
+If you are looking for documentation of SpreadSheet Grid, its here
 
 [https://rowsncolumns.app/](https://rowsncolumns.app/)
 
@@ -28,7 +28,7 @@ The monorepo is managed using `lerna` and `yarn` workspaces. To get started
 1. Clone the repository to `rowsncolumns` directory
 
 ```sh
-https://github.com/rowsncolumns/grid.git rowsncolumns
+git clone https://github.com/rowsncolumns/grid.git rowsncolumns
 ```
 
 2. Install npm dependencies using `yarn`

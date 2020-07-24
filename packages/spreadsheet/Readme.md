@@ -29,4 +29,4 @@ SpreadSheet Grid is available under two licenses.
 1. 1 year of free support from the Core team
 
 
-[Learn more](https://rowsncolumns.app/docs/license)
+[Learn more about license](https://rowsncolumns.app/docs/license)
