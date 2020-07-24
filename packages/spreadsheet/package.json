@@ -22,10 +22,8 @@
     "@rowsncolumns/grid": "^4.0.16",
     "@types/react-list": "^0.8.5",
     "@types/webfontloader": "^1.6.32",
-    "dag-visitor": "^1.0.1",
     "downshift": "^5.4.6",
     "emotion-theming": "^10.0.27",
-    "fast-formula-parser": "^1.0.6",
     "immer": "^7.0.3",
     "react-color": "^2.18.1",
     "react-icons": "^3.10.0",
@@ -34,7 +32,6 @@
     "react-use-measure": "^2.0.1",
     "ssf": "^0.11.2",
     "tiny-invariant": "^1.1.0",
-    "use-immer": "^0.4.0",
     "webfontloader": "^1.6.28"
   },
   "gitHead": "67187b72503e5ada41718aeb48b2a8adda5eb41e"
