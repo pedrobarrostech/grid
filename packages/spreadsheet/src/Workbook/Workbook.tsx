@@ -196,10 +196,13 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
     useEffect(() => {
       selectedSheetRef.current = selectedSheet;
     });
-    const handleChange = useCallback((value, cell) => {
-      if (isNull(selectedSheetRef.current)) return;
-      onChange?.(selectedSheetRef.current, value, cell);
-    }, []);
+    const handleChange = useCallback(
+      (value, cell) => {
+        if (isNull(selectedSheetRef.current)) return;
+        onChange?.(selectedSheetRef.current, value, cell);
+      },
+      [currentSheet]
+    );
     const handleFill = useCallback(
       (
         cell: CellInterface,

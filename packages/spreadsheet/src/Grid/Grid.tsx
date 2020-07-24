@@ -827,7 +827,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         /* Focus on next active cell */
         if (nextActiveCell) setActiveCell(nextActiveCell, true);
       },
-      [selectedSheet]
+      [selectedSheet, cells]
     );
 
     const { tooltipComponent, ...tooltipProps } = useTooltip({

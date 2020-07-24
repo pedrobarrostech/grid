@@ -644,7 +644,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           });
         });
       },
-      [activeCellConfig]
+      [activeCellConfig, getCellConfig]
     );
 
     const handleSheetAttributesChange = useCallback(
