@@ -24,7 +24,10 @@ interface Sheet {
   frozenColumns?: number;
   hiddenRows?: number []
   hiddenColumns?: number []
-  showGridLines?: boolean
+  showGridLines?: boolean;
+  filterViews?: FilterView[];
+  rowCount?: number;
+  columnCount?: number;
 }
 
 type Cells = Record<string, Cell>;
@@ -52,6 +55,85 @@ And initialize the grid by passing the `sheets` prop
 
 ```jsx
 <SpreadSheet sheets={sheets}>
+```
+
+### Cell Config has the following structure
+
+```jsx
+export interface CellConfig extends CellFormatting {
+  /**
+   * Text that will be displayed in the cell.
+   * For formulas, result will be displayed instead
+   */
+  text?: string | number;
+  /**
+   * Add tooltip
+   */
+  tooltip?: string;
+  /**
+   * Result from formula calculation
+   */
+  result?: string | number | boolean | Date;
+  /**
+   * Formula errors
+   */
+  error?: string;
+  /**
+   * Validation errors
+   */
+  valid?: boolean;
+  datatype?: DATATYPES;
+  /**
+   * Used for formulas to indicate datatype of result
+   */
+  effectiveType?: DATATYPES;
+  /**
+   * Formulas can extend range of a cell
+   * When a cell with `range` is deleted, all cells within that range will be cleared
+   */
+  effectiveRange?: AreaProps;
+
+  plaintext?: boolean;
+  bold?: boolean;
+  color?: string;
+  italic?: boolean;
+  horizontalAlign?: HORIZONTAL_ALIGNMENT;
+  verticalAlign?: VERTICAL_ALIGNMENT;
+  underline?: boolean;
+  strike?: boolean;
+  fill?: string;
+
+  stroke?: string;
+  strokeTopColor?: string;
+  strokeRightColor?: string;
+  strokeBottomColor?: string;
+  strokeLeftColor?: string;
+  strokeWidth?: number;
+  strokeTopWidth?: number;
+  strokeRightWidth?: number;
+  strokeBottomWidth?: number;
+  strokeLeftWidth?: number;
+  strokeDash?: number[];
+  strokeTopDash?: number[];
+  strokeRightDash?: number[];
+  strokeBottomDash?: number[];
+  strokeLeftDash?: number[];
+  lineCap?: string;
+  padding?: number;
+  fontSize?: number;
+  fontFamily?: string;
+  readOnly?: boolean;
+  wrap?: Wrap;
+  rotation?: number;
+  dataValidation?: DataValidation;
+  hyperlink?: string;
+  percent: boolean;
+  decimnls?: number;
+  currencySymbol?: string;
+  format?: string;
+  /* Allow any arbitrary values */
+  [key: string]: any;
+}
 ```
 
 ### `activeSheet`
@@ -83,13 +165,13 @@ Callback fired when selected sheet changes
 >
 ```
 
-### `onChangeCells`
+### `onChangeCell`
 
 Callback fired when a cell or group of cells change
 
 ```jsx
 <SpreadSheet
-  onChangeCells={(sheetId: string, cells: Cells) => {
+  onChangeCell={(sheetId: string, value: React.ReactText, cell: CellInterface) => {
     // Persist in your data model
   }}
 >
@@ -206,9 +288,9 @@ import SpreadSheet from '@rowsncolumns/spreadsheet'
 />
 ```
 
-### `allowMultipleSelection`
+### `selectionPolicy?: 'single' | 'range' | 'multiple'`
 
-Boolean to enable to disable multiple cell selection
+Boolean to enable to disable multiple cell and range selection,
 
 ### `onActiveCellChange`
 
@@ -216,7 +298,19 @@ Callback fired when activeCell changes
 
 ```jsx
 <SpreadSheet
-  onActiveCellChange={(sheetId: string, cell: CellInterface) => {
+  onActiveCellChange={(sheetId: string, cell: CellInterface, value: React.ReactText | undefined) => {
+    console.log(cell.rowIndex, cell.columnIndex)
+  }}
+>
+```
+
+### `onActiveCellValueChange`
+
+Callback fired when value of active cell changes
+
+```jsx
+<SpreadSheet
+  onActiveCellValueChange={(sheetId: string, cell: CellInterface, value: React.ReactText | undefined) => {
     console.log(cell.rowIndex, cell.columnIndex)
   }}
 >
@@ -237,3 +331,52 @@ List of all fonts that will appear in the font selector toolbar
 ## `fontLoaderConfig`
 
 WebFont loader Configuration. Learn more about loading custom fonts using [WebfontLoader](https://github.com/typekit/webfontloader)
+
+## `onValidate (value: React.ReactText, id: SheetID, cell: CellInterface, cellConfig: CellConfig | undefined ) => Promise<ValidationResponse>)`
+
+Custom Sync/Async validation of user input
+
+## `stateReducer(state: StateInterface, action: ActionTypes) => StateInterface;`
+
+Hook into internal state dispatch calls.
+
+## `snap?: boolean;`
+
+Enable scroll snap
+
+## `onScaleChange?: (scale: number) => void;`
+
+Callback when user scales up/down the grid
+
+## `StatusBar?: React.ReactType<StatusBarProps>;`
+
+Custom StatusBar component
+
+## `ContextMenu?: React.ReactType<ContextMenuComponentProps>;`
+
+Custom Context Menu component
+
+## `Tooltip?: React.ReactType<TooltipProps>;`
+
+Custom tooltip component
+
+## `showTabStrip?: boolean;`
+
+Show or hide tab strip
+  
+## `isTabEditable?: boolean;`
+
+Enable or disable users to edit tabs
+
+
+## `allowNewSheet?: boolean;`
+
+Enable or disable users from adding new sheets
+
+## `CellEditor?: React.ReactType<CustomEditorProps>;`
+
+Custom Cell Editor
+
+## `enableDarkMode?: true;`
+
+Enable or disable dark mode support

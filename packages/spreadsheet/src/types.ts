@@ -11,7 +11,6 @@ export enum FORMATTING_TYPE {
   COLOR = "color",
   PERCENT = "percent",
   DECIMALS = "decimals",
-  CURRENCY = "currency",
   CURRENCY_SYMBOL = "currencySymbol",
   FONT_SIZE = "fontSize",
   FONT_FAMILY = "fontFamily",
@@ -134,8 +133,6 @@ export type Wrap = "wrap" | "clip" | "overflow";
 
 export interface CellDataFormatting {
   [FORMATTING_TYPE.PERCENT]?: boolean;
-  [FORMATTING_TYPE.DECIMALS]?: number;
-  [FORMATTING_TYPE.CURRENCY]?: boolean;
   [FORMATTING_TYPE.CURRENCY_SYMBOL]?: string;
   format?: string;
 }
