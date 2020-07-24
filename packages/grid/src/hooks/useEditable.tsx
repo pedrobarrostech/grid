@@ -421,7 +421,8 @@ const useEditable = ({
         const value = initialValue || getValueRef.current(coords) || "";
 
         /* Trigger onChange handlers */
-        handleChange?.(value, coords, value);
+        const previousValue = value;
+        handleChange?.(value, coords, previousValue);
         setAutoFocus(autoFocus);
         setPosition(getCellPosition(pos, scrollPosition));
         showEditor();
