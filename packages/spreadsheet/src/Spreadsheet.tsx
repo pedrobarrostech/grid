@@ -795,7 +795,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         setFormulaInput(value);
         onActiveCellValueChange?.(id, activeCell, value);
       },
-      [activeCell]
+      []
     );
 
     /**
