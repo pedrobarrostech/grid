@@ -127,7 +127,11 @@ export interface EditableResults {
   /**
    * Set editable value imperatively
    */
-  setValue: (value: string, activeCell: CellInterface) => void;
+  setValue: (
+    value: string,
+    activeCell: CellInterface,
+    previousValue?: string
+  ) => void;
   /**
    * Hide editor
    */
@@ -652,7 +656,7 @@ const useEditable = ({
   );
 
   const handleChange = useCallback(
-    (newValue: string, activeCell, prevValue: string) => {
+    (newValue: string, activeCell, prevValue?: string) => {
       if (!currentActiveCellRef.current) return;
       const previousValue = prevValue === void 0 ? value : prevValue;
       /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
