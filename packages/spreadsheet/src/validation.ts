@@ -91,7 +91,7 @@ export const validate = async (
     }
 
     default:
-      return undefined;
+      return void 0;
   }
 };
 
