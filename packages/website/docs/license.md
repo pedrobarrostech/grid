@@ -14,6 +14,7 @@ SpreadSheet Grid is available under two licenses.
 
 ### Developer license - $199/Developer
 
+1. Commercial use
 1. Single application development
 1. Perpetual license
 1. All features

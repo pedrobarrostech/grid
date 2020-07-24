@@ -78,10 +78,16 @@ function Home() {
               <Text fontWeight="bold" pb={5} fontSize="2xl">
                 Developer license
               </Text>
-              <Text fontSize="xl">$199</Text>
+              <Text fontSize="xl">US $199</Text>
             </Box>
 
             <List pt={5} pb={8} maxWidth={300} margin="auto">
+              <ListItem pb={2}>
+                <Flex>
+                  <ListIcon mt={1} icon="check-circle" color="green.500" />
+                  Commercial use
+                </Flex>
+              </ListItem>
               <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
@@ -137,6 +143,7 @@ function Home() {
         <Box
           className="admonition admonition-note alert alert--secondary"
           margin="auto"
+          mb="20px"
           width={["auto", "auto", 800]}
         >
           <div className="admonition-heading">
