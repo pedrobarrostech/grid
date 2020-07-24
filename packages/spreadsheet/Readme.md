@@ -1,4 +1,14 @@
-## Spreadsheet Grid
+## SpreadSheet Grid
+
+Excel-like DataGrid component for React JS. Built for high performance rendering similar to google sheets.
+
+
+### Documentation
+
+Docs are here - [https://rowsncolumns.app/](https://rowsncolumns.app/)
+
+
+## License
 
 SpreadSheet Grid is available under two licenses. 
 
@@ -11,6 +21,7 @@ SpreadSheet Grid is available under two licenses.
 
 ### Developer license - $199/Developer
 
+1. Commercial use
 1. Single application development
 1. Perpetual license
 1. All features

@@ -1,6 +1,9 @@
 # Rows n' Columns
 
+React Components for Tabular data.
+
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Build Status](https://travis-ci.org/rowsncolumns/grid.svg?branch=master)](https://travis-ci.org/rowsncolumns/grid)
+
 
 This monorepo contains
 
@@ -12,7 +15,7 @@ This monorepo contains
 3. [Exporter](https://github.com/rowsncolumns/grid/tree/master/packages/export) - Excel Export plugin
 
 
-
+### SpreadSheet Grid Documentation
 
 If you are looking for documentation of SpreadSheet Grid, its located here
 
@@ -20,7 +23,7 @@ If you are looking for documentation of SpreadSheet Grid, its located here
 
 ## Local development
 
-The monorepo is managed using `lerna`, So to get started
+The monorepo is managed using `lerna` and `yarn` workspaces. To get started
 
 1. Clone the repository to `rowsncolumns` directory
 
@@ -28,11 +31,13 @@ The monorepo is managed using `lerna`, So to get started
 https://github.com/rowsncolumns/grid.git rowsncolumns
 ```
 
-2. Install npm dependencies `yarn`
+2. Install npm dependencies using `yarn`
 
 ```js
+// Switch to the new directory
 cd rowsncolumns
 
+// Install all dependencies
 yarn
 ```
 
