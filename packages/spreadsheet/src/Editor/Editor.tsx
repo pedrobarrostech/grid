@@ -123,7 +123,9 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
   /* Submit */
   const handleSubmit = useCallback(
     (value, direction) => {
-      const nextCell = direction && nextFocusableCell(cell, direction);
+      const nextCell = direction
+        ? nextFocusableCell(cell, direction)
+        : cell
       onSubmit?.(value, cell, nextCell);
     },
     [cell]
