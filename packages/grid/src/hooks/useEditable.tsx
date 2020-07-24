@@ -473,20 +473,28 @@ const useEditable = ({
   );
 
   const isSelectionKey = useCallback((keyCode: number) => {
-    return [
-      KeyCodes.Right,
-      KeyCodes.Left,
-      KeyCodes.Up,
-      KeyCodes.Down,
-      KeyCodes.Meta,
-      KeyCodes.Escape,
-      KeyCodes.Tab,
-      KeyCodes.Home,
-      KeyCodes.End,
-      KeyCodes.CapsLock,
-      KeyCodes.PageDown,
-      KeyCodes.PageUp,
-    ].includes(keyCode);
+    return (
+      [
+        KeyCodes.Right,
+        KeyCodes.Left,
+        KeyCodes.Up,
+        KeyCodes.Down,
+        KeyCodes.Meta,
+        KeyCodes.Escape,
+        KeyCodes.Tab,
+        KeyCodes.Home,
+        KeyCodes.End,
+        KeyCodes.CapsLock,
+        KeyCodes.PageDown,
+        KeyCodes.PageUp,
+        KeyCodes.ScrollLock,
+        KeyCodes.NumLock,
+        KeyCodes.Insert,
+        KeyCodes.Pause,
+      ].includes(keyCode) ||
+      // Exclude Function keys
+      (keyCode >= KeyCodes.F1 && keyCode <= KeyCodes.F12)
+    );
   }, []);
 
   const handleKeyDown = useCallback(
