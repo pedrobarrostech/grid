@@ -40,8 +40,8 @@ describe("validation", () => {
     expect(valid).toBeTruthy();
   });
 
-  it("returns true if validation is not defined", async () => {
+  it("returns undefined if validation is not defined", async () => {
     const valid = await validate("b", "B", null, undefined);
-    expect(valid).toBeTruthy();
+    expect(valid).toBeUndefined();
   });
 });

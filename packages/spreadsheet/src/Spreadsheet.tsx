@@ -605,9 +605,20 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         /* Validate */
         requestAnimationFrame(async () => {
-          const { valid, message } =
-            (await onValidate(value, id, cell, config)) || {};
+          const validationResponse = await onValidate(value, id, cell, config);
 
+          /* If validations service fails, lets not update the store */
+          if (validationResponse === void 0) {
+            return;
+          }
+          /**
+           * Extract valid: boolean response and message
+           */
+          const { valid, message } = validationResponse as ValidationResponse;
+
+          /**
+           * Update the state
+           */
           dispatch({
             type: ACTION_TYPE.VALIDATION_SUCCESS,
             cell,
