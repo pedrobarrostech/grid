@@ -426,7 +426,7 @@ const useEditable = ({
         const value = initialValue || cellValue || "";
 
         /**
-         * If the user has entered a value to the cell, mark it as empty
+         * If the user has entered a value in the cell, mark it as dirty
          * So that during mousedown, onSubmit gets called
          */
         isDirtyRef.current = !!initialValue;
