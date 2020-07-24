@@ -422,11 +422,18 @@ const useEditable = ({
         /* Get offsets */
         const pos = gridRef.current.getCellOffsetFromCoords(coords);
         const scrollPosition = gridRef.current.getScrollPosition();
-        const value = initialValue || getValueRef.current(coords) || "";
+        const cellValue = getValueRef.current(coords);
+        const value = initialValue || cellValue || "";
+
+        /**
+         * If the user has entered a value to the cell, mark it as empty
+         * So that during mousedown, onSubmit gets called
+         */
+        isDirtyRef.current = !!initialValue;
 
         /* Trigger onChange handlers */
-        const previousValue = value;
-        handleChange?.(value, coords, previousValue);
+        setValue(value);
+        onChange?.(value, coords);
         setAutoFocus(autoFocus);
         setPosition(getCellPosition(pos, scrollPosition));
         showEditor();
@@ -664,11 +671,10 @@ const useEditable = ({
   );
 
   const handleChange = useCallback(
-    (newValue: string, activeCell, prevValue?: string) => {
+    (newValue: string, activeCell) => {
       if (!currentActiveCellRef.current) return;
-      const previousValue = prevValue === void 0 ? value : prevValue;
       /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
-      isDirtyRef.current = newValue !== previousValue;
+      isDirtyRef.current = newValue !== value;
       setValue(newValue);
       onChange?.(newValue, activeCell);
     },
