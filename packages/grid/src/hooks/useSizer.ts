@@ -1,16 +1,7 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
-import { debounce, AutoSizerCanvas, HiddenType, isNull } from "./../helpers";
+import { debounce, HiddenType, isNull, autoSizerCanvas } from "./../helpers";
 import invariant from "tiny-invariant";
-
-interface TextFormattingOptions {
-  bold?: boolean;
-  italic?: boolean;
-  strike?: boolean;
-  underline?: boolean;
-  fontSize?: number;
-  fontFamily?: string;
-}
 
 export interface IProps {
   /**
@@ -154,9 +145,7 @@ const useAutoSizer = ({
     "Row count should be specified if resize stragtegy is full"
   );
 
-  const autoSizer = useRef(
-    AutoSizerCanvas({ fontFamily, fontSize, fontWeight, fontStyle })
-  );
+  const autoSizer = useRef(autoSizerCanvas);
   const [viewport, setViewport] = useState<ViewPortProps>({
     rowStartIndex: 0,
     rowStopIndex: 0,

@@ -27,11 +27,11 @@ export interface TooltipResults {
   /**
    * Mousemove listener to align tooltip
    */
-  onMouseMove: (e: React.MouseEvent<HTMLInputElement>) => void;
+  onMouseMove: ((e: React.MouseEvent<HTMLInputElement>) => void) | undefined;
   /**
    * Mouse leave listener to hide tooltip
    */
-  onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) => void;
+  onMouseLeave: ((e: React.MouseEvent<HTMLInputElement>) => void) | undefined;
 }
 
 export interface DefaultTooltipProps {
@@ -142,8 +142,14 @@ const useTooltip = ({
   }, []);
 
   /* Raf throttler */
-  const mouseMoveThrottler = useRef(throttle(handleMouseMove, 100));
-  const mouseLeaveThrottler = useRef(debounce(handleMouseLeave, 2000));
+  const mouseMoveThrottler = useRef<
+    (e: React.MouseEvent<HTMLElement>) => void
+  >();
+  const mouseLeaveThrottler = useRef<() => void>();
+  useEffect(() => {
+    mouseMoveThrottler.current = throttle(handleMouseMove, 100);
+    mouseLeaveThrottler.current = debounce(handleMouseLeave, 2000);
+  }, []);
 
   /* Update activecell ref */
   useEffect(() => {

@@ -881,6 +881,8 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
   };
 };
 
+export const autoSizerCanvas = AutoSizerCanvas();
+
 /* Check if a value is null */
 export const isNull = (value: any) =>
   value === void 0 || value === null || value === "";

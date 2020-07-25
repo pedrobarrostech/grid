@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
-import { AutoSizerCanvas } from "@rowsncolumns/grid";
+import { autoSizerCanvas } from "@rowsncolumns/grid";
 import TextEditor from "./Text";
 import ListEditor from "./List";
 import { useColorMode } from "@chakra-ui/core";
@@ -76,7 +76,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
   const padding = 10; /* 2 + 1 + 1 + 2 + 2 */
   const hasScrollPositionChanged = useRef(false);
   const isMounted = useRef(false);
-  const textSizer = useRef(AutoSizerCanvas());
+  const textSizer = useRef(autoSizerCanvas);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
     (text) => {
