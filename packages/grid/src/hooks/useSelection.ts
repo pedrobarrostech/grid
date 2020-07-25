@@ -627,10 +627,8 @@ const useSelection = ({
       )
         return;
 
-      const currentCell = modify
-        ? selectionEnd.current
-        : activeCell;
-      var { rowIndex, columnIndex } = currentCell
+      const currentCell = modify ? selectionEnd.current : activeCell;
+      var { rowIndex, columnIndex } = currentCell;
       const isMergedCell = gridRef?.current.isMergedCell({
         rowIndex,
         columnIndex,
@@ -652,7 +650,13 @@ const useSelection = ({
           // Shift + Ctrl/Commmand
           // TODO: Scroll to last contentful cell
           if (metaKeyPressed) {
-            rowIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenRow, direction, selectionTopBound)
+            rowIndex = findNextCellInDataRegion(
+              currentCell,
+              getValue,
+              isHiddenRow,
+              direction,
+              selectionTopBound
+            );
           }
           break;
 
@@ -665,7 +669,13 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           if (metaKeyPressed) {
-            rowIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenRow, direction, selectionBottomBound)
+            rowIndex = findNextCellInDataRegion(
+              currentCell,
+              getValue,
+              isHiddenRow,
+              direction,
+              selectionBottomBound
+            );
           }
           break;
 
@@ -678,7 +688,13 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           if (metaKeyPressed) {
-            columnIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenColumn, direction, selectionLeftBound)
+            columnIndex = findNextCellInDataRegion(
+              currentCell,
+              getValue,
+              isHiddenColumn,
+              direction,
+              selectionLeftBound
+            );
           }
           break;
 
@@ -691,7 +707,13 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           if (metaKeyPressed) {
-            columnIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenColumn, direction, selectionRightBound)
+            columnIndex = findNextCellInDataRegion(
+              currentCell,
+              getValue,
+              isHiddenColumn,
+              direction,
+              selectionRightBound
+            );
           }
           break;
       }

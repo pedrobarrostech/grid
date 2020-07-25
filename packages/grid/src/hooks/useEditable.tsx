@@ -603,7 +603,11 @@ const useEditable = ({
           break;
         }
         case Direction.Up:
-          let rowIndex = clampIndex(Math.max(bounds.top - 1, selectionTopBound), isHiddenRow, direction);
+          let rowIndex = clampIndex(
+            Math.max(bounds.top - 1, selectionTopBound),
+            isHiddenRow,
+            direction
+          );
           nextActiveCell = {
             rowIndex,
             columnIndex: bounds.left,
@@ -619,7 +623,7 @@ const useEditable = ({
           nextActiveCell = {
             rowIndex: bounds.top,
             columnIndex,
-          };          
+          };
           break;
         }
 
