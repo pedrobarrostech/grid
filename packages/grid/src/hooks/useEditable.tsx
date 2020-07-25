@@ -86,6 +86,30 @@ export interface UseEditableOptions {
    * Hidden columns
    */
   isHiddenColumn: HiddenType;
+  /**
+   * No of columns in the grid
+   */
+  columnCount: number;
+  /**
+   * No of rows in the grid
+   */
+  rowCount: number;
+  /**
+   * Top bound of selection
+   */
+  selectionTopBound?: number;
+  /**
+   * Bottom bound
+   */
+  selectionBottomBound?: number;
+  /**
+   * Left bound
+   */
+  selectionLeftBound?: number;
+  /**
+   * Right bound
+   */
+  selectionRightBound?: number;
 }
 
 export interface EditableResults {
@@ -355,6 +379,12 @@ const useEditable = ({
   hideOnBlur = true,
   isHiddenRow = defaultIsHidden,
   isHiddenColumn = defaultIsHidden,
+  rowCount,
+  columnCount,
+  selectionTopBound = 0,
+  selectionBottomBound = rowCount - 1,
+  selectionLeftBound = 0,
+  selectionRightBound = columnCount - 1,
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -562,7 +592,7 @@ const useEditable = ({
       switch (direction) {
         case Direction.Right: {
           let columnIndex = clampIndex(
-            bounds.right + 1,
+            Math.min(bounds.right + 1, columnCount - 1),
             isHiddenColumn,
             direction
           );
@@ -573,7 +603,7 @@ const useEditable = ({
           break;
         }
         case Direction.Up:
-          let rowIndex = clampIndex(bounds.top - 1, isHiddenRow, direction);
+          let rowIndex = clampIndex(Math.max(bounds.top - 1, selectionTopBound), isHiddenRow, direction);
           nextActiveCell = {
             rowIndex,
             columnIndex: bounds.left,
@@ -582,21 +612,24 @@ const useEditable = ({
 
         case Direction.Left: {
           let columnIndex = clampIndex(
-            bounds.left - 1,
+            Math.max(bounds.left - 1, selectionLeftBound),
             isHiddenColumn,
             direction
           );
           nextActiveCell = {
             rowIndex: bounds.top,
             columnIndex,
-          };
+          };          
           break;
         }
 
         default: {
           // Down
           let rowIndex = clampIndex(
-            (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
+            Math.min(
+              (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
+              columnCount - 1
+            ),
             isHiddenRow,
             direction
           );

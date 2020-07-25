@@ -641,6 +641,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       isHiddenRow,
       isHiddenColumn,
       mergedCells,
+      getValue: getValueText,
       mouseDownInterceptor: handleMouseDownSelection,
       mouseMoveInterceptor: handleMouseMoveSelection,
       canSelectionSpanMergedCells: (start, end) => {
@@ -913,6 +914,10 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       gridRef,
       selections,
       activeCell,
+      rowCount,
+      columnCount,
+      selectionTopBound,
+      selectionLeftBound,
       onSubmit: handleSubmit,
       getValue: getValueText,
       onChange: onActiveCellValueChange,

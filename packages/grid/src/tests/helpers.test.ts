@@ -5,8 +5,11 @@ import {
   getBoundedCells,
   cellIdentifier,
   extendAreaToMergedCells,
-  areaIntersects
+  areaIntersects,
+  findNextContentfulCell,
+  findLastContentfulCell
 } from "../helpers";
+import { Direction } from "../types";
 
 describe("getBoundedCells", () => {
   it("returns empty for undefined area", () => {
@@ -148,3 +151,82 @@ describe("areaIntersects", () => {
     expect(areaIntersects(area1, area2)).toBeTruthy();
   });
 });
+
+describe('findNextContentfulCell', () => {
+  let activeCell, cell
+  it('returns last cell if no contentful cell is found', () => {
+    activeCell = { rowIndex: 1, columnIndex: 2}
+    const getValue = () => null
+    cell = findNextContentfulCell(activeCell, getValue, undefined, Direction.Down, 20)
+    expect(cell.rowIndex).toBe(20)
+
+    activeCell = { rowIndex: 10, columnIndex: 2}
+    cell = findNextContentfulCell(activeCell, getValue, undefined, Direction.Up, 1)
+    expect(cell.rowIndex).toBe(1)
+
+    activeCell = { rowIndex: 10, columnIndex: 5}
+    cell = findNextContentfulCell(activeCell, getValue, undefined, Direction.Left, 1)
+    expect(cell.columnIndex).toBe(1)
+
+    activeCell = { rowIndex: 10, columnIndex: 5}
+    cell = findNextContentfulCell(activeCell, getValue, undefined, Direction.Right, 100)
+    expect(cell.columnIndex).toBe(100)
+  })
+
+  it('returns next cell with content', () => {
+    activeCell = { rowIndex: 1, columnIndex: 2}
+    const getValue = (cell) => {
+      if (cell.rowIndex == 5) return 'hello'
+      return null
+    }
+    cell = findNextContentfulCell(activeCell, getValue, undefined, Direction.Down, 20)
+    expect(cell.rowIndex).toBe(5)
+  })
+})
+
+describe('findLastContentfulCell', () => {
+  let activeCell, cell
+  it('returns last cell if no contentful cell is found', () => {
+    activeCell = { rowIndex: 1, columnIndex: 2}
+    let getValue = (cell) => {
+      if (cell.rowIndex === 5) return null;
+      return 'hello'
+    }
+    cell = findLastContentfulCell(activeCell, getValue, undefined, Direction.Down, 20)
+    expect(cell.rowIndex).toBe(4)
+
+    activeCell = { rowIndex: 20, columnIndex: 2}
+    getValue = (cell) => {
+      if (cell.rowIndex === 5) return null;
+      return 'hello'
+    }
+    cell = findLastContentfulCell(activeCell, getValue, undefined, Direction.Up, 1)
+    expect(cell.rowIndex).toBe(6)
+
+    activeCell = { rowIndex: 1, columnIndex: 2}
+    getValue = (cell) => {
+      if (cell.columnIndex === 5) return null;
+      return 'hello'
+    }
+    cell = findLastContentfulCell(activeCell, getValue, undefined, Direction.Right, 10)
+    expect(cell.columnIndex).toBe(4)
+
+    activeCell = { rowIndex: 1, columnIndex: 20}
+    getValue = (cell) => {
+      if (cell.columnIndex === 5) return null;
+      return 'hello'
+    }
+    cell = findLastContentfulCell(activeCell, getValue, undefined, Direction.Left, 1)
+    expect(cell.columnIndex).toBe(6)
+  })
+
+  it('returns same cell if its already in the edge', () => {
+    const activeCell = { rowIndex: 1, columnIndex: 2}
+    const getValue = (cell) => {
+      if (cell.rowIndex === 5) return 'hello'
+      return null
+    }
+    const cell = findLastContentfulCell(activeCell, getValue, undefined, Direction.Down, 20)
+    expect(cell.rowIndex).toBe(1)
+  })
+})

@@ -15,6 +15,7 @@ import {
   isEqualCells,
   clampIndex,
   HiddenType,
+  findNextCellInDataRegion,
 } from "./../helpers";
 import {
   KeyCodes,
@@ -116,6 +117,10 @@ export interface UseSelectionOptions {
    * Selection policy
    */
   selectionPolicy?: SelectionPolicy;
+  /**
+   * Value getter
+   */
+  getValue: (cell: CellInterface) => React.ReactText | undefined;
 }
 
 export interface SelectionResults {
@@ -210,6 +215,7 @@ const useSelection = ({
   mouseMoveInterceptor,
   mergedCells = [],
   canSelectionSpanMergedCells = defaultSelectionSpan,
+  getValue,
 }: UseSelectionOptions): SelectionResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -621,9 +627,10 @@ const useSelection = ({
       )
         return;
 
-      var { rowIndex, columnIndex } = modify
+      const currentCell = modify
         ? selectionEnd.current
         : activeCell;
+      var { rowIndex, columnIndex } = currentCell
       const isMergedCell = gridRef?.current.isMergedCell({
         rowIndex,
         columnIndex,
@@ -644,7 +651,9 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           // TODO: Scroll to last contentful cell
-          if (metaKeyPressed) rowIndex = selectionTopBound;
+          if (metaKeyPressed) {
+            rowIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenRow, direction, selectionTopBound)
+          }
           break;
 
         case Direction.Down:
@@ -655,7 +664,9 @@ const useSelection = ({
             direction
           );
           // Shift + Ctrl/Commmand
-          if (metaKeyPressed) rowIndex = selectionBottomBound;
+          if (metaKeyPressed) {
+            rowIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenRow, direction, selectionBottomBound)
+          }
           break;
 
         case Direction.Left:
@@ -666,7 +677,9 @@ const useSelection = ({
             direction
           );
           // Shift + Ctrl/Commmand
-          if (metaKeyPressed) columnIndex = selectionLeftBound;
+          if (metaKeyPressed) {
+            columnIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenColumn, direction, selectionLeftBound)
+          }
           break;
 
         case Direction.Right:
@@ -677,7 +690,9 @@ const useSelection = ({
             direction
           );
           // Shift + Ctrl/Commmand
-          if (metaKeyPressed) columnIndex = selectionRightBound;
+          if (metaKeyPressed) {
+            columnIndex = findNextCellInDataRegion(currentCell, getValue, isHiddenColumn, direction, selectionRightBound)
+          }
           break;
       }
 
