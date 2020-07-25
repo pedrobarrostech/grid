@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, memo } from "react";
 import {
   MdUndo,
   MdRedo,
@@ -75,15 +75,12 @@ import {
   AVAILABLE_CURRENCY_FORMATS,
   FORMAT_PERCENT,
   FORMAT_CURRENCY,
-  FORMAT_DEFAULT_DECIMAL,
   changeDecimals,
   SCALE_VALUES,
 } from "./../constants";
 import {
   FORMATTING_TYPE,
   CellFormatting,
-  VERTICAL_ALIGNMENT,
-  HORIZONTAL_ALIGNMENT,
   BORDER_VARIANT,
   BORDER_STYLE,
 } from "./../types";
@@ -251,7 +248,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   );
 };
 
-const Toolbar: React.FC<ToolbarProps> = (props) => {
+const Toolbar: React.FC<ToolbarProps> = memo((props) => {
   const {
     bold,
     italic,
@@ -263,8 +260,6 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     horizontalAlign,
     onFormattingChange,
     onClearFormatting,
-    percent,
-    currency,
     onMergeCells,
     onFrozenColumnChange,
     onFrozenRowChange,
@@ -1252,7 +1247,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
       </Flex>
     </StyledToolbar>
   );
-};
+});
 
 export interface BorderProps {
   iconColor: string;

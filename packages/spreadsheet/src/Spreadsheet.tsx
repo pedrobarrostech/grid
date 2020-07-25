@@ -716,55 +716,21 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Change formatting to auto
      */
     const handleFormattingChangeAuto = useCallback(() => {
-      const sheet = sheets.find((sheet) => sheet.id === selectedSheet);
-      if (sheet) {
-        const { selections, activeCell } = sheet;
-        const sel = selections.length
-          ? selections
-          : activeCell
-          ? [
-              {
-                bounds: currentGrid.current?.getCellBounds?.(
-                  activeCell
-                ) as AreaProps,
-              },
-            ]
-          : [];
-        dispatch({
-          type: ACTION_TYPE.FORMATTING_CHANGE_AUTO,
-          id: selectedSheet,
-          selections: sel,
-          activeCell,
-        });
-      }
-    }, [selectedSheet, sheets]);
+      dispatch({
+        type: ACTION_TYPE.FORMATTING_CHANGE_AUTO,
+        id: selectedSheet,
+      });
+    }, [selectedSheet]);
 
     /**
      * Change formatting to plain
      */
     const handleFormattingChangePlain = useCallback(() => {
-      const sheet = sheets.find((sheet) => sheet.id === selectedSheet);
-      if (sheet) {
-        const { selections, activeCell } = sheet;
-        const sel = selections.length
-          ? selections
-          : activeCell
-          ? [
-              {
-                bounds: currentGrid.current?.getCellBounds?.(
-                  activeCell
-                ) as AreaProps,
-              },
-            ]
-          : [];
-        dispatch({
-          type: ACTION_TYPE.FORMATTING_CHANGE_PLAIN,
-          id: selectedSheet,
-          selections: sel,
-          activeCell,
-        });
-      }
-    }, [selectedSheet, sheets]);
+      dispatch({
+        type: ACTION_TYPE.FORMATTING_CHANGE_PLAIN,
+        id: selectedSheet,
+      });
+    }, [selectedSheet]);
 
     /**
      * When cell or selection formatting change
@@ -778,7 +744,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           value,
         });
       },
-      [selectedSheet, sheets]
+      [selectedSheet]
     );
 
     const handleActiveCellChange = useCallback(
@@ -918,7 +884,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.CLEAR_FORMATTING,
         id: selectedSheet,
       });
-    }, [sheets, selectedSheet]);
+    }, [selectedSheet]);
 
     const handleResize = useCallback(
       (id: SheetID, axis: AXIS, index: number, dimension: number) => {
@@ -946,7 +912,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.MERGE_CELLS,
         id: selectedSheet,
       });
-    }, [selectedSheet, sheets]);
+    }, [selectedSheet]);
 
     const handleFrozenRowChange = useCallback(
       (count) => {

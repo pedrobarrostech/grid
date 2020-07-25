@@ -141,15 +141,11 @@ export type ActionTypes =
   | {
       type: ACTION_TYPE.FORMATTING_CHANGE_AUTO;
       id: SheetID;
-      selections: SelectionArea[];
-      activeCell: CellInterface | null;
       undoable?: boolean;
     }
   | {
       type: ACTION_TYPE.FORMATTING_CHANGE_PLAIN;
       id: SheetID;
-      selections: SelectionArea[];
-      activeCell: CellInterface | null;
       undoable?: boolean;
     }
   | {
@@ -363,7 +359,7 @@ export const createStateReducer = ({
                   ? Direction.Up
                   : fillBounds.left < sel.bounds.left
                   ? Direction.Left
-                  : Direction.Right;              
+                  : Direction.Right;
               if (direction === Direction.Down) {
                 const start = sel.bounds.bottom + 1;
                 const end = fillBounds.bottom;
@@ -469,8 +465,18 @@ export const createStateReducer = ({
             ) as Sheet;
             const { selections } = action;
             if (sheet) {
-              for (let i = 0; i < selections.length; i++) {
-                const { bounds } = selections[i];
+              const { activeCell, selections } = sheet;
+              const sel = selections.length
+                ? selections
+                : activeCell
+                ? [
+                    {
+                      bounds: getCellBounds?.(activeCell) as AreaProps,
+                    },
+                  ]
+                : [];
+              for (let i = 0; i < sel.length; i++) {
+                const { bounds } = sel[i];
                 if (!bounds) continue;
                 for (let j = bounds.top; j <= bounds.bottom; j++) {
                   for (let k = bounds.left; k <= bounds.right; k++) {
@@ -486,10 +492,19 @@ export const createStateReducer = ({
             const sheet = draft.sheets.find(
               (sheet) => sheet.id === action.id
             ) as Sheet;
-            const { selections } = action;
             if (sheet) {
-              for (let i = 0; i < selections.length; i++) {
-                const { bounds } = selections[i];
+              const { activeCell, selections } = sheet;
+              const sel = selections.length
+                ? selections
+                : activeCell
+                ? [
+                    {
+                      bounds: getCellBounds?.(activeCell) as AreaProps,
+                    },
+                  ]
+                : [];
+              for (let i = 0; i < sel.length; i++) {
+                const { bounds } = sel[i];
                 if (!bounds) continue;
                 for (let j = bounds.top; j <= bounds.bottom; j++) {
                   sheet.cells[j] = sheet.cells[j] ?? {};

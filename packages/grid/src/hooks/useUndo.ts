@@ -56,29 +56,29 @@ const useUndo = <T>(props: UndoProps = {}): UndoManager => {
     []
   );
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (undoStackPointer.current < 0) return;
     const patches = undoStack.current[undoStackPointer.current].inversePatches;
     undoStackPointer.current--;
     onUndo && onUndo(patches);
     forceRender();
-  };
+  }, []);
 
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     if (undoStackPointer.current === undoStack.current.length - 1) return;
     undoStackPointer.current++;
     const patches = undoStack.current[undoStackPointer.current].patches;
     onRedo && onRedo(patches);
     forceRender();
-  };
+  }, []);
 
-  const addUndoable = (history: PatchInterface<T>) => {
+  const addUndoable = useCallback((history: PatchInterface<T>) => {
     const { patches, inversePatches } = history;
     const pointer = ++undoStackPointer.current;
     undoStack.current.length = pointer;
     undoStack.current[pointer] = { patches, inversePatches };
     forceRender();
-  };
+  }, []);
 
   return {
     undo: handleUndo,
