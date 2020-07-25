@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import { RendererProps, isNull, CellInterface } from "@rowsncolumns/grid";
+import { RendererProps, isNull, CellInterface, Image } from "@rowsncolumns/grid";
 import {
   DARK_MODE_COLOR_LIGHT,
   luminance,
@@ -138,6 +138,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     checked,
     onCheck,
     error,
+    image,
   } = props;
   const isBoolean = validatorType === "boolean";
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
@@ -236,6 +237,10 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           rotation={rotation}
         />
       ) : null}
+      {image
+        ? <Image x={x} y={y} spacing={1} width={width} height={height} url={image} />
+        : null
+      }
       {showFilter ? (
         <FilterIcon
           isActive={isFilterActive}
@@ -257,7 +262,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           height={height}
           width={width}
         />
-      ) : null}
+      ) : null}      
       {showTag ? (
         <ErrorTag
           color={isInValid ? INVALID_COLOR : ERROR_COLOR}

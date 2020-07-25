@@ -564,6 +564,7 @@ export const createStateReducer = ({
                     for (let j = bounds.left; j <= bounds.right; j++) {
                       if (sheet.cells[i][j] === void 0) continue;
                       sheet.cells[i][j].text = "";
+                      delete sheet.cells[i][j]?.image
                     }
                   }
                 });
@@ -571,6 +572,7 @@ export const createStateReducer = ({
                 const { rowIndex, columnIndex } = activeCell;
                 if (sheet.cells?.[rowIndex]?.[columnIndex]) {
                   sheet.cells[rowIndex][columnIndex].text = "";
+                  delete sheet.cells[rowIndex][columnIndex]?.image
                 }
               }
             }

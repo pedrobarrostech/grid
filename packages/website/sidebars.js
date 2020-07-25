@@ -14,6 +14,7 @@ module.exports = {
       "features/sheets",
       "features/custom_formatting",
       "features/custom_validations",
+      "features/images",
       "features/tabstrip",
       "features/statusbar",
       "features/gridlines",

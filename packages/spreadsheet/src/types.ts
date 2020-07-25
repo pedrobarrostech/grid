@@ -125,6 +125,7 @@ export interface CellFormatting extends CellDataFormatting {
   rotation?: number;
   dataValidation?: DataValidation;
   hyperlink?: string;
+  image?: string;
   /* Allow any arbitrary values */
   [key: string]: any;
 }

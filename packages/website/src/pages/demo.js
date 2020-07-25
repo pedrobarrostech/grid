@@ -23,6 +23,9 @@ const initialState = [
         bottom: 3,
       },
     ],
+    rowSizes: {
+      12: 60
+    },
     cells: {
       2: {
         2: {
@@ -211,6 +214,11 @@ const initialState = [
           hyperlink: "http://google.com",
         },
       },
+      12: {
+        2: {
+          image: 'https://konvajs.github.io/assets/yoda.jpg',
+        }
+      }
     },
     filterViews: [
       {
