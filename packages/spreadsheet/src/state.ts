@@ -463,7 +463,6 @@ export const createStateReducer = ({
             const sheet = draft.sheets.find(
               (sheet) => sheet.id === action.id
             ) as Sheet;
-            const { selections } = action;
             if (sheet) {
               const { activeCell, selections } = sheet;
               const sel = selections.length
