@@ -363,7 +363,7 @@ export const createStateReducer = ({
                   ? Direction.Up
                   : fillBounds.left < sel.bounds.left
                   ? Direction.Left
-                  : Direction.Right;
+                  : Direction.Right;              
               if (direction === Direction.Down) {
                 const start = sel.bounds.bottom + 1;
                 const end = fillBounds.bottom;
@@ -395,7 +395,7 @@ export const createStateReducer = ({
                   for (let j = sel.bounds.left; j <= sel.bounds.right; j++) {
                     sheet.cells[i][j] = sheet.cells[curSelRowIndex][j];
                   }
-                  counter++;
+                  counter--;
                 }
               }
               if (direction === Direction.Left) {
