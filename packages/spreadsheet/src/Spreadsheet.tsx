@@ -236,6 +236,12 @@ export interface SpreadSheetProps {
     cell: CellInterface,
     cellConfig: CellConfig | undefined
   ) => Promise<ValidationResponse>;
+  /**
+   * By default, all keydown listeners are bound to the grid.
+   * If you want to bind listeners to `document` for events such as undo/redo,
+   * Toggle this to true
+   */
+  enableGlobalKeyHandlers?: boolean;
   // TODO
   // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
@@ -373,6 +379,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       snap = false,
       stateReducer,
       onValidate = validate,
+      enableGlobalKeyHandlers = false,
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -402,6 +409,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       redo,
       onKeyDown: onUndoKeyDown,
     } = useUndo<Patch[]>({
+      enableGlobalKeyHandlers,
       onUndo: (patches) => {
         /* Side-effects */
         beforeUndoRedo(patches);
@@ -418,6 +426,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (lastSelectionsRef.current) {
           currentGrid.current?.setSelections(lastSelectionsRef.current);
         }
+        /* Focus on the grid */
+        if (enableGlobalKeyHandlers) currentGrid.current?.focus();
       },
       onRedo: (patches) => {
         /* Side-effects */
@@ -441,6 +451,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (selectionsPatch) {
           currentGrid.current?.setSelections(selectionsPatch.value);
         }
+
+        /* Focus on the grid */
+        if (enableGlobalKeyHandlers) currentGrid.current?.focus();
       },
     });
 

@@ -1,5 +1,6 @@
 import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { KeyCodes } from "../types";
+import { focusableNodeNames } from "../helpers";
 
 /**
  * Spec: https://tools.ietf.org/html/rfc6902
@@ -12,7 +13,7 @@ import { KeyCodes } from "../types";
  */
 
 export interface UndoProps {
-  id?: number;
+  enableGlobalKeyHandlers?: boolean;
   onRedo?: (patches: any) => void;
   onUndo?: (patches: any) => void;
 }
@@ -23,7 +24,7 @@ export interface UndoManager {
   add: (patches: any) => void;
   canUndo: boolean;
   canRedo: boolean;
-  onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export interface PatchInterface<T> {
@@ -36,13 +37,26 @@ export interface PatchInterface<T> {
  * @param
  */
 const useUndo = <T>(props: UndoProps = {}): UndoManager => {
-  const { onRedo, onUndo } = props;
+  const { enableGlobalKeyHandlers, onRedo, onUndo } = props;
   const undoStack = useRef<PatchInterface<T>[]>([]);
   const undoStackPointer = useRef<number>(-1);
   const [_, forceRender] = useReducer((s) => s + 1, 0);
 
+  useEffect(() => {
+    if (enableGlobalKeyHandlers)
+      document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [enableGlobalKeyHandlers]);
+
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+    (e: React.KeyboardEvent<HTMLElement> | globalThis.KeyboardEvent) => {
+      /* Is user focused on an input, textarea or select element */
+      if (
+        document.activeElement &&
+        focusableNodeNames.has(document.activeElement?.nodeName)
+      ) {
+        return;
+      }
       const isMeta = e.metaKey || e.ctrlKey;
       const isUndo = isMeta && e.which === KeyCodes.Z;
       const isRedo = (e.shiftKey && isUndo) || e.which === KeyCodes.KEY_Y;
@@ -84,7 +98,7 @@ const useUndo = <T>(props: UndoProps = {}): UndoManager => {
     undo: handleUndo,
     redo: handleRedo,
     add: addUndoable,
-    onKeyDown: handleKeyDown,
+    onKeyDown: enableGlobalKeyHandlers ? undefined : handleKeyDown,
     canUndo: !(undoStackPointer.current < 0),
     canRedo: !(undoStackPointer.current === undoStack.current.length - 1),
   };

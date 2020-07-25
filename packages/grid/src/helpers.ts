@@ -1223,3 +1223,6 @@ export const findNextCellInDataRegion = (
     }
   }
 };
+
+/* Focusable node names */
+export const focusableNodeNames = new Set(["INPUT", "TEXTAREA", "SELECT"]);

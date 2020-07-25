@@ -380,3 +380,7 @@ Custom Cell Editor
 ## `enableDarkMode?: true;`
 
 Enable or disable dark mode support
+
+## `enableGlobalKeyHandlers?: boolean`
+
+Enable global key handlers for undo, redo events
