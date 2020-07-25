@@ -650,8 +650,13 @@ const useSelection = ({
           // Shift + Ctrl/Commmand
           // TODO: Scroll to last contentful cell
           if (metaKeyPressed) {
+            const startCell = {
+              ...currentCell,
+              // Expand from the starting cell
+              columnIndex: selectionStart.current.columnIndex,
+            };
             rowIndex = findNextCellInDataRegion(
-              currentCell,
+              startCell,
               getValue,
               isHiddenRow,
               direction,
@@ -669,8 +674,13 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           if (metaKeyPressed) {
+            const startCell = {
+              ...currentCell,
+              // Expand from the starting cell
+              columnIndex: selectionStart.current.columnIndex,
+            };
             rowIndex = findNextCellInDataRegion(
-              currentCell,
+              startCell,
               getValue,
               isHiddenRow,
               direction,
@@ -688,8 +698,13 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           if (metaKeyPressed) {
+            const startCell = {
+              ...currentCell,
+              // Expand from the starting cell
+              rowIndex: selectionStart.current.rowIndex,
+            };
             columnIndex = findNextCellInDataRegion(
-              currentCell,
+              startCell,
               getValue,
               isHiddenColumn,
               direction,
@@ -707,8 +722,13 @@ const useSelection = ({
           );
           // Shift + Ctrl/Commmand
           if (metaKeyPressed) {
+            const startCell = {
+              ...currentCell,
+              // Expand from the starting cell
+              rowIndex: selectionStart.current.rowIndex,
+            };
             columnIndex = findNextCellInDataRegion(
-              currentCell,
+              startCell,
               getValue,
               isHiddenColumn,
               direction,
