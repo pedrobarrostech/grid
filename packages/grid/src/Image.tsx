@@ -17,8 +17,8 @@ const ImageComponent: React.FC<ImageProps> = (props) => {
   x = x + spacing
   y = y + spacing
   
-  width = Math.min(imageWidth, (aspectRatio * imageWidth))
-  height = Math.min(imageHeight, aspectRatio * imageHeight))
+  width = Math.min(imageWidth, aspectRatio * imageWidth)
+  height = Math.min(imageHeight, aspectRatio * imageHeight)
   if (status !== 'loaded') {
     return null
   }
