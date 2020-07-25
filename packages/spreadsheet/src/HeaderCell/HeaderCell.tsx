@@ -65,13 +65,16 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       draggable
       strokeScaleEnabled={false}
       shadowForStrokeEnable={false}
-      hitStrokeWidth={10}
+      hitStrokeWidth={5}
       onMouseDown={(e) => e.evt.stopPropagation()}
       dragBoundFunc={(pos) => {
+        /* Set min bounds for x and y axes */
+        const _x = axis === AXIS.Y ? 0 : Math.max(parentX, pos.x)
+        const _y = axis === AXIS.X ? 0 : Math.max(parentY, pos.y)
         return {
-          ...pos,
-          ...(axis === AXIS.X ? { y: 0 } : { x: 0 }),
-        };
+          x: _x,
+          y: _y
+        }
       }}
       onDragMove={(e) => {
         const node = e.target;
