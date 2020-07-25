@@ -977,7 +977,7 @@ const useSelection = ({
           if (isMetaKey) {
             selectAll();
           }
-          e.preventDefault()
+          e.preventDefault();
           break;
 
         case KeyCodes.Home:

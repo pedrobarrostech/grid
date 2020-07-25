@@ -69,12 +69,12 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       onMouseDown={(e) => e.evt.stopPropagation()}
       dragBoundFunc={(pos) => {
         /* Set min bounds for x and y axes */
-        const _x = axis === AXIS.Y ? 0 : Math.max(parentX, pos.x)
-        const _y = axis === AXIS.X ? 0 : Math.max(parentY, pos.y)
+        const _x = axis === AXIS.Y ? 0 : Math.max(parentX, pos.x);
+        const _y = axis === AXIS.X ? 0 : Math.max(parentY, pos.y);
         return {
           x: _x,
-          y: _y
-        }
+          y: _y,
+        };
       }}
       onDragMove={(e) => {
         const node = e.target;
