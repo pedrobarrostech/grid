@@ -1,3 +1,3 @@
-import { Image } from '@rowsncolumns/grid'
+import { Image } from "@rowsncolumns/grid";
 
-export default Image
+export default Image;

@@ -1,58 +1,57 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from "react";
 
 export interface UseImageProps {
-  url: string
-  crossOrigin?: string
+  url: string;
+  crossOrigin?: string;
 }
 
 export interface UseImageResults {
-  image?: HTMLImageElement,
+  image?: HTMLImageElement;
   width: number;
   height: number;
-  status: string
+  status: string;
 }
 
 const useImage = ({ url, crossOrigin }: UseImageProps) => {
-  const [ state , setState ] = useState<UseImageResults>(() => ({
+  const [state, setState] = useState<UseImageResults>(() => ({
     image: undefined,
-    status: 'loading',
+    status: "loading",
     width: 0,
     height: 0,
-  }))
+  }));
 
   useEffect(() => {
-    if (!url) return
-    var img = new Image()
+    if (!url) return;
+    var img = new Image();
 
-    function onload () {
+    function onload() {
       setState({
         image: img,
         height: img.height,
         width: img.width,
-        status: 'loaded'
-      })
+        status: "loaded",
+      });
     }
-    function onerror () {
-      setState(prev => ({
+    function onerror() {
+      setState((prev) => ({
         ...prev,
         image: undefined,
-        status: 'failed'
-      }))
+        status: "failed",
+      }));
     }
-    img.addEventListener('load', onload)
-    img.addEventListener('error', onerror)
+    img.addEventListener("load", onload);
+    img.addEventListener("error", onerror);
 
-    crossOrigin && (img.crossOrigin = crossOrigin)
-    img.src = url
+    crossOrigin && (img.crossOrigin = crossOrigin);
+    img.src = url;
 
     return () => {
-      img.removeEventListener('load', onload);
-      img.removeEventListener('error', onerror);
-    }
+      img.removeEventListener("load", onload);
+      img.removeEventListener("error", onerror);
+    };
+  }, [url, crossOrigin]);
 
-  }, [ url, crossOrigin ])
+  return state;
+};
 
-  return state
-}
-
-export default useImage
+export default useImage;
