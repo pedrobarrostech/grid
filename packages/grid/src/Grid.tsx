@@ -914,12 +914,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           (direction === Direction.Left ? -1 : 1) * columnWidth;
       }
     }, []);
-    const snapToRowThrottler = useRef(
-      throttle(snapToRowFn, scrollThrottleTimeout)
-    );
-    const snapToColumnThrottler = useRef(
-      throttle(snapToColumnFn, scrollThrottleTimeout)
-    );
+    const snapToRowThrottler = useRef<({ deltaY }: SnapRowProps) => void>();
+    const snapToColumnThrottler = useRef<
+      ({ deltaX }: SnapColumnProps) => void
+    >();
+
+    useEffect(() => {
+      snapToRowThrottler.current = throttle(snapToRowFn, scrollThrottleTimeout);
+      snapToColumnThrottler.current = throttle(
+        snapToColumnFn,
+        scrollThrottleTimeout
+      );
+    }, []);
 
     /* Find frozen column boundary */
     const frozenColumnWidth = getColumnOffset({
@@ -1375,10 +1381,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       /* If snaps are active */
 
       if (snap) {
-        snapToRowThrottler.current({
+        snapToRowThrottler.current?.({
           deltaY,
         });
-        snapToColumnThrottler.current({
+        snapToColumnThrottler.current?.({
           deltaX,
         });
         return;
