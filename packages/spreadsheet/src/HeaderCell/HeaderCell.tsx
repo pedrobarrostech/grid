@@ -39,6 +39,7 @@ interface DraggableRectProps
   parentX: number;
   parentY: number;
   showResizer?: boolean;
+  scale?: number;
 }
 const DRAG_HANDLE_WIDTH = 5;
 const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
@@ -54,6 +55,8 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
     parentX = 0,
     parentY = 0,
     showResizer,
+    scale = 1,
+    ...rest
   } = props;
   const index = useMemo(() => (axis === AXIS.X ? columnIndex : rowIndex), [
     axis,
@@ -83,7 +86,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
             ? node.x() - parentX + DRAG_HANDLE_WIDTH
             : node.y() - parentY + DRAG_HANDLE_WIDTH;
 
-        onResize?.(axis, index, dimension);
+        onResize?.(axis, index, dimension / scale);
       }}
       onTouchStart={(e) => {
         e.evt.stopPropagation();
@@ -92,7 +95,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       y={y}
       width={width}
       height={height}
-      {...props}
+      {...rest}
     />
   );
 });
@@ -180,6 +183,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
           showResizer={showResizer}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          scale={scale}
         />
       ) : null}
     </Cell>

@@ -269,7 +269,7 @@ export const getItemMetadata = ({
       // Only recalculates specified columns
       let size = recalcWithinBoundsOnly
         ? recalcIndices.includes(i)
-          ? itemSize(i)
+          ? itemSize(i) * scale
           : itemMetadataMap[i]?.size || itemSize(i) * scale
         : itemSize(i) * scale;
 
