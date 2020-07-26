@@ -919,13 +919,25 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       ({ deltaX }: SnapColumnProps) => void
     >();
 
+    /**
+     * Register snap throttlers
+     */
     useEffect(() => {
-      snapToRowThrottler.current = throttle(snapToRowFn, scrollThrottleTimeout);
-      snapToColumnThrottler.current = throttle(
-        snapToColumnFn,
-        scrollThrottleTimeout
-      );
-    }, []);
+      if (snap) {
+        snapToRowThrottler.current = throttle(
+          snapToRowFn,
+          scrollThrottleTimeout
+        );
+        snapToColumnThrottler.current = throttle(
+          snapToColumnFn,
+          scrollThrottleTimeout
+        );
+      }
+      return () => {
+        snapToRowThrottler.current = undefined;
+        snapToColumnThrottler.current = undefined;
+      };
+    }, [snap]);
 
     /* Find frozen column boundary */
     const frozenColumnWidth = getColumnOffset({
