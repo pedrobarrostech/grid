@@ -478,7 +478,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       overlayRenderer = defaultOverlayRenderer,
       mergedCells = EMPTY_ARRAY as AreaProps[],
       snap = false,
-      scrollThrottleTimeout = 100,
+      scrollThrottleTimeout = 80,
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
       onBeforeRenderRow,
@@ -1390,24 +1390,28 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       /* Prevent browser back in Mac */
       event.preventDefault();
       const { deltaX, deltaY, deltaMode } = event;
-      /* If snaps are active */
-
-      if (snap) {
-        snapToRowThrottler.current?.({
-          deltaY,
-        });
-        snapToColumnThrottler.current?.({
-          deltaX,
-        });
-        return;
-      }
       /* Scroll natively */
       if (wheelingRef.current) return;
+
       let dx = deltaX;
       let dy = deltaY;
 
       /* Scroll only in one direction */
       const isHorizontal = Math.abs(dx) > Math.abs(dy);
+
+      /* If snaps are active */
+      if (snap) {
+        if (isHorizontal) {
+          snapToColumnThrottler.current?.({
+            deltaX,
+          });
+        } else {
+          snapToRowThrottler.current?.({
+            deltaY,
+          });
+        }
+        return;
+      }
 
       if (deltaMode === 1) {
         dy = dy * scrollbarSize;
