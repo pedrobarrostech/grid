@@ -1061,7 +1061,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         const isRowHeader = isCellRowHeader(rowIndex);
         const isColumnHeader = isCellColumnHeader(columnIndex);
         if (isRowHeader || isColumnHeader) return false;
-        return cells?.[rowIndex]?.[columnIndex] === void 0;
+        return getValue({ rowIndex, columnIndex }) === void 0;
       },
       [getValue, selectionMode, selectedRowsAndCols]
     );
