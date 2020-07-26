@@ -90,7 +90,9 @@ export enum ACTION_TYPE {
   REPLACE_SHEETS = "REPLACE_SHEETS",
   VALIDATION_SUCCESS = "VALIDATION_SUCCESS",
   SHOW_SHEET = 'SHOW_SHEET',
-  HIDE_SHEET = 'HIDE_SHEET'
+  HIDE_SHEET = 'HIDE_SHEET',
+  PROTECT_SHEET = 'PROTECT_SHEET',
+  UNPROTECT_SHEET = 'UNPROTECT_SHEET'
 }
 
 export type ActionTypes =
@@ -257,6 +259,8 @@ export type ActionTypes =
     }
   | { type: ACTION_TYPE.SHOW_SHEET; id: SheetID; undoable?: boolean; }
   | { type: ACTION_TYPE.HIDE_SHEET; id: SheetID; undoable?: boolean; }
+  | { type: ACTION_TYPE.PROTECT_SHEET; id: SheetID; undoable?: boolean; }
+  | { type: ACTION_TYPE.UNPROTECT_SHEET; id: SheetID; undoable?: boolean; }
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
@@ -944,6 +948,26 @@ export const createStateReducer = ({
             ) as Sheet;
             if (sheet) {
               sheet.hidden = false
+            }
+            break
+          }
+
+          case ACTION_TYPE.PROTECT_SHEET: {
+            const sheet = draft.sheets.find(
+              (sheet) => sheet.id === action.id
+            ) as Sheet;
+            if (sheet) {
+              sheet.locked = true
+            }
+            break
+          }
+
+          case ACTION_TYPE.UNPROTECT_SHEET: {
+            const sheet = draft.sheets.find(
+              (sheet) => sheet.id === action.id
+            ) as Sheet;
+            if (sheet) {
+              sheet.locked = false
             }
             break
           }

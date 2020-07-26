@@ -469,7 +469,7 @@ const useEditable = ({
         showEditor();
       }
     },
-    [value]
+    []
   );
 
   /**

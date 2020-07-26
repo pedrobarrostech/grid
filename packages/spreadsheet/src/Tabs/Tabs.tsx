@@ -33,6 +33,8 @@ interface TabProps
   onDuplicateSheet?: (id: SheetID) => void;
   onHideSheet?: (id: SheetID) => void;
   onShowSheet?: (id: SheetID) => void;
+  onProtectSheet?: (id: SheetID) => void;
+  onUnProtectSheet?: (id: SheetID) => void;
 }
 
 const Tabs: React.FC<TabProps> = (props) => {
@@ -48,6 +50,8 @@ const Tabs: React.FC<TabProps> = (props) => {
     allowNewSheet,
     onShowSheet,
     onHideSheet,
+    onProtectSheet,
+    onUnProtectSheet
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -153,6 +157,8 @@ const Tabs: React.FC<TabProps> = (props) => {
               onDeleteSheet={onDeleteSheet}
               onDuplicateSheet={onDuplicateSheet}
               onHideSheet={onHideSheet}
+              onProtectSheet={onProtectSheet}
+              onUnProtectSheet={onUnProtectSheet}
               locked={locked}
               canDelete={visibleSheetsLen > 1}
               canHide={visibleSheetsLen > 1}

@@ -25,6 +25,8 @@ interface TabItemProps {
   onDeleteSheet?: (id: SheetID) => void;
   onDuplicateSheet?: (id: SheetID) => void;
   onHideSheet?: (id: SheetID) => void;
+  onProtectSheet?: (id: SheetID) => void;
+  onUnProtectSheet?: (id: SheetID) => void;
   locked?: boolean;
   canDelete?: boolean;
   canHide?: boolean;
@@ -41,6 +43,8 @@ const TabItem: React.FC<TabItemProps> = ({
   onDeleteSheet,
   onDuplicateSheet,
   onHideSheet,
+  onProtectSheet,
+  onUnProtectSheet,
   locked = false,
   canHide = true,
   canDelete = true,
@@ -218,6 +222,23 @@ const TabItem: React.FC<TabItemProps> = ({
                           }}
                         >
                           Rename
+                        </Button>
+                        <Button
+                          fontWeight="normal"
+                          size="sm"
+                          variant="ghost"
+                          isFullWidth
+                          textAlign="left"
+                          background="none"
+                          justifyContent="left"
+                          borderRadius={0}
+                          onClick={(e) => {
+                            locked ? onUnProtectSheet?.(id) : onProtectSheet?.(id);
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          {locked ? 'Unprotect sheet': 'Protect sheet'}
                         </Button>
                         <Button
                           fontWeight="normal"

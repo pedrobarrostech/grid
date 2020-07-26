@@ -1221,6 +1221,20 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       })
     }, [])
 
+    const handleProtectSheet = useCallback((id: SheetID) => {
+      dispatch({
+        type: ACTION_TYPE.PROTECT_SHEET,
+        id
+      })
+    }, [])
+
+    const handleUnProtectSheet = useCallback((id: SheetID) => {
+      dispatch({
+        type: ACTION_TYPE.UNPROTECT_SHEET,
+        id
+      })
+    }, [])
+
     return (
       <>
         <Global
@@ -1334,6 +1348,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             Tooltip={Tooltip}
             onHideSheet={handleHideSheet}
             onShowSheet={handleShowSheet}
+            onProtectSheet={handleProtectSheet}
+            onUnProtectSheet={handleUnProtectSheet}
           />
         </Flex>
       </>

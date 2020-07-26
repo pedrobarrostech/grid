@@ -265,6 +265,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
+    const isLockedRef = useRef(false)
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const rowCount = initialRowCount + 1;
     const columnCount = initialColumnCount + 1;
@@ -291,6 +292,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         };
       });
     }, [filterViews]);
+
+    /* Update locked ref */
+    useEffect(() => {
+      isLockedRef.current = locked
+    }, [ locked])
 
     /* Update internal refs */
     useEffect(() => {
@@ -924,7 +930,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       getValue: getValueText,
       onChange: onActiveCellValueChange,
       canEdit: (cell: CellInterface) => {
-        if (locked) return false;
+        /* If sheet is locked */
+        if (isLockedRef.current === true) return false
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
         const isLocked = getValue(cell)?.locked;
         if (isLocked) return false;
