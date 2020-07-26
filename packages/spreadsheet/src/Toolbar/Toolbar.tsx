@@ -991,7 +991,7 @@ const Toolbar: React.FC<ToolbarProps> = memo((props) => {
                   width="auto"
                   borderColor={borderColor}
                   borderStyle="solid"
-                  placement='bottom-start'
+                  placement="bottom-start"
                 >
                   <PopoverArrow />
                   <Box display="flex">
@@ -1081,7 +1081,7 @@ const Toolbar: React.FC<ToolbarProps> = memo((props) => {
                   width="auto"
                   borderColor={borderColor}
                   borderStyle="solid"
-                  placement='bottom-start'
+                  placement="bottom-start"
                 >
                   <PopoverArrow />
                   <Box display="flex">
@@ -1166,7 +1166,7 @@ const Toolbar: React.FC<ToolbarProps> = memo((props) => {
                   width="auto"
                   borderColor={borderColor}
                   borderStyle="solid"
-                  placement='bottom-start'
+                  placement="bottom-start"
                 >
                   <PopoverArrow />
                   <Box display="flex">
