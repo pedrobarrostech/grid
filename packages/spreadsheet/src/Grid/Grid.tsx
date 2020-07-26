@@ -265,7 +265,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
-    const isLockedRef = useRef(false);
+    const isLockedRef = useRef<boolean | undefined>(false);
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const rowCount = initialRowCount + 1;
     const columnCount = initialColumnCount + 1;
