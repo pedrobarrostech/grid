@@ -130,9 +130,7 @@ const Tabs: React.FC<TabProps> = (props) => {
                     flexShrink={0}
                     visibility={isActive ? "visible" : "hidden"}
                   />
-                  <Box whiteSpace="nowrap" overflow="hidden">
-                    {name}
-                  </Box>
+                  <Box isTruncated>{name}</Box>
                 </Button>
               );
             })}
