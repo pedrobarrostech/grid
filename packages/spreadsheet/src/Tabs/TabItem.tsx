@@ -28,7 +28,7 @@ interface TabItemProps {
   locked?: boolean;
   canDelete?: boolean;
   canHide?: boolean;
-  tabColor?: string
+  tabColor?: string;
 }
 
 const TabItem: React.FC<TabItemProps> = ({
@@ -44,7 +44,7 @@ const TabItem: React.FC<TabItemProps> = ({
   locked = false,
   canHide = true,
   canDelete = true,
-  tabColor = 'transparent'
+  tabColor = "transparent",
 }) => {
   const canEditSheet = !locked;
   const canDeleteSheet = !locked && canDelete;
@@ -69,9 +69,17 @@ const TabItem: React.FC<TabItemProps> = ({
       alignItems="center"
       height={height}
       background={bg}
-      boxShadow={shadow}      
+      boxShadow={shadow}
     >
-      <Box background={tabColor} position='absolute' left={0} bottom={0} height='4px' zIndex={1} right={0} />
+      <Box
+        background={tabColor}
+        position="absolute"
+        left={0}
+        bottom={0}
+        height="4px"
+        zIndex={1}
+        right={0}
+      />
       {isEditmode ? (
         <Input
           defaultValue={name}
