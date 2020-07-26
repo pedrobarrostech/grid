@@ -40,6 +40,8 @@ interface DraggableRectProps
   parentY: number;
   showResizer?: boolean;
   scale?: number;
+  parentWidth?: number;
+  parentHeight?: number;
 }
 const DRAG_HANDLE_WIDTH = 5;
 const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
@@ -56,11 +58,15 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
     parentY = 0,
     showResizer,
     scale = 1,
+    parentWidth,
+    parentHeight,
     ...rest
   } = props;
   const index = useMemo(() => (axis === AXIS.X ? columnIndex : rowIndex), [
     axis,
   ]);
+  const dragStartPos = useRef<number>();
+  const dragStartDim = useRef<number>();
   return (
     <Rect
       perfectDrawEnabled={false}
@@ -71,8 +77,22 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       hitStrokeWidth={5}
       onMouseDown={(e) => e.evt.stopPropagation()}
       dragBoundFunc={(pos) => {
-        const _x = axis === AXIS.Y ? 0 : pos.x;
-        const _y = axis === AXIS.X ? 0 : pos.y;
+        if (dragStartPos.current === void 0 || dragStartDim.current === void 0)
+          return pos;
+        const _x =
+          axis === AXIS.Y
+            ? 0
+            : Math.max(
+                dragStartPos.current - dragStartDim.current + DRAG_HANDLE_WIDTH,
+                pos.x
+              );
+        const _y =
+          axis === AXIS.X
+            ? 0
+            : Math.max(
+                dragStartPos.current - dragStartDim.current + DRAG_HANDLE_WIDTH,
+                pos.y
+              );
         return {
           x: _x,
           y: _y,
@@ -85,10 +105,15 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
             ? node.x() - parentX + DRAG_HANDLE_WIDTH
             : node.y() - parentY + DRAG_HANDLE_WIDTH;
 
-        onResize?.(axis, index, Math.max(DRAG_HANDLE_WIDTH, dimension / scale));
+        onResize?.(axis, index, dimension / scale);
       }}
       onTouchStart={(e) => {
         e.evt.stopPropagation();
+      }}
+      onDragStart={(e) => {
+        const clientRect = e.currentTarget.getClientRect();
+        dragStartPos.current = axis === AXIS.X ? clientRect.x : clientRect.y;
+        dragStartDim.current = axis === AXIS.X ? parentWidth : parentHeight;
       }}
       x={x}
       y={y}
@@ -168,6 +193,8 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     >
       {!isCorner ? (
         <DraggableRect
+          parentWidth={width}
+          parentHeight={height}
           parentX={x}
           parentY={y}
           x={isRowHeader ? x + width - DRAG_HANDLE_WIDTH : x}
