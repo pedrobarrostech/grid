@@ -260,7 +260,7 @@ const useAutoSizer = ({
         start++;
       }
 
-      return maxWidth;
+      return maxWidth / scale;
     },
     [viewport, initialVisibleRows, frozenRows, scale]
   );
