@@ -62,7 +62,7 @@ const useCopyPaste = ({
   /* Keep selections and activeCell upto date */
   useEffect(() => {
     selectionRef.current = { selections, activeCell, getValue };
-  });
+  }, [selections, activeCell, getValue]);
 
   const currentSelections = () => {
     const sel = selectionRef.current.selections.length
@@ -135,7 +135,7 @@ const useCopyPaste = ({
       console.warn("No clipboard data to paste");
       return;
     }
-    const rows = [];
+    const rows: any[] = [];
     if (/^text\/html/.test(type)) {
       const domparser = new DOMParser();
       const doc = domparser.parseFromString(value, type as SupportedType);
@@ -171,13 +171,15 @@ const useCopyPaste = ({
       }
     }
 
-    onPaste && onPaste(rows, selectionRef.current.activeCell);
-
     /* Clear all values in cut */
     if (cutSelections.current) {
       onCut && onCut(cutSelections.current);
       cutSelections.current = null;
     }
+
+    requestAnimationFrame(
+      () => onPaste && onPaste(rows, selectionRef.current.activeCell)
+    );
   };
 
   /**
