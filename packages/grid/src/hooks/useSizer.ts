@@ -157,17 +157,17 @@ const useAutoSizer = ({
     visibleColumnStopIndex: 0,
   });
   const isMounted = useRef(false);
-  const getValueRef = useRef(getValue);
-  const viewPortRef = useRef(viewport);
-  const hiddenRowRef = useRef(isHiddenRow);
-  const debounceResizer = useRef(
-    debounce(
-      ({ rowIndex, columnIndex }: CellInterface) =>
-        gridRef.current &&
-        gridRef.current.resetAfterIndices({ rowIndex, columnIndex }),
-      timeout
-    )
+  const getValueRef = useRef<typeof getValue>();
+  const viewPortRef = useRef<typeof viewport>();
+  const hiddenRowRef = useRef<typeof isHiddenRow>(isHiddenRow);
+  const handleResize = useCallback(
+    ({ rowIndex, columnIndex }: CellInterface) => {
+      gridRef.current &&
+        gridRef.current.resetAfterIndices({ rowIndex, columnIndex });
+    },
+    []
   );
+  const debounceResizer = useRef<any>(null);
 
   useEffect(() => {
     getValueRef.current = getValue;
@@ -177,6 +177,7 @@ const useAutoSizer = ({
 
   useEffect(() => {
     isMounted.current = true;
+    debounceResizer.current = debounce(handleResize, timeout);
   }, []);
 
   /* Update any styles, fonts if necessary */
@@ -194,7 +195,7 @@ const useAutoSizer = ({
   const getCellWidth = useCallback(
     (rowIndex: number, columnIndex: number) => {
       const cellValue =
-        getValueRef.current({
+        getValueRef.current?.({
           rowIndex,
           columnIndex,
         }) ?? null;
@@ -232,7 +233,7 @@ const useAutoSizer = ({
    */
   const getColumnWidth = useCallback(
     (columnIndex: number) => {
-      const { rowStartIndex, rowStopIndex } = viewPortRef.current;
+      const { rowStartIndex = 0, rowStopIndex = 0 } = viewPortRef.current ?? {};
       const visibleRows =
         resizeStrategy === ResizeStrategy.full
           ? (rowCount as number)

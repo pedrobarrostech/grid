@@ -25,8 +25,9 @@ export interface TouchResults {
  */
 const useTouch = ({ gridRef }: TouchProps): TouchResults => {
   const scrollerRef = useRef<typeof Scroller | null>(null);
-  const isTouchDevice = useRef<boolean>(canUseDOM && "ontouchstart" in window);
+  const isTouchDevice = useRef<boolean>(false);
   useEffect(() => {
+    isTouchDevice.current = canUseDOM && "ontouchstart" in window;
     /* Update dimension */
     if (isTouchDevice.current) {
       const options = {
