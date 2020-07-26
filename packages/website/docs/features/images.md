@@ -17,7 +17,7 @@ const sheets = [
     cells: {
       2: {
         2: {
-          image: 'https://konvajs.github.io/assets/yoda.jpg',
+          image: 'https://picsum.photos/200/300',
         }
       },
     }
@@ -38,7 +38,7 @@ export const App = () => {
       cells: {
         2: {
           2: {
-            image: 'https://konvajs.github.io/assets/yoda.jpg',
+            image: 'https://picsum.photos/200/300',
           }
         },
       }
@@ -76,7 +76,7 @@ const sheets = [
     cells: {
       2: {
         2: {
-          image: 'https://konvajs.github.io/assets/yoda.jpg',
+          image: 'https://picsum.photos/200/300',
         }
       },
     }
@@ -108,7 +108,7 @@ export const ImageApp = () => {
       cells: {
         2: {
           2: {
-            image: 'https://konvajs.github.io/assets/yoda.jpg',
+            image: 'https://picsum.photos/200/300',
           }
         },
       }
