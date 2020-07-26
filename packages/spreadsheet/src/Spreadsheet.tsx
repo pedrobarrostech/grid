@@ -268,7 +268,8 @@ export interface Sheet {
   rowCount?: number;
   columnCount?: number;
   locked?: boolean;
-  hidden?: boolean
+  hidden?: boolean;
+  tabColor?: string
 }
 
 export type SheetID = React.ReactText;

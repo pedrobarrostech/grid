@@ -418,3 +418,28 @@ export const ProtectedSheet = () => {
   };
   return <App />;
 };
+
+
+export const TabColors = () => {
+  const App = () => {
+    const sheets: Sheet[] = [
+      {
+        name: "Sheet 1",
+        id: 1,
+        activeCell: null,
+        selections: [],
+        tabColor: 'red',
+        cells: {
+          1: {
+            2: {
+              datatype: "boolean",
+              type: "hello",
+            },
+          },
+        },
+      },
+    ];
+    return <Spreadsheet minHeight={600} sheets={sheets} />;
+  };
+  return <App />;
+};

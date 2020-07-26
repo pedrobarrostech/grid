@@ -139,10 +139,12 @@ const Tabs: React.FC<TabProps> = (props) => {
         {visibleSheets.map((sheet, idx) => {
           const isActive = selectedSheet === sheet.id;
           const locked = sheet.locked;
+          const tabColor = sheet.tabColor
           return (
             <TabItem
               key={idx}
               id={sheet.id}
+              tabColor={tabColor}
               name={sheet.name}
               isLight={isLight}
               onSelect={onSelect}
