@@ -411,7 +411,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           ? { ...cells[rowIndex]?.[columnIndex], bold: true }
           : cells[rowIndex]?.[columnIndex];
 
-        return rowIndex in cells ? cellConfig : void 0;
+        return cells?.[rowIndex]?.[columnIndex];
       },
       [cells, filterHeaderCells]
     );
@@ -428,7 +428,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       (cell) => {
         return getValue(cell)?.text;
       },
-      [cells]
+      [getValue]
     );
 
     /**
@@ -773,7 +773,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           (columnHasFilter(columnIndex) ? FILTER_ICON_DIM : 0);
         onResize?.(AXIS.X, columnIndex, width);
       },
-      [cells, hiddenRows, frozenRows, hiddenColumns, scale]
+      [getValue, hiddenRows, frozenRows, hiddenColumns, scale]
     );
 
     /**
@@ -1063,7 +1063,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         if (isRowHeader || isColumnHeader) return false;
         return cells?.[rowIndex]?.[columnIndex] === void 0;
       },
-      [cells, selectionMode, selectedRowsAndCols]
+      [getValue, selectionMode, selectedRowsAndCols]
     );
 
     /**
@@ -1157,7 +1157,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         );
       },
       [
-        cells,
+        getValue,
         selectedRowsAndCols,
         activeCell,
         showGridLines,
@@ -1179,7 +1179,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           ...cellConfig,
         });
       },
-      [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
+      [getValue, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
     );
 
     const handleScroll = useCallback(
@@ -1217,7 +1217,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         hideContextMenu();
         hideFilter();
       },
-      [cells, selectedSheet, activeCell, selections]
+      [getValue, selectedSheet, activeCell, selections]
     );
 
     const handleKeyDown = useCallback(
@@ -1226,7 +1226,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         eventRefs.current.editableProps.onKeyDown(e);
         onKeyDown?.(e, activeCell, selections);
       },
-      [cells, selectedSheet, activeCell, selections]
+      [getValue, selectedSheet, activeCell, selections]
     );
 
     /**

@@ -269,7 +269,7 @@ export interface Sheet {
   columnCount?: number;
   locked?: boolean;
   hidden?: boolean;
-  tabColor?: string
+  tabColor?: string;
 }
 
 export type SheetID = React.ReactText;
@@ -1210,30 +1210,30 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleShowSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.SHOW_SHEET,
-        id
-      })
-    }, [])
+        id,
+      });
+    }, []);
 
     const handleHideSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.HIDE_SHEET,
-        id
-      })
-    }, [])
+        id,
+      });
+    }, []);
 
     const handleProtectSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.PROTECT_SHEET,
-        id
-      })
-    }, [])
+        id,
+      });
+    }, []);
 
     const handleUnProtectSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.UNPROTECT_SHEET,
-        id
-      })
-    }, [])
+        id,
+      });
+    }, []);
 
     return (
       <>
@@ -1241,6 +1241,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           styles={css`
             .rowsncolumns-spreadsheet {
               font-family: ${fontFamily};
+            }
+            .rowsncolumns-spreadsheet *,
+            .rowsncolumns-spreadsheet *:before,
+            .rowsncolumns-spreadsheet *:after {
+              box-sizing: border-box;
             }
             .rowsncolumns-grid-container:focus {
               outline: none;
