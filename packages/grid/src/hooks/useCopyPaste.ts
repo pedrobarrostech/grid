@@ -25,7 +25,9 @@ export interface CopyProps {
    */
   onPaste?: (
     rows: (string | null)[][],
-    activeCell: CellInterface | null
+    activeCell: CellInterface | null,
+    /* Selection to remove */
+    selection?: SelectionArea
   ) => void;
   /**
    * When user tries to cut a selection
@@ -57,7 +59,7 @@ const useCopyPaste = ({
   onCut,
 }: CopyProps): CopyResults => {
   const selectionRef = useRef({ selections, activeCell, getValue });
-  const cutSelections = useRef<SelectionArea | null>(null);
+  const cutSelections = useRef<SelectionArea>();
 
   /* Keep selections and activeCell upto date */
   useEffect(() => {
@@ -171,15 +173,10 @@ const useCopyPaste = ({
       }
     }
 
-    /* Clear all values in cut */
-    if (cutSelections.current) {
-      onCut && onCut(cutSelections.current);
-      cutSelections.current = null;
-    }
+    onPaste &&
+      onPaste(rows, selectionRef.current.activeCell, cutSelections.current);
 
-    requestAnimationFrame(
-      () => onPaste && onPaste(rows, selectionRef.current.activeCell)
-    );
+    cutSelections.current = undefined;
   };
 
   /**

@@ -989,7 +989,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * TODO: Preserve formatting
      */
     const handlePaste = useCallback(
-      (id: SheetID, rows, activeCell: CellInterface | null) => {
+      (
+        id: SheetID,
+        rows,
+        activeCell: CellInterface | null,
+        selection?: SelectionArea
+      ) => {
         if (!activeCell) return;
         const { rowIndex, columnIndex } = activeCell;
         const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
@@ -1003,6 +1008,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id,
           rows,
           activeCell,
+          selection,
         });
 
         /* Should select */

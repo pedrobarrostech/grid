@@ -116,7 +116,8 @@ export interface GridProps {
   hiddenColumns?: number[];
   onPaste?: (
     rows: (string | null)[][],
-    activeCell: CellInterface | null
+    activeCell: CellInterface | null,
+    selection?: SelectionArea
   ) => void;
   onCut?: (selection: SelectionArea) => void;
   onInsertRow?: (

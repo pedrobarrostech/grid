@@ -78,7 +78,8 @@ export interface WorkbookProps
   onPaste?: (
     id: SheetID,
     rows: (string | null)[][],
-    activeCell: CellInterface | null
+    activeCell: CellInterface | null,
+    selection?: SelectionArea
   ) => void;
   onCut?: (id: SheetID, selection: SelectionArea) => void;
   onInsertRow?: (
@@ -246,8 +247,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       []
     );
 
-    const handlePaste = useCallback((rows, activeCell) => {
-      onPaste?.(selectedSheetRef.current, rows, activeCell);
+    const handlePaste = useCallback((rows, activeCell, cutSelections) => {
+      onPaste?.(selectedSheetRef.current, rows, activeCell, cutSelections);
     }, []);
 
     const handleCut = useCallback((selection: SelectionArea) => {

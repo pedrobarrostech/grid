@@ -89,10 +89,10 @@ export enum ACTION_TYPE {
   PASTE = "PASTE",
   REPLACE_SHEETS = "REPLACE_SHEETS",
   VALIDATION_SUCCESS = "VALIDATION_SUCCESS",
-  SHOW_SHEET = 'SHOW_SHEET',
-  HIDE_SHEET = 'HIDE_SHEET',
-  PROTECT_SHEET = 'PROTECT_SHEET',
-  UNPROTECT_SHEET = 'UNPROTECT_SHEET'
+  SHOW_SHEET = "SHOW_SHEET",
+  HIDE_SHEET = "HIDE_SHEET",
+  PROTECT_SHEET = "PROTECT_SHEET",
+  UNPROTECT_SHEET = "UNPROTECT_SHEET",
 }
 
 export type ActionTypes =
@@ -246,6 +246,7 @@ export type ActionTypes =
       id: SheetID;
       rows: (string | null)[][];
       activeCell: CellInterface;
+      selection?: SelectionArea;
       undoable?: boolean;
     }
   | { type: ACTION_TYPE.REPLACE_SHEETS; sheets: Sheet[]; undoable?: boolean }
@@ -257,10 +258,10 @@ export type ActionTypes =
       prompt?: string;
       undoable?: boolean;
     }
-  | { type: ACTION_TYPE.SHOW_SHEET; id: SheetID; undoable?: boolean; }
-  | { type: ACTION_TYPE.HIDE_SHEET; id: SheetID; undoable?: boolean; }
-  | { type: ACTION_TYPE.PROTECT_SHEET; id: SheetID; undoable?: boolean; }
-  | { type: ACTION_TYPE.UNPROTECT_SHEET; id: SheetID; undoable?: boolean; }
+  | { type: ACTION_TYPE.SHOW_SHEET; id: SheetID; undoable?: boolean }
+  | { type: ACTION_TYPE.HIDE_SHEET; id: SheetID; undoable?: boolean }
+  | { type: ACTION_TYPE.PROTECT_SHEET; id: SheetID; undoable?: boolean }
+  | { type: ACTION_TYPE.UNPROTECT_SHEET; id: SheetID; undoable?: boolean };
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
@@ -572,7 +573,7 @@ export const createStateReducer = ({
                     for (let j = bounds.left; j <= bounds.right; j++) {
                       if (sheet.cells[i][j] === void 0) continue;
                       sheet.cells[i][j].text = "";
-                      delete sheet.cells[i][j]?.image
+                      delete sheet.cells[i][j]?.image;
                     }
                   }
                 });
@@ -580,7 +581,7 @@ export const createStateReducer = ({
                 const { rowIndex, columnIndex } = activeCell;
                 if (sheet.cells?.[rowIndex]?.[columnIndex]) {
                   sheet.cells[rowIndex][columnIndex].text = "";
-                  delete sheet.cells[rowIndex][columnIndex]?.image
+                  delete sheet.cells[rowIndex][columnIndex]?.image;
                 }
               }
             }
@@ -903,7 +904,7 @@ export const createStateReducer = ({
             ) as Sheet;
             if (sheet) {
               const { selections } = sheet;
-              const { rows, activeCell } = action;
+              const { rows, activeCell, selection } = action;
               const { rowIndex, columnIndex } = activeCell;
               const { cells } = sheet;
               for (let i = 0; i < rows.length; i++) {
@@ -917,6 +918,16 @@ export const createStateReducer = ({
                   cells[r][c].text = text === null || isNull(text) ? "" : text;
                 }
               }
+              /* Remove cut selections */
+              if (selection) {
+                const { bounds } = selection;
+                for (let i = bounds.top; i <= bounds.bottom; i++) {
+                  for (let j = bounds.left; j <= bounds.right; j++) {
+                    delete sheet.cells?.[i]?.[j];
+                  }
+                }
+              }
+
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
             }
@@ -930,16 +941,17 @@ export const createStateReducer = ({
           }
 
           case ACTION_TYPE.HIDE_SHEET: {
-            const visibleSheets = draft.sheets.filter(sheet => !sheet.hidden)
-            const index = visibleSheets.findIndex((sheet) => sheet.id === action.id);
+            const visibleSheets = draft.sheets.filter((sheet) => !sheet.hidden);
+            const index = visibleSheets.findIndex(
+              (sheet) => sheet.id === action.id
+            );
             if (index !== -1) {
-              const newSelectedSheet = visibleSheets[
-                index === 0 ? 1 : Math.max(0, index - 1)
-              ].id
+              const newSelectedSheet =
+                visibleSheets[index === 0 ? 1 : Math.max(0, index - 1)].id;
               draft.selectedSheet = newSelectedSheet;
-              visibleSheets[index].hidden = true
+              visibleSheets[index].hidden = true;
             }
-            break
+            break;
           }
 
           case ACTION_TYPE.SHOW_SHEET: {
@@ -947,9 +959,9 @@ export const createStateReducer = ({
               (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
-              sheet.hidden = false
+              sheet.hidden = false;
             }
-            break
+            break;
           }
 
           case ACTION_TYPE.PROTECT_SHEET: {
@@ -957,9 +969,9 @@ export const createStateReducer = ({
               (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
-              sheet.locked = true
+              sheet.locked = true;
             }
-            break
+            break;
           }
 
           case ACTION_TYPE.UNPROTECT_SHEET: {
@@ -967,9 +979,9 @@ export const createStateReducer = ({
               (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
-              sheet.locked = false
+              sheet.locked = false;
             }
-            break
+            break;
           }
 
           case ACTION_TYPE.APPLY_PATCHES:
