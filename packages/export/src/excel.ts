@@ -155,7 +155,6 @@ export const parseExcel = async ({
       return;
     }
     const workbook = await wb.xlsx.load(buffer);
-    console.log(workbook);
 
     /* Walk each sheet */
     workbook.eachSheet((sheet) => {
