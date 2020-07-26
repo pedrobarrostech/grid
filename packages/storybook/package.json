@@ -1,7 +1,7 @@
 {
   "name": "@rowsncolumns/storybook",
   "private": true,
-  "version": "2.0.39",
+  "version": "2.0.40",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -11,8 +11,8 @@
     "postpublish": "yarn deploy-storybook"
   },
   "dependencies": {
-    "@rowsncolumns/export": "^2.0.39",
+    "@rowsncolumns/export": "^2.0.40",
     "@rowsncolumns/grid": "^4.0.29",
-    "@rowsncolumns/spreadsheet": "^2.0.39"
+    "@rowsncolumns/spreadsheet": "^2.0.40"
   }
 }
