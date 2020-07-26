@@ -71,9 +71,8 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       hitStrokeWidth={5}
       onMouseDown={(e) => e.evt.stopPropagation()}
       dragBoundFunc={(pos) => {
-        /* Set min bounds for x and y axes */
-        const _x = axis === AXIS.Y ? 0 : Math.max(parentX, pos.x);
-        const _y = axis === AXIS.X ? 0 : Math.max(parentY, pos.y);
+        const _x = axis === AXIS.Y ? 0 : pos.x;
+        const _y = axis === AXIS.X ? 0 : pos.y;
         return {
           x: _x,
           y: _y,
@@ -86,7 +85,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
             ? node.x() - parentX + DRAG_HANDLE_WIDTH
             : node.y() - parentY + DRAG_HANDLE_WIDTH;
 
-        onResize?.(axis, index, dimension / scale);
+        onResize?.(axis, index, Math.max(DRAG_HANDLE_WIDTH, dimension / scale));
       }}
       onTouchStart={(e) => {
         e.evt.stopPropagation();
