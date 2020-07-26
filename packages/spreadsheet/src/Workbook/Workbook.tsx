@@ -107,6 +107,8 @@ export interface WorkbookProps
     columnIndex: number,
     filter?: FilterDefinition
   ) => void;
+  onHideSheet?: (id: SheetID) => void;
+  onShowSheet?: (id: SheetID) => void;
   StatusBar: React.ReactType;
   scale?: number;
 }
@@ -165,6 +167,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       ContextMenu,
       Tooltip,
       snap,
+      onHideSheet,
+      onShowSheet
     } = props;
 
     const { colorMode } = useColorMode();
@@ -189,6 +193,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
       columnCount = DEFAULT_COLUMN_COUNT,
+      locked
     } = currentSheet;
 
     /* Current sheet ref */
@@ -380,6 +385,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             ContextMenu={ContextMenu}
             Tooltip={Tooltip}
             snap={snap}
+            locked={locked}
           />
         </Flex>
         {showTabStrip || showStatusBar ? (
@@ -398,6 +404,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
                   onSelect={onChangeSelectedSheet}
                   onChangeSheetName={onChangeSheetName}
                   onDeleteSheet={onDeleteSheet}
+                  onHideSheet={onHideSheet}
+                  onShowSheet={onShowSheet}
                   onDuplicateSheet={onDuplicateSheet}
                   isTabEditable={isTabEditable}
                   allowNewSheet={allowNewSheet}

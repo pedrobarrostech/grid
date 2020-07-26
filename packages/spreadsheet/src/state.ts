@@ -89,6 +89,8 @@ export enum ACTION_TYPE {
   PASTE = "PASTE",
   REPLACE_SHEETS = "REPLACE_SHEETS",
   VALIDATION_SUCCESS = "VALIDATION_SUCCESS",
+  SHOW_SHEET = 'SHOW_SHEET',
+  HIDE_SHEET = 'HIDE_SHEET'
 }
 
 export type ActionTypes =
@@ -252,7 +254,9 @@ export type ActionTypes =
       valid?: boolean;
       prompt?: string;
       undoable?: boolean;
-    };
+    }
+  | { type: ACTION_TYPE.SHOW_SHEET; id: SheetID; undoable?: boolean; }
+  | { type: ACTION_TYPE.HIDE_SHEET; id: SheetID; undoable?: boolean; }
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
@@ -919,6 +923,29 @@ export const createStateReducer = ({
             (draft.sheets as Sheet[]) = action.sheets;
             draft.selectedSheet = action.sheets[0].id;
             break;
+          }
+
+          case ACTION_TYPE.HIDE_SHEET: {
+            const visibleSheets = draft.sheets.filter(sheet => !sheet.hidden)
+            const index = visibleSheets.findIndex((sheet) => sheet.id === action.id);
+            if (index !== -1) {
+              const newSelectedSheet = visibleSheets[
+                index === 0 ? 1 : Math.max(0, index - 1)
+              ].id
+              draft.selectedSheet = newSelectedSheet;
+              visibleSheets[index].hidden = true
+            }
+            break
+          }
+
+          case ACTION_TYPE.SHOW_SHEET: {
+            const sheet = draft.sheets.find(
+              (sheet) => sheet.id === action.id
+            ) as Sheet;
+            if (sheet) {
+              sheet.hidden = false
+            }
+            break
           }
 
           case ACTION_TYPE.APPLY_PATCHES:

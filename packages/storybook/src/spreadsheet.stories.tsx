@@ -378,3 +378,43 @@ export const CustomDataType = () => {
   };
   return <App />;
 };
+
+
+export const ProtectedSheet = () => {
+  const App = () => {
+    const sheets: Sheet[] = [
+      {
+        name: "Protected sheet",
+        id: 1,
+        activeCell: null,
+        selections: [],
+        locked: true,
+        cells: {
+          1: {
+            2: {
+              datatype: "boolean",
+              type: "hello",
+            },
+          },
+        },
+      },
+      {
+        name: "Hidden sheet",
+        id: 2,
+        activeCell: null,
+        selections: [],
+        hidden: true,
+        cells: {
+          1: {
+            2: {
+              datatype: "boolean",
+              type: "hello",
+            },
+          },
+        },
+      },
+    ];
+    return <Spreadsheet minHeight={600} sheets={sheets} />;
+  };
+  return <App />;
+};

@@ -31,6 +31,8 @@ interface TabProps
   onChangeSheetName?: (id: SheetID, value: string) => void;
   onDeleteSheet?: (id: SheetID) => void;
   onDuplicateSheet?: (id: SheetID) => void;
+  onHideSheet?: (id: SheetID) => void;
+  onShowSheet?: (id: SheetID) => void;
 }
 
 const Tabs: React.FC<TabProps> = (props) => {
@@ -44,11 +46,15 @@ const Tabs: React.FC<TabProps> = (props) => {
     onDuplicateSheet,
     isTabEditable,
     allowNewSheet,
+    onShowSheet,
+    onHideSheet,
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? theme.colors.gray[900] : theme.colors.gray[300];
+  const visibleSheets = sheets.filter(sheet => !sheet.hidden)
+  const visibleSheetsLen = visibleSheets.length
   return (
     <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
       {allowNewSheet && (
@@ -91,8 +97,9 @@ const Tabs: React.FC<TabProps> = (props) => {
         >
           <PopoverArrow />
           <PopoverBody overflow="auto" maxHeight={400}>
-            {sheets.map((sheet, idx) => {
-              const isActive = selectedSheet === sheet.id;
+            {sheets.map((sheet, idx) => {              
+              const { name, hidden, id } = sheet
+              const isActive = selectedSheet === id;
               return (
                 <Button
                   key={idx}
@@ -104,14 +111,22 @@ const Tabs: React.FC<TabProps> = (props) => {
                   textAlign="left"
                   justifyContent="left"
                   borderRadius={0}
-                  onClick={() => onSelect?.(sheet.id)}
+                  title={name}
+                  onClick={() => {
+                    if (hidden) {
+                      onShowSheet?.(id)
+                    }
+                    onSelect?.(id)
+                  }}
+                  opacity={hidden ? 0.5 : 1}
                 >
                   <Box
                     as={MdCheck}
                     mr={2}
+                    flexShrink={0}
                     visibility={isActive ? "visible" : "hidden"}
                   />
-                  {sheet.name}
+                  <Box whiteSpace='nowrap' overflow='hidden'>{name}</Box>
                 </Button>
               );
             })}
@@ -119,8 +134,9 @@ const Tabs: React.FC<TabProps> = (props) => {
         </PopoverContent>
       </Popover>
       <Box overflow="auto" display="flex" pl={1} pr={1}>
-        {sheets.map((sheet, idx) => {
+        {visibleSheets.map((sheet, idx) => {
           const isActive = selectedSheet === sheet.id;
+          const locked = sheet.locked
           return (
             <TabItem
               key={idx}
@@ -132,6 +148,10 @@ const Tabs: React.FC<TabProps> = (props) => {
               onChangeSheetName={onChangeSheetName}
               onDeleteSheet={onDeleteSheet}
               onDuplicateSheet={onDuplicateSheet}
+              onHideSheet={onHideSheet}
+              locked={locked}
+              canDelete={visibleSheetsLen > 1}
+              canHide={visibleSheetsLen > 1}
             />
           );
         })}

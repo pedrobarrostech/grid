@@ -7,8 +7,9 @@ import {
   PopoverTrigger,
   PopoverBody,
   PopoverArrow,
+  Icon,
 } from "@chakra-ui/core";
-import { MdArrowDropDown } from "react-icons/md";
+import { MdArrowDropDown, MdLock } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
 import { DARK_MODE_COLOR } from "../constants";
 import { IconButton, Button, PopoverContent } from "../styled";
@@ -23,6 +24,10 @@ interface TabItemProps {
   onChangeSheetName?: (id: SheetID, value: string) => void;
   onDeleteSheet?: (id: SheetID) => void;
   onDuplicateSheet?: (id: SheetID) => void;
+  onHideSheet?: (id: SheetID) => void;
+  locked?: boolean;
+  canDelete?: boolean;
+  canHide?: boolean
 }
 
 const TabItem: React.FC<TabItemProps> = ({
@@ -34,7 +39,14 @@ const TabItem: React.FC<TabItemProps> = ({
   onChangeSheetName,
   onDeleteSheet,
   onDuplicateSheet,
+  onHideSheet,
+  locked = false,
+  canHide = true,
+  canDelete = true,
 }) => {
+  const canEditSheet = !locked
+  const canDeleteSheet = !locked && canDelete
+  const canHideSheet = canHide
   const theme = useTheme();
   const [isEditmode, setIsEditmode] = useState(false);
   const [value, setValue] = useState(name);
@@ -43,7 +55,9 @@ const TabItem: React.FC<TabItemProps> = ({
     isActive || isLight ? theme.colors.gray[900] : theme.colors.gray[300];
   const shadow = isActive ? "0 1px 3px 1px rgba(60,64,67,.15)" : undefined;
   const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
-  const enableEditmode = () => setIsEditmode(true);
+  const enableEditmode = () => {
+    canEditSheet && setIsEditmode(true);
+  }
   const disableEditmode = () => setIsEditmode(false);
   const height = "39px";
   return (
@@ -107,6 +121,7 @@ const TabItem: React.FC<TabItemProps> = ({
                 : theme.colors.gray[800],
             }}
           >
+            {locked && <Box mr={1} justifyContent='center' display='flex'><MdLock fill='green' /></Box> }
             {name}
 
             <Popover placement="top" usePortal>
@@ -145,6 +160,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           justifyContent="left"
                           borderRadius={0}
                           background="none"
+                          isDisabled={!canDeleteSheet}
                           onClick={(e) => {
                             onClose?.();
                             onDeleteSheet?.(id);
@@ -181,6 +197,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           background="none"
                           justifyContent="left"
                           borderRadius={0}
+                          isDisabled={!canEditSheet}
                           onClick={(e) => {
                             enableEditmode();
                             e.preventDefault();
@@ -188,6 +205,24 @@ const TabItem: React.FC<TabItemProps> = ({
                           }}
                         >
                           Rename
+                        </Button>
+                        <Button
+                          fontWeight="normal"
+                          size="sm"
+                          variant="ghost"
+                          isFullWidth
+                          textAlign="left"
+                          background="none"
+                          justifyContent="left"
+                          borderRadius={0}
+                          isDisabled={!canHideSheet}
+                          onClick={(e) => {
+                            onHideSheet?.(id);
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          Hide sheet
                         </Button>
                       </PopoverBody>
                     </PopoverContent>

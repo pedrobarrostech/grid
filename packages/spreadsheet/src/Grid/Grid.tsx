@@ -152,6 +152,7 @@ export interface GridProps {
   ContextMenu?: React.ReactType<ContextMenuComponentProps>;
   Tooltip?: React.ReactType<TooltipProps>;
   snap?: boolean;
+  locked?: boolean
 }
 
 export interface RowColSelection {
@@ -260,6 +261,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       ContextMenu,
       Tooltip = TooltipComponent,
       snap,
+      locked,
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
@@ -922,6 +924,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       getValue: getValueText,
       onChange: onActiveCellValueChange,
       canEdit: (cell: CellInterface) => {
+        if (locked) return false;
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
         const isLocked = getValue(cell)?.locked;
         if (isLocked) return false;

@@ -714,6 +714,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (index === -1) return;
         const newSheet = {
           ...sheets[index],
+          locked: false,
           id: newSheetId,
           name: `Copy of ${currentSheet.name}`,
         };
@@ -1205,6 +1206,20 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       [selectedSheet]
     );
 
+    const handleShowSheet = useCallback((id: SheetID) => {
+      dispatch({
+        type: ACTION_TYPE.SHOW_SHEET,
+        id
+      })
+    }, [])
+
+    const handleHideSheet = useCallback((id: SheetID) => {
+      dispatch({
+        type: ACTION_TYPE.HIDE_SHEET,
+        id
+      })
+    }, [])
+
     return (
       <>
         <Global
@@ -1316,6 +1331,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             ContextMenu={ContextMenu}
             snap={snap}
             Tooltip={Tooltip}
+            onHideSheet={handleHideSheet}
+            onShowSheet={handleShowSheet}
           />
         </Flex>
       </>
