@@ -120,7 +120,17 @@ export interface CellFormatting extends CellDataFormatting {
   padding?: number;
   fontSize?: number;
   fontFamily?: string;
-  readOnly?: boolean;
+  /**
+   * Protection: Lock a cell from being edited
+   */
+  locked?: boolean;
+  /**
+   * Protection: Hide a cell value
+   */
+  hidden?: boolean;
+  /**
+   * Enable text wrapping
+   */
   wrap?: Wrap;
   rotation?: number;
   dataValidation?: DataValidation;

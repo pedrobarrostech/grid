@@ -267,6 +267,8 @@ export interface Sheet {
   filterViews?: FilterView[];
   rowCount?: number;
   columnCount?: number;
+  locked?: boolean;
+  hidden?: boolean
 }
 
 export type SheetID = React.ReactText;
@@ -307,7 +309,7 @@ export const defaultSheets: Sheet[] = [
     id: defaultActiveSheet,
     name: "Sheet1",
     rowCount: 1000,
-    columnCount: 1000,
+    columnCount: 26,
     frozenColumns: 0,
     frozenRows: 0,
     activeCell: {

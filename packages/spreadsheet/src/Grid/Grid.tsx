@@ -923,8 +923,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       onChange: onActiveCellValueChange,
       canEdit: (cell: CellInterface) => {
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
-        const isReadOnly = getValue(cell)?.readOnly;
-        if (isReadOnly) return false;
+        const isLocked = getValue(cell)?.locked;
+        if (isLocked) return false;
         return true;
       },
       onDelete: onDelete,
