@@ -168,7 +168,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       Tooltip,
       snap,
       onHideSheet,
-      onShowSheet
+      onShowSheet,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -193,7 +193,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
       columnCount = DEFAULT_COLUMN_COUNT,
-      locked
+      locked,
     } = currentSheet;
 
     /* Current sheet ref */

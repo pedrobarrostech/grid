@@ -53,8 +53,8 @@ const Tabs: React.FC<TabProps> = (props) => {
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? theme.colors.gray[900] : theme.colors.gray[300];
-  const visibleSheets = sheets.filter(sheet => !sheet.hidden)
-  const visibleSheetsLen = visibleSheets.length
+  const visibleSheets = sheets.filter((sheet) => !sheet.hidden);
+  const visibleSheetsLen = visibleSheets.length;
   return (
     <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
       {allowNewSheet && (
@@ -97,8 +97,8 @@ const Tabs: React.FC<TabProps> = (props) => {
         >
           <PopoverArrow />
           <PopoverBody overflow="auto" maxHeight={400}>
-            {sheets.map((sheet, idx) => {              
-              const { name, hidden, id } = sheet
+            {sheets.map((sheet, idx) => {
+              const { name, hidden, id } = sheet;
               const isActive = selectedSheet === id;
               return (
                 <Button
@@ -114,9 +114,9 @@ const Tabs: React.FC<TabProps> = (props) => {
                   title={name}
                   onClick={() => {
                     if (hidden) {
-                      onShowSheet?.(id)
+                      onShowSheet?.(id);
                     }
-                    onSelect?.(id)
+                    onSelect?.(id);
                   }}
                   opacity={hidden ? 0.5 : 1}
                 >
@@ -126,7 +126,9 @@ const Tabs: React.FC<TabProps> = (props) => {
                     flexShrink={0}
                     visibility={isActive ? "visible" : "hidden"}
                   />
-                  <Box whiteSpace='nowrap' overflow='hidden'>{name}</Box>
+                  <Box whiteSpace="nowrap" overflow="hidden">
+                    {name}
+                  </Box>
                 </Button>
               );
             })}
@@ -136,7 +138,7 @@ const Tabs: React.FC<TabProps> = (props) => {
       <Box overflow="auto" display="flex" pl={1} pr={1}>
         {visibleSheets.map((sheet, idx) => {
           const isActive = selectedSheet === sheet.id;
-          const locked = sheet.locked
+          const locked = sheet.locked;
           return (
             <TabItem
               key={idx}

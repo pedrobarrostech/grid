@@ -152,7 +152,7 @@ export interface GridProps {
   ContextMenu?: React.ReactType<ContextMenuComponentProps>;
   Tooltip?: React.ReactType<TooltipProps>;
   snap?: boolean;
-  locked?: boolean
+  locked?: boolean;
 }
 
 export interface RowColSelection {

@@ -27,7 +27,7 @@ interface TabItemProps {
   onHideSheet?: (id: SheetID) => void;
   locked?: boolean;
   canDelete?: boolean;
-  canHide?: boolean
+  canHide?: boolean;
 }
 
 const TabItem: React.FC<TabItemProps> = ({
@@ -44,9 +44,9 @@ const TabItem: React.FC<TabItemProps> = ({
   canHide = true,
   canDelete = true,
 }) => {
-  const canEditSheet = !locked
-  const canDeleteSheet = !locked && canDelete
-  const canHideSheet = canHide
+  const canEditSheet = !locked;
+  const canDeleteSheet = !locked && canDelete;
+  const canHideSheet = canHide;
   const theme = useTheme();
   const [isEditmode, setIsEditmode] = useState(false);
   const [value, setValue] = useState(name);
@@ -57,7 +57,7 @@ const TabItem: React.FC<TabItemProps> = ({
   const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
   const enableEditmode = () => {
     canEditSheet && setIsEditmode(true);
-  }
+  };
   const disableEditmode = () => setIsEditmode(false);
   const height = "39px";
   return (
@@ -121,7 +121,11 @@ const TabItem: React.FC<TabItemProps> = ({
                 : theme.colors.gray[800],
             }}
           >
-            {locked && <Box mr={1} justifyContent='center' display='flex'><MdLock fill='green' /></Box> }
+            {locked && (
+              <Box mr={1} justifyContent="center" display="flex">
+                <MdLock fill="green" />
+              </Box>
+            )}
             {name}
 
             <Popover placement="top" usePortal>
