@@ -233,12 +233,14 @@ const TabItem: React.FC<TabItemProps> = ({
                           justifyContent="left"
                           borderRadius={0}
                           onClick={(e) => {
-                            locked ? onUnProtectSheet?.(id) : onProtectSheet?.(id);
+                            locked
+                              ? onUnProtectSheet?.(id)
+                              : onProtectSheet?.(id);
                             e.preventDefault();
                             e.stopPropagation();
                           }}
                         >
-                          {locked ? 'Unprotect sheet': 'Protect sheet'}
+                          {locked ? "Unprotect sheet" : "Protect sheet"}
                         </Button>
                         <Button
                           fontWeight="normal"

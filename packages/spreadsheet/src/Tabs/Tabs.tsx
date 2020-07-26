@@ -51,7 +51,7 @@ const Tabs: React.FC<TabProps> = (props) => {
     onShowSheet,
     onHideSheet,
     onProtectSheet,
-    onUnProtectSheet
+    onUnProtectSheet,
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
