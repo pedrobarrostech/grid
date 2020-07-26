@@ -24,7 +24,7 @@ const initialState = [
       },
     ],
     rowSizes: {
-      12: 60
+      12: 60,
     },
     cells: {
       2: {
@@ -216,9 +216,9 @@ const initialState = [
       },
       12: {
         2: {
-          image: 'https://konvajs.github.io/assets/yoda.jpg',
-        }
-      }
+          image: "https://picsum.photos/200/300",
+        },
+      },
     },
     filterViews: [
       {
