@@ -28,6 +28,9 @@ interface Sheet {
   filterViews?: FilterView[];
   rowCount?: number;
   columnCount?: number;
+  locked?: boolean;
+  hidden?: boolean;
+  tabColor?: string
 }
 
 type Cells = Record<string, Cell>;
