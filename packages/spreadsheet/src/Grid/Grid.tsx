@@ -267,7 +267,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
 
     const gridRef = useRef<GridRef | null>(null);
     const isLockedRef = useRef<boolean | undefined>(false);
-    const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
+    const onSheetChangeRef = useRef<(props: any) => void>();
     const rowCount = initialRowCount + 1;
     const columnCount = initialColumnCount + 1;
     /**
@@ -277,7 +277,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     const internalRefs = useRef<InternalRef>({ rowCount, columnCount });
     const frozenRows = Math.max(1, userFrozenRows + 1);
     const frozenColumns = Math.max(1, userFrozenColumns + 1);
-    const debounceScroll = useRef(debounce(onScroll, 500));
+    const debounceScroll = useRef<(pos: ScrollCoords) => void>();
     const [
       contextMenuProps,
       setContextMenuProps,
@@ -293,6 +293,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         };
       });
     }, [filterViews]);
+
+    useEffect(() => {
+      onSheetChangeRef.current = debounce(onSheetChange, 100);
+      debounceScroll.current = debounce(onScroll, 500);
+    }, []);
 
     /* Update locked ref */
     useEffect(() => {
