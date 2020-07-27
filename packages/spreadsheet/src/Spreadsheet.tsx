@@ -7,7 +7,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   memo,
-  useReducer,
+  useReducer
 } from "react";
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
@@ -22,7 +22,7 @@ import {
   FilterView,
   FilterDefinition,
   useUndo,
-  SelectionPolicy,
+  SelectionPolicy
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
@@ -32,7 +32,7 @@ import {
   SYSTEM_FONT,
   format as defaultFormat,
   FONT_FAMILIES,
-  detectDataType,
+  detectDataType
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -41,7 +41,7 @@ import {
   BORDER_VARIANT,
   BORDER_STYLE,
   Formatter,
-  SELECTION_MODE,
+  SELECTION_MODE
 } from "./types";
 import { WorkbookGridRef } from "./Grid/Grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
@@ -55,7 +55,7 @@ import {
   createStateReducer,
   ACTION_TYPE,
   StateInterface,
-  ActionTypes,
+  ActionTypes
 } from "./state";
 import { Patch } from "immer";
 import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
@@ -278,6 +278,10 @@ export type SizeType = {
   [key: number]: number;
 };
 
+export interface DeltaChanges {
+  [key: string]: Cells;
+}
+
 export type Cells = Record<string, Cell>;
 export type Cell = Record<string, CellConfig>;
 export interface CellConfig extends CellFormatting {
@@ -315,14 +319,14 @@ export const defaultSheets: Sheet[] = [
     frozenRows: 0,
     activeCell: {
       rowIndex: 1,
-      columnIndex: 1,
+      columnIndex: 1
     },
     mergedCells: [],
     selections: [],
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
-    filterViews: [],
-  },
+    filterViews: []
+  }
 ];
 
 export type RefAttributeSheetGrid = {
@@ -382,7 +386,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       snap = false,
       stateReducer,
       onValidate = validate,
-      enableGlobalKeyHandlers = false,
+      enableGlobalKeyHandlers = false
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -393,7 +397,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Some grid side-effects during undo/redo
      */
     const beforeUndoRedo = useCallback((patches: Patch[]) => {
-      const hasFilterViews = patches.some((item) =>
+      const hasFilterViews = patches.some(item =>
         item.path.includes("filterViews")
       );
       if (hasFilterViews) {
@@ -410,17 +414,17 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       canUndo,
       undo,
       redo,
-      onKeyDown: onUndoKeyDown,
+      onKeyDown: onUndoKeyDown
     } = useUndo<Patch[]>({
       enableGlobalKeyHandlers,
-      onUndo: (patches) => {
+      onUndo: patches => {
         /* Side-effects */
         beforeUndoRedo(patches);
 
         dispatch({
           type: ACTION_TYPE.APPLY_PATCHES,
           patches,
-          undoable: false,
+          undoable: false
         });
 
         if (lastActiveCellRef.current) {
@@ -432,14 +436,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Focus on the grid */
         if (enableGlobalKeyHandlers) currentGrid.current?.focus();
       },
-      onRedo: (patches) => {
+      onRedo: patches => {
         /* Side-effects */
         beforeUndoRedo(patches);
 
         dispatch({
           type: ACTION_TYPE.APPLY_PATCHES,
           patches,
-          undoable: false,
+          undoable: false
         });
 
         const activeCellPatch = patches.find((item: Patch) =>
@@ -457,7 +461,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         /* Focus on the grid */
         if (enableGlobalKeyHandlers) currentGrid.current?.focus();
-      },
+      }
     });
 
     /**
@@ -483,7 +487,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             ? initialSheets.length
               ? initialSheets[0].id
               : null
-            : activeSheet,
+            : activeSheet
       }
     );
 
@@ -491,7 +495,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       selectedSheet,
       sheets,
       currentActiveCell,
-      currentSelections,
+      currentSelections
     } = state;
     const [scale, setScale] = useState(initialScale);
     const selectedSheetRef = useRef(selectedSheet);
@@ -510,7 +514,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (id === selectedSheet) return;
         dispatch({
           type: ACTION_TYPE.SELECT_SHEET,
-          id,
+          id
         });
       },
       [selectedSheet]
@@ -529,7 +533,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       if (isFontActive) {
         currentGrid.current?.resetAfterIndices?.({
           rowIndex: 0,
-          columnIndex: 0,
+          columnIndex: 0
         });
       }
     }, [isFontActive]);
@@ -543,7 +547,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       forwardedRef,
       () => {
         return {
-          grid: currentGrid.current,
+          grid: currentGrid.current
         };
       },
       []
@@ -572,7 +576,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
       dispatch({
         type: ACTION_TYPE.REPLACE_SHEETS,
-        sheets: initialSheets,
+        sheets: initialSheets
       });
     }, [initialSheets]);
 
@@ -584,28 +588,31 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       const newSheet = createNewSheet({ count: count + 1 });
       dispatch({
         type: ACTION_TYPE.NEW_SHEET,
-        sheet: newSheet,
+        sheet: newSheet
       });
 
       /* Focus on the new grid */
       currentGrid.current?.focus();
     }, [sheets, selectedSheet]);
 
-    /**
-     * Pass active cell config back to toolbars
-     */
-    const currentSheet = useMemo(() => {
-      return sheets.find((sheet) => sheet.id === selectedSheet) as Sheet;
-    }, [sheets, selectedSheet]);
+    const sheetsById = useMemo(() => {
+      const initial: Record<string, Sheet> = {};
+      return sheets.reduce((acc, sheet) => {
+        acc[sheet.id] = sheet;
+        return acc;
+      }, initial);
+    }, [sheets]);
+
+    const currentSheet = sheetsById[selectedSheet];
 
     /**
      * Get cell config
      */
     const getCellConfig = useCallback(
-      (cell: CellInterface): CellConfig | undefined => {
-        return currentSheet.cells[cell.rowIndex]?.[cell.columnIndex];
+      (sheet: SheetID, cell: CellInterface): CellConfig | undefined => {
+        return sheetsById?.[sheet].cells?.[cell.rowIndex]?.[cell.columnIndex];
       },
-      [currentSheet]
+      [sheetsById]
     );
 
     const [activeCellConfig, activeCell] = useMemo(() => {
@@ -622,7 +629,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
-        const config = getCellConfig(cell);
+        const config = getCellConfig(id, cell);
         const datatype = detectDataType(value);
 
         dispatch({
@@ -630,7 +637,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           value,
           cell,
           id,
-          datatype,
+          datatype
         });
 
         onChangeCell?.(id, value, cell);
@@ -640,27 +647,26 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           const validationResponse = await onValidate(value, id, cell, config);
 
           /* If validations service fails, lets not update the store */
-          if (validationResponse === void 0) {
-            return;
-          }
-          /**
-           * Extract valid: boolean response and message
-           */
-          const { valid, message } = validationResponse as ValidationResponse;
+          if (validationResponse !== void 0) {
+            /**
+             * Extract valid: boolean response and message
+             */
+            const { valid, message } = validationResponse as ValidationResponse;
 
-          /**
-           * Update the state
-           */
-          dispatch({
-            type: ACTION_TYPE.VALIDATION_SUCCESS,
-            cell,
-            id,
-            valid,
-            prompt: message,
-          });
+            /**
+             * Update the state
+             */
+            dispatch({
+              type: ACTION_TYPE.VALIDATION_SUCCESS,
+              cell,
+              id,
+              valid,
+              prompt: message
+            });
+          }
         });
       },
-      [activeCellConfig, getCellConfig]
+      [getCellConfig]
     );
 
     const handleSheetAttributesChange = useCallback(
@@ -668,7 +674,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         id: SheetID,
         {
           activeCell,
-          selections,
+          selections
         }: { activeCell: CellInterface | null; selections: SelectionArea[] }
       ) => {
         dispatch({
@@ -676,7 +682,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id,
           activeCell,
           selections,
-          undoable: false,
+          undoable: false
         });
       },
       []
@@ -689,7 +695,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       dispatch({
         type: ACTION_TYPE.CHANGE_SHEET_NAME,
         id,
-        name,
+        name
       });
     }, []);
 
@@ -699,7 +705,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         dispatch({
           type: ACTION_TYPE.DELETE_SHEET,
-          id,
+          id
         });
 
         /* Focus on the new grid */
@@ -711,19 +717,19 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleDuplicateSheet = useCallback(
       (id: SheetID) => {
         const newSheetId = uuid();
-        const index = sheets.findIndex((sheet) => sheet.id === id);
+        const index = sheets.findIndex(sheet => sheet.id === id);
         if (index === -1) return;
         const newSheet = {
           ...sheets[index],
           locked: false,
           id: newSheetId,
-          name: `Copy of ${currentSheet.name}`,
+          name: `Copy of ${currentSheet.name}`
         };
 
         dispatch({
           type: ACTION_TYPE.NEW_SHEET,
           sheet: newSheet,
-          index,
+          index
         });
       },
       [sheets, selectedSheet]
@@ -735,7 +741,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleFormattingChangeAuto = useCallback(() => {
       dispatch({
         type: ACTION_TYPE.FORMATTING_CHANGE_AUTO,
-        id: selectedSheet,
+        id: selectedSheet
       });
     }, [selectedSheet]);
 
@@ -745,7 +751,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleFormattingChangePlain = useCallback(() => {
       dispatch({
         type: ACTION_TYPE.FORMATTING_CHANGE_PLAIN,
-        id: selectedSheet,
+        id: selectedSheet
       });
     }, [selectedSheet]);
 
@@ -758,7 +764,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           type: ACTION_TYPE.FORMATTING_CHANGE,
           id: selectedSheet,
           key,
-          value,
+          value
         });
       },
       [selectedSheet]
@@ -871,7 +877,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id,
           activeCell,
           fillSelection,
-          selections,
+          selections
         });
 
         /* Focus on the new grid */
@@ -889,7 +895,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           type: ACTION_TYPE.DELETE_CELLS,
           id,
           activeCell,
-          selections,
+          selections
         });
         setFormulaInput("");
       },
@@ -899,7 +905,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleClearFormatting = useCallback(() => {
       dispatch({
         type: ACTION_TYPE.CLEAR_FORMATTING,
-        id: selectedSheet,
+        id: selectedSheet
       });
     }, [selectedSheet]);
 
@@ -911,7 +917,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           index,
           dimension,
           axis,
-          undoable: false,
+          undoable: false
         });
 
         axis === AXIS.X
@@ -927,27 +933,27 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleMergeCells = useCallback(() => {
       dispatch({
         type: ACTION_TYPE.MERGE_CELLS,
-        id: selectedSheet,
+        id: selectedSheet
       });
     }, [selectedSheet]);
 
     const handleFrozenRowChange = useCallback(
-      (count) => {
+      count => {
         dispatch({
           type: ACTION_TYPE.FROZEN_ROW_CHANGE,
           id: selectedSheet,
-          count,
+          count
         });
       },
       [selectedSheet]
     );
 
     const handleFrozenColumnChange = useCallback(
-      (count) => {
+      count => {
         dispatch({
           type: ACTION_TYPE.FROZEN_COLUMN_CHANGE,
           id: selectedSheet,
-          count,
+          count
         });
       },
       [selectedSheet]
@@ -964,7 +970,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id: selectedSheet,
           color,
           borderStyle,
-          variant,
+          variant
         });
       },
       [selectedSheet]
@@ -978,7 +984,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.UPDATE_SCROLL,
           id,
-          scrollState,
+          scrollState
         });
       },
       []
@@ -1008,7 +1014,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id,
           rows,
           activeCell,
-          selection,
+          selection
         });
 
         /* Should select */
@@ -1020,9 +1026,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               top: rowIndex,
               left: columnIndex,
               bottom: endRowIndex,
-              right: endColumnIndex,
-            },
-          },
+              right: endColumnIndex
+            }
+          }
         ]);
       },
       []
@@ -1036,7 +1042,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.REMOVE_CELLS,
         id,
         activeCell: null,
-        selections: [selection],
+        selections: [selection]
       });
     }, []);
 
@@ -1049,7 +1055,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.INSERT_ROW,
           id,
-          activeCell,
+          activeCell
         });
       },
       []
@@ -1064,7 +1070,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.INSERT_COLUMN,
           id,
-          activeCell,
+          activeCell
         });
       },
       []
@@ -1077,7 +1083,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.DELETE_ROW,
           id,
-          activeCell,
+          activeCell
         });
       },
       []
@@ -1090,7 +1096,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.DELETE_COLUMN,
           id,
-          activeCell,
+          activeCell
         });
       },
       []
@@ -1109,16 +1115,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         const isMeta = event.metaKey || event.ctrlKey;
         const isShift = event.shiftKey;
         const keyCode = event.which;
-        const getCellConfig = (cell: CellInterface) => {
-          const sheet = sheets.find((sheet) => sheet.id === id);
-          return sheet?.cells?.[cell.rowIndex]?.[cell.columnIndex];
-        };
         switch (keyCode) {
           case KeyCodes.KEY_B:
             if (!isMeta) return;
             handleFormattingChange(
               FORMATTING_TYPE.BOLD,
-              !getCellConfig(activeCell)?.bold
+              !getCellConfig(id, activeCell)?.bold
             );
             break;
 
@@ -1126,7 +1128,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             if (!isMeta) return;
             handleFormattingChange(
               FORMATTING_TYPE.ITALIC,
-              !getCellConfig(activeCell)?.italic
+              !getCellConfig(id, activeCell)?.italic
             );
             break;
 
@@ -1134,7 +1136,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             if (!isMeta) return;
             handleFormattingChange(
               FORMATTING_TYPE.UNDERLINE,
-              !getCellConfig(activeCell)?.underline
+              !getCellConfig(id, activeCell)?.underline
             );
             break;
 
@@ -1142,7 +1144,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             if (!isMeta || !isShift) return;
             handleFormattingChange(
               FORMATTING_TYPE.STRIKE,
-              !getCellConfig(activeCell)?.strike
+              !getCellConfig(id, activeCell)?.strike
             );
             break;
 
@@ -1170,7 +1172,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Pass it on to undo hook */
         onUndoKeyDown?.(event);
       },
-      [sheets, currentSheet]
+      [getCellConfig]
     );
 
     /**
@@ -1191,7 +1193,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id,
           filterViewIndex,
           columnIndex,
-          filter,
+          filter
         });
       },
       []
@@ -1201,7 +1203,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Callback when scale changes
      */
     const handleScaleChange = useCallback(
-      (value) => {
+      value => {
         /* Update grid dimensions */
         currentGrid.current?.resetAfterIndices?.(
           { rowIndex: 0, columnIndex: 0 },
@@ -1216,28 +1218,28 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleShowSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.SHOW_SHEET,
-        id,
+        id
       });
     }, []);
 
     const handleHideSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.HIDE_SHEET,
-        id,
+        id
       });
     }, []);
 
     const handleProtectSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.PROTECT_SHEET,
-        id,
+        id
       });
     }, []);
 
     const handleUnProtectSheet = useCallback((id: SheetID) => {
       dispatch({
         type: ACTION_TYPE.UNPROTECT_SHEET,
-        id,
+        id
       });
     }, []);
 
@@ -1372,9 +1374,8 @@ export interface SpreadSheetPropsWithTheme extends SpreadSheetProps {
   theme?: ThemeType;
   initialColorMode?: "light" | "dark";
 }
-const ThemeWrapper: React.FC<
-  SpreadSheetPropsWithTheme & RefAttributeSheetGrid
-> = forwardRef((props, forwardedRef) => {
+const ThemeWrapper: React.FC<SpreadSheetPropsWithTheme &
+  RefAttributeSheetGrid> = forwardRef((props, forwardedRef) => {
   const { theme: defaultTheme = theme, initialColorMode, ...rest } = props;
   return (
     <ThemeProvider theme={defaultTheme}>

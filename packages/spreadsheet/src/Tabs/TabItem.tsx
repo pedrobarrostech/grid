@@ -6,12 +6,10 @@ import {
   Popover,
   PopoverTrigger,
   PopoverBody,
-  PopoverArrow,
-  Icon,
+  PopoverArrow
 } from "@chakra-ui/core";
 import { MdArrowDropDown, MdLock } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
-import { DARK_MODE_COLOR } from "../constants";
 import { IconButton, Button, PopoverContent } from "../styled";
 import { SheetID } from "../Spreadsheet";
 
@@ -48,7 +46,7 @@ const TabItem: React.FC<TabItemProps> = ({
   locked = false,
   canHide = true,
   canDelete = true,
-  tabColor = "transparent",
+  tabColor = "transparent"
 }) => {
   const canEditSheet = !locked;
   const canDeleteSheet = !locked && canDelete;
@@ -132,7 +130,7 @@ const TabItem: React.FC<TabItemProps> = ({
                 ? bg
                 : isLight
                 ? theme.colors.gray[200]
-                : theme.colors.gray[800],
+                : theme.colors.gray[800]
             }}
           >
             {locked && (
@@ -178,7 +176,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           borderRadius={0}
                           background="none"
                           isDisabled={!canDeleteSheet}
-                          onClick={(e) => {
+                          onClick={e => {
                             onClose?.();
                             onDeleteSheet?.(id);
                             e.preventDefault();
@@ -196,7 +194,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
+                          onClick={e => {
                             onClose?.();
                             onDuplicateSheet?.(id);
                             e.preventDefault();
@@ -215,7 +213,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           justifyContent="left"
                           borderRadius={0}
                           isDisabled={!canEditSheet}
-                          onClick={(e) => {
+                          onClick={e => {
                             enableEditmode();
                             e.preventDefault();
                             e.stopPropagation();
@@ -232,7 +230,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           background="none"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
+                          onClick={e => {
                             locked
                               ? onUnProtectSheet?.(id)
                               : onProtectSheet?.(id);
@@ -252,7 +250,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           justifyContent="left"
                           borderRadius={0}
                           isDisabled={!canHideSheet}
-                          onClick={(e) => {
+                          onClick={e => {
                             onHideSheet?.(id);
                             e.preventDefault();
                             e.stopPropagation();

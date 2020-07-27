@@ -2,19 +2,20 @@ import React, { useState, useCallback } from "react";
 import Spreadsheet, {
   Sheet,
   defaultSheets,
-  DATATYPES,
+  DATATYPES
 } from "@rowsncolumns/spreadsheet";
 import { parse, download } from "@rowsncolumns/export";
+// import CalcEngine from '@rowsncolumns/calc'
 
 export default {
   title: "Spreadsheet",
-  component: Spreadsheet,
+  component: Spreadsheet
 };
 
 // @ts-ignore
 const newSheet = ({ count }: { count: number }): Sheet => ({
   name: `Sheet${count}`,
-  cells: {},
+  cells: {}
 });
 
 export const Default = () => {
@@ -25,7 +26,7 @@ export const Default = () => {
           margin: 10,
           display: "flex",
           flexDirection: "column",
-          minHeight: 800,
+          minHeight: 800
         }}
       >
         <Spreadsheet
@@ -46,7 +47,7 @@ export const Import = () => {
     const [sheets, setSheets] = useState(defaultSheets);
     const handleChangeFile = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        const getSheets = async (file) => {
+        const getSheets = async file => {
           const newSheets = await parse({ file });
           setSheets(newSheets.sheets);
         };
@@ -60,7 +61,7 @@ export const Import = () => {
           margin: 10,
           display: "flex",
           flexDirection: "column",
-          minHeight: 800,
+          minHeight: 800
         }}
       >
         <div>
@@ -89,7 +90,7 @@ export const Import = () => {
 };
 
 Import.story = {
-  name: "Import excel file",
+  name: "Import excel file"
 };
 
 export const ExportToExcel = () => {
@@ -98,7 +99,7 @@ export const ExportToExcel = () => {
     const handleExport = useCallback(({ sheets }) => {
       download({
         sheets,
-        filename: "Report",
+        filename: "Report"
       });
     }, []);
     return (
@@ -112,7 +113,7 @@ export const ExportToExcel = () => {
             margin: 10,
             display: "flex",
             flexDirection: "column",
-            minHeight: 600,
+            minHeight: 600
           }}
         >
           <Spreadsheet sheets={sheets} onChange={setSheets} />
@@ -124,7 +125,7 @@ export const ExportToExcel = () => {
 };
 
 ExportToExcel.story = {
-  name: "Export excel file",
+  name: "Export excel file"
 };
 
 export const FilterViews = () => {
@@ -141,70 +142,70 @@ export const FilterViews = () => {
         cells: {
           1: {
             1: {
-              text: "First Name",
+              text: "First Name"
             },
             2: {
-              text: "Last Name",
+              text: "Last Name"
             },
             3: {
-              text: "Gender",
-            },
+              text: "Gender"
+            }
           },
           2: {
             1: {
-              text: "Dulce",
+              text: "Dulce"
             },
             2: {
-              text: "Abril",
+              text: "Abril"
             },
             3: {
-              text: "Female",
-            },
+              text: "Female"
+            }
           },
           3: {
             1: {
-              text: "Mara",
+              text: "Mara"
             },
             2: {
-              text: "Hashimoto",
+              text: "Hashimoto"
             },
             3: {
-              text: "Male",
-            },
+              text: "Male"
+            }
           },
           4: {
             1: {
-              text: "EMara",
+              text: "EMara"
             },
             2: {
-              text: "Hashimoto",
+              text: "Hashimoto"
             },
             3: {
-              text: "Male",
-            },
+              text: "Male"
+            }
           },
           5: {
             5: {
-              text: "First name",
+              text: "First name"
             },
             6: {
-              text: "Last name",
+              text: "Last name"
             },
             7: {
-              text: "Gender",
-            },
+              text: "Gender"
+            }
           },
           6: {
             5: {
-              text: "EMara",
+              text: "EMara"
             },
             6: {
-              text: "Hashimoto",
+              text: "Hashimoto"
             },
             7: {
-              text: "Male",
-            },
-          },
+              text: "Male"
+            }
+          }
         },
         filterViews: [
           {
@@ -212,19 +213,19 @@ export const FilterViews = () => {
               top: 1,
               bottom: 5,
               left: 1,
-              right: 3,
-            },
+              right: 3
+            }
           },
           {
             bounds: {
               top: 5,
               bottom: 8,
               left: 5,
-              right: 7,
-            },
-          },
-        ],
-      },
+              right: 7
+            }
+          }
+        ]
+      }
     ];
     return <Spreadsheet sheets={initialSheets} />;
   };
@@ -246,9 +247,9 @@ const initialValidationSheet: Sheet[] = [
           dataValidation: {
             prompt: "Enter a country",
             type: "list",
-            formulae: ["Singapore", "Japan", "China"],
-          },
-        },
+            formulae: ["Singapore", "Japan", "China"]
+          }
+        }
       },
       3: {
         2: {
@@ -259,9 +260,9 @@ const initialValidationSheet: Sheet[] = [
             allowBlank: true,
             formulae: [10, 100],
             operator: "between",
-            type: "decimal",
-          },
-        },
+            type: "decimal"
+          }
+        }
       },
       4: {
         2: {
@@ -271,9 +272,9 @@ const initialValidationSheet: Sheet[] = [
             allowBlank: true,
             type: "boolean",
             prompt: "Invalid entry",
-            formulae: ["TRUE", "FALSE"],
-          },
-        },
+            formulae: ["TRUE", "FALSE"]
+          }
+        }
       },
       5: {
         2: {
@@ -281,21 +282,21 @@ const initialValidationSheet: Sheet[] = [
           text: "Hello world",
           color: "#1155CC",
           underline: true,
-          hyperlink: "http://google.com",
-        },
+          hyperlink: "http://google.com"
+        }
       },
       6: {
         2: {
           datatype: "formula",
           text: "=SUM(A1,A2)",
           result: "4",
-          error: "#VALUE!",
-        },
+          error: "#VALUE!"
+        }
       },
       7: {
         2: {
           text: "tooltip",
-          tooltip: "hello world",
+          tooltip: "hello world"
         },
         3: {
           text: "12",
@@ -303,12 +304,12 @@ const initialValidationSheet: Sheet[] = [
             type: "decimal",
             operator: "between",
             formulae: [0, 10],
-            prompt: "Please enter a valid number between 0 and 10",
-          },
-        },
-      },
-    },
-  },
+            prompt: "Please enter a valid number between 0 and 10"
+          }
+        }
+      }
+    }
+  }
 ];
 export const DataValidation = () => {
   const App = () => {
@@ -320,7 +321,7 @@ export const DataValidation = () => {
             margin: 10,
             display: "flex",
             flexDirection: "column",
-            minHeight: 800,
+            minHeight: 800
           }}
         >
           <Spreadsheet sheets={sheets} onChange={setSheets} />
@@ -345,7 +346,7 @@ export const UsingStateReducer = () => {
             margin: 10,
             display: "flex",
             flexDirection: "column",
-            minHeight: 800,
+            minHeight: 800
           }}
         >
           <Spreadsheet sheets={sheets} stateReducer={stateReducer} />
@@ -368,17 +369,16 @@ export const CustomDataType = () => {
           1: {
             2: {
               datatype: "boolean",
-              type: "hello",
-            },
-          },
-        },
-      },
+              type: "hello"
+            }
+          }
+        }
+      }
     ];
     return <Spreadsheet sheets={sheets} />;
   };
   return <App />;
 };
-
 
 export const ProtectedSheet = () => {
   const App = () => {
@@ -393,10 +393,10 @@ export const ProtectedSheet = () => {
           1: {
             2: {
               datatype: "boolean",
-              type: "hello",
-            },
-          },
-        },
+              type: "hello"
+            }
+          }
+        }
       },
       {
         name: "Hidden sheet",
@@ -408,17 +408,16 @@ export const ProtectedSheet = () => {
           1: {
             2: {
               datatype: "boolean",
-              type: "hello",
-            },
-          },
-        },
-      },
+              type: "hello"
+            }
+          }
+        }
+      }
     ];
     return <Spreadsheet minHeight={600} sheets={sheets} />;
   };
   return <App />;
 };
-
 
 export const TabColors = () => {
   const App = () => {
@@ -428,18 +427,62 @@ export const TabColors = () => {
         id: 1,
         activeCell: null,
         selections: [],
-        tabColor: 'red',
+        tabColor: "red",
         cells: {
           1: {
             2: {
               datatype: "boolean",
-              type: "hello",
-            },
-          },
-        },
-      },
+              type: "hello"
+            }
+          }
+        }
+      }
     ];
     return <Spreadsheet minHeight={600} sheets={sheets} />;
+  };
+  return <App />;
+};
+
+export const Formula = () => {
+  // const calcEngine = new CalcEngine()
+  const App = () => {
+    const sheets: Sheet[] = [
+      {
+        name: "Sheet 1",
+        id: 1,
+        activeCell: null,
+        selections: [],
+        tabColor: "red",
+        cells: {
+          1: {
+            2: {
+              datatype: "boolean",
+              type: "hello"
+            }
+          }
+        }
+      }
+    ];
+    return (
+      <Spreadsheet
+        minHeight={600}
+        sheets={sheets}
+        // onAfterChange={(value, sheet, cell, getCellConfig, cb) => {
+        //   const results = calcEngine.parse( value.substr(1), sheet, cell, getCellConfig)
+        //   cb({
+        //     [sheet]: {
+        //       [cell.rowIndex]: {
+        //         [cell.columnIndex]: {
+        //           result: results.result,
+        //           formulaType: results.datatype,
+        //           error: results.error
+        //         }
+        //       }
+        //     }
+        //   })
+        // }}
+      />
+    );
   };
   return <App />;
 };

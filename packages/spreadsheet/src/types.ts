@@ -16,23 +16,23 @@ export enum FORMATTING_TYPE {
   FONT_FAMILY = "fontFamily",
   CUSTOM_FORMAT = "format",
   WRAP = "wrap",
-  ROTATION = "rotation",
+  ROTATION = "rotation"
 }
 
 export enum FONT_WEIGHT {
   BOLD = "bold",
-  NORMAL = "normal",
+  NORMAL = "normal"
 }
 
 export enum FONT_STYLE {
   ITALIC = "italic",
-  NORMAL = "normal",
+  NORMAL = "normal"
 }
 
 export enum TEXT_DECORATION {
   STRIKE = "line-through",
   NONE = "",
-  UNDERLINE = "underline",
+  UNDERLINE = "underline"
 }
 
 export type VERTICAL_ALIGNMENT =
@@ -76,7 +76,7 @@ export enum STROKE_FORMATTING {
   STROKE_TOP_DASH = "strokeTopDash",
   STROKE_RIGHT_DASH = "strokeRightDash",
   STROKE_BOTTOM_DASH = "strokeBottomDash",
-  STROKE_LEFT_DASH = "strokeLeftDash",
+  STROKE_LEFT_DASH = "strokeLeftDash"
 }
 
 export interface CellFormatting extends CellDataFormatting {
@@ -84,12 +84,12 @@ export interface CellFormatting extends CellDataFormatting {
   /**
    * Used for formulas to indicate datatype of result
    */
-  effectiveType?: DATATYPES;
+  formulaType?: DATATYPES;
   /**
    * Formulas can extend range of a cell
    * When a cell with `range` is deleted, all cells within that range will be cleared
    */
-  effectiveRange?: AreaProps;
+  formulaRange?: AreaProps;
 
   plaintext?: boolean;
   [FORMATTING_TYPE.BOLD]?: boolean;
@@ -150,7 +150,7 @@ export interface CellDataFormatting {
 
 export enum AXIS {
   X = "x",
-  Y = "y",
+  Y = "y"
 }
 
 export enum BORDER_VARIANT {
@@ -163,20 +163,20 @@ export enum BORDER_VARIANT {
   RIGHT = "right",
   BOTTOM = "bottom",
   TOP = "top",
-  NONE = "none",
+  NONE = "none"
 }
 
 export enum OPERATION_TYPE {
   CELL_ATTRIBUTE = "cell_attribute",
   CHANGE_SHEET_NAME = "change_sheet_name",
   SHEET_ADD = "sheet_add",
-  SHEET_REMOVE = "sheet_remove",
+  SHEET_REMOVE = "sheet_remove"
 }
 
 export enum RESOURCE_TYPE {
   SHEET = "sheet",
   CELL = "cell",
-  SELECTION = "selection",
+  SELECTION = "selection"
 }
 
 export enum BORDER_STYLE {
@@ -185,7 +185,7 @@ export enum BORDER_STYLE {
   "THICK" = "thick",
   "DASHED" = "dashed",
   "DOTTED" = "dotted",
-  "DOUBLE" = "double",
+  "DOUBLE" = "double"
 }
 
 export type Formatter = (
@@ -200,7 +200,7 @@ export enum SELECTION_MODE {
   CELL = "cell",
   ROW = "row",
   COLUMN = "column",
-  BOTH = "both",
+  BOTH = "both"
 }
 export type DataValidationOperator =
   | "between"
@@ -237,7 +237,7 @@ export enum ErrorValue {
   DivZero = "#DIV/0!",
   Null = "#NULL!",
   Value = "#VALUE!",
-  Num = "#NUM!",
+  Num = "#NUM!"
 }
 
 export interface DataValidation {
@@ -258,7 +258,7 @@ export enum EditorType {
   TEXT = "text",
   DATE = "date",
   LIST = "list",
-  BOOLEAN = "boolean",
+  BOOLEAN = "boolean"
 }
 
 export type ResultType = string | number | boolean | Date;
