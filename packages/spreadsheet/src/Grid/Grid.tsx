@@ -417,7 +417,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           ? { ...cells[rowIndex]?.[columnIndex], bold: true }
           : cells[rowIndex]?.[columnIndex];
 
-        return cells?.[rowIndex]?.[columnIndex];
+        return cellConfig;
       },
       [cells, filterHeaderCells]
     );
