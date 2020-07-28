@@ -1462,7 +1462,7 @@ export interface SpreadSheetPropsWithTheme extends SpreadSheetProps {
 }
 const ThemeWrapper: React.FC<SpreadSheetPropsWithTheme &
   RefAttributeSheetGrid> = forwardRef((props, forwardedRef) => {
-  const { theme: defaultTheme = theme, initialColorMode, ...rest } = props;
+  const { theme: defaultTheme = theme, initialColorMode = 'light', ...rest } = props;
   return (
     <ThemeProvider theme={defaultTheme}>
       <ColorModeProvider value={initialColorMode}>

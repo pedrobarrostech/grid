@@ -131,7 +131,8 @@ class CalcEngine {
           }
         }
       } else {
-        const { row, col, sheet, address } = dep;
+        const { row, col, sheet } = dep;
+        const address = cellToAddress({ rowIndex: row, columnIndex: col }) as string
         const cellNode = { rowIndex: row, columnIndex: col };
         const node = this.mapping.get(address, sheet, cellNode);
         node?.children.add(parentNode);
@@ -241,7 +242,8 @@ class CalcEngine {
                     }
                   }
                 } else {
-                  const { row, col, sheet, address } = dep;
+                  const { row, col, sheet } = dep;
+                  const address = cellToAddress({ rowIndex: row, columnIndex: col })  as string
                   const cell = { rowIndex: row, columnIndex: col };
                   const node = this.mapping.get(address, sheet, cell);
                   node?.children.add(parentNode);
