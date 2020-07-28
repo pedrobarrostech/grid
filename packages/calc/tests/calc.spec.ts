@@ -23,7 +23,11 @@ describe('Calc Engine', () => {
         }
       }
     }
-    engine.initialize(data)
+    await engine.initialize(data, () => {
+      return {
+        text: '12'
+      }
+    })
     const nodeB1 = engine.mapping.get('B1', 'sheet 1', { rowIndex: 1, columnIndex: 2}) as Node
     expect(engine.mapping.get('A1', 'sheet 1', { rowIndex: 1, columnIndex: 1})?.children.has(nodeB1)).toBe(true)
   })

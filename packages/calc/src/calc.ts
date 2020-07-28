@@ -231,7 +231,6 @@ class CalcEngine {
                   node?.children.add(parentNode);
                 }
               }
-              console.log("dependents", this.mapping);
             } catch (err) {
               console.log("Error parsing formula ", err);
             }
