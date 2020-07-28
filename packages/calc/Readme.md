@@ -12,7 +12,13 @@ A calculation module for spreadsheet
 
 
 ```
-import { calculate } from '@rowsncolumns/spreadsheet'
+import { CalcEngine } from '@rowsncolumns/spreadsheet'
+
+// Initialize
+const calcEngine = new CalcEngine()
+
+// Optional - Dump all sheets to calculation engine during initial load
+const changes = calcEngine.initialize(changes, getCellConfig)
 
 // Single cell calculation
 const results = await calcEngine.calculate(value, sheet, cell, getCellConfig)
