@@ -76,4 +76,74 @@ describe('Calc Engine', () => {
     const results = await engine.calculate('=SUM(A1, B2)', sheet, cell, getValue)
     expect(results[sheet][cell.rowIndex][cell.columnIndex].result).toBe(220)
   })
+
+  it('can update results', async () => {
+    const sheet = 'sheet 1'
+    const cell = { rowIndex: 1, columnIndex: 2}
+    let getValue = (sheet, curCell) => {
+      if (curCell.rowIndex === cell.rowIndex && curCell.columnIndex === cell.columnIndex) {
+        return {
+          datatype: 'formula'
+        }
+      }
+      return {
+        text: '20',
+        datatype: 'number'
+      }
+    }
+    // B1 = SUM(A1, B2)
+    let results = await engine.calculate('=SUM(A1, B2)', sheet, cell, getValue)
+    expect(results[sheet][cell.rowIndex][cell.columnIndex].result).toBe(40)
+
+    // Update A1
+    let newGetValue = (sheet, curCell) => {
+      if (curCell.rowIndex === cell.rowIndex && curCell.columnIndex === cell.columnIndex) {
+        return {
+          datatype: 'formula',
+          result: 40
+        }
+      }
+      if (curCell.rowIndex === 1 && curCell.columnIndex === 1) {
+        return {
+          datatype: 'number',
+          text: 100
+        }
+      }
+      return {
+        text: '20',
+        datatype: 'number'
+      }
+    }
+
+    results = await engine.calculate('=SUM(A1, B2)', sheet, cell, newGetValue)
+    expect(results[sheet][cell.rowIndex][cell.columnIndex].result).toBe(120)
+  })
+
+  it('can do cross sheet references', async () => {
+    const sheet1 = 'sheet1'
+    const sheet2 = 'sheet2'
+    const cell = { rowIndex: 1, columnIndex: 2}
+    const getValue = (sheet: string, cell: CellInterface) => {
+      if (sheet === sheet1 && cell.rowIndex === 1 && cell.columnIndex === 2) {
+        return {
+          datatype: 'formula',
+        }
+      }
+      if (cell.rowIndex === 1 && cell.columnIndex === 1 && sheet === sheet2) {
+        return {
+          text: 10,
+          datatype: 'number'
+        }
+      }
+      if (cell.rowIndex === 2 && cell.columnIndex === 2) {
+        return {
+          text: '=SUM(C2, 10)',
+          datatype: 'formula',
+          result: 20
+        }
+      }
+    }    
+    const results = await engine.calculate('=SUM(sheet2!A1, B2)', sheet1, cell, getValue)
+    expect(results[sheet1][cell.rowIndex][cell.columnIndex].result).toBe(30)
+  })
 })
