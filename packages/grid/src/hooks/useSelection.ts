@@ -443,7 +443,7 @@ const useSelection = ({
       const allowDeselect = allowDeselectSelection;
       const hasSelections = selections.length > 0;
       const isDeselecting = isMetaKey && allowDeselect;
-      
+
       if (!isContextMenuClick && selectionPolicy !== "single") {
         document.addEventListener("mouseup", handleMouseUp);
         document.addEventListener("mousemove", handleMouseMove);
@@ -556,35 +556,31 @@ const useSelection = ({
   /**
    * Mousemove handler
    */
-  const handleMouseMove = useCallback(
-    (e: globalThis.MouseEvent) => {
-      /* Exit if user is not in selection mode */
-      if (!isSelecting.current || !gridRef?.current) return;
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    /* Exit if user is not in selection mode */
+    if (!isSelecting.current || !gridRef?.current) return;
 
-      const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
+    const coords = gridRef.current.getCellCoordsFromOffset(
+      e.clientX,
+      e.clientY
+    );
 
-      if (!coords) return;
+    if (!coords) return;
 
-      if (
-        mouseMoveInterceptor?.(e, coords, selectionStart, selectionEnd) ===
-        false
-      ) {
-        return;
-      }
+    if (
+      mouseMoveInterceptor?.(e, coords, selectionStart, selectionEnd) === false
+    ) {
+      return;
+    }
 
-      if (isEqualCells(firstActiveCell.current, coords)) {
-        return clearSelections();
-      }
+    if (isEqualCells(firstActiveCell.current, coords)) {
+      return clearSelections();
+    }
 
-      modifySelection(coords, true);
+    modifySelection(coords, true);
 
-      gridRef.current?.scrollToItem(coords);
-    },
-    []
-  );
+    gridRef.current?.scrollToItem(coords);
+  }, []);
   /**
    * Mouse up handler
    */

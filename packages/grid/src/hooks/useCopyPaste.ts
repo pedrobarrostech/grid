@@ -80,11 +80,10 @@ const useCopyPaste = ({
     document.addEventListener("cut", handleCut);
 
     return () => {
-      document.removeEventListener('copy', handleCopy)
-      document.removeEventListener('paste', handlePaste)
-      document.removeEventListener('cut', handleCut)
-    }
-    
+      document.removeEventListener("copy", handleCopy);
+      document.removeEventListener("paste", handlePaste);
+      document.removeEventListener("cut", handleCut);
+    };
   }, []);
 
   const handleCut = useCallback(() => {
