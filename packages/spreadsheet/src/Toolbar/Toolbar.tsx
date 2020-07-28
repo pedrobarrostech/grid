@@ -666,6 +666,7 @@ const Toolbar: React.FC<ToolbarProps> = memo((props) => {
         <Separator borderColor={borderColor} />
 
         <SelectDropdown
+          id='font-size'
           options={FONT_SIZES.map((size) => ({ label: size, value: size }))}
           onChange={(item) => {
             onFormattingChange?.(FORMATTING_TYPE.FONT_SIZE, item?.value);

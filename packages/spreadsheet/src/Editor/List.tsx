@@ -64,6 +64,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
     return (
       <>
         <Downshift
+          id='list-editor'
           initialInputValue={initialValue}
           onChange={(value) => {
             onSubmit(value ?? undefined);
@@ -89,7 +90,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
               return new RegExp(inputValue, "gi").test(item);
             });
             return (
-              <Box {...getRootProps()}>
+              <Box {...getRootProps(undefined, { suppressRefError: true })}>
                 <input
                   {...inputProps}
                   ref={inputRef}

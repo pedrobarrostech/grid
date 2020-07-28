@@ -13,6 +13,8 @@ export interface SelectProps {
   format?: (value: string) => any;
   inputWidth?: number;
   enableInput?: boolean;
+  /* For SSR */
+  id?: string
 }
 export interface Option {
   value: string | number;
@@ -27,6 +29,7 @@ const Select: React.FC<SelectProps> = memo((props) => {
     format,
     inputWidth = 44,
     enableInput = true,
+    id
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -40,6 +43,7 @@ const Select: React.FC<SelectProps> = memo((props) => {
   const dropdownBgColor = isLight ? theme.colors.white : theme.colors.gray[700];
   return (
     <Downshift
+      id={id}
       selectedItem={value}
       onChange={(sel) => onChange?.(sel)}
       itemToString={(item) => (item ? item.value.toString() : "")}
@@ -60,7 +64,7 @@ const Select: React.FC<SelectProps> = memo((props) => {
       }) => {
         const inputProps = getInputProps();
         return (
-          <Box position="relative" {...getRootProps()}>
+          <Box position='relative' {...getRootProps(undefined, { suppressRefError: true })}>
             <Box display="flex" alignItems="center">
               {enableInput ? (
                 <input
