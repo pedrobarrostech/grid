@@ -80,6 +80,7 @@ class CalcEngine {
     const changes: CellsBySheet = {};
     changes[sheet] = changes[sheet] ?? {};
     changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {};
+
     /**
      * catch dependency errors
      */
@@ -94,12 +95,22 @@ class CalcEngine {
       return changes;
     }
 
+    /* Calculate */
     const result = await this.parser.parse(formula, position, getValue);
 
+    /* Create results */
     changes[sheet] = changes[sheet] ?? {};
     changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {};
     changes[sheet][cell.rowIndex][cell.columnIndex] = result;
 
+    /**
+     * Cache current value
+     * Eg
+     * 1. User enters B1=SUM(A1, 20)
+     * 2. B2 = B1
+     * 3. When user changes B1, we need to use the result to calculate B2
+     * 4. So we are merging the results to `getValue` in parser
+     */
     this.parser.cacheValues(changes);
 
     /**
@@ -137,6 +148,7 @@ class CalcEngine {
       values = await this.calculateDependencies(directDependencies, getValue);
     }
 
+    /* Remove all caches after calculation is complete */
     this.parser.clearCachedValues();
 
     return merge(changes, values);
@@ -150,9 +162,13 @@ class CalcEngine {
     for (const { cell, address, sheet } of dependencies) {
       const config = getValue(sheet, cell);
       const isFormula = config?.datatype === "formula";
-      if (!isFormula) continue;
-      const position = { row: cell.rowIndex, col: cell.columnIndex, sheet };
-      const formula = config?.text?.substr(1) ?? null;
+      if (!isFormula || isNull(config.text) || config.text === void 0) continue;
+      const position = createPosition(
+        sheet,
+        Number(cell.rowIndex),
+        Number(cell.columnIndex)
+      );
+      const formula = config.text.substr(1) ?? null;
       const result = await this.parser.parse(formula, position, getValue);
       values[sheet] = values[sheet] ?? {};
       values[sheet][cell.rowIndex] = values[sheet][cell.rowIndex] ?? {};
