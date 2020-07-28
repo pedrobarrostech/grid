@@ -604,6 +604,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       }, initial);
     }, [sheets]);
 
+    /* Current sheet */
     const currentSheet = sheetsById[selectedSheet];
 
     /**
@@ -635,13 +636,17 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return getMinMax(sheetsById[sheet].cells?.[rowIndex])  
     }, [getCellConfig])
 
+    /**
+     * Active cell + Active cell config.
+     * Used in toolbars
+     */
     const [ activeCellConfig, activeCell ] = useMemo(() => {
       const sheet = getSheet(selectedSheet)
       return [
         getCellConfig(selectedSheet, sheet.activeCell),
         sheet.activeCell
       ]
-    }, [ getSheet, selectedSheet ])
+    }, [ getSheet, selectedSheet, getCellConfig ])
 
     /**
      * Cell changes on user input
@@ -921,7 +926,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       []
     );
-
+    
+    /**
+     * Clear formatting of selected area
+     */
     const handleClearFormatting = useCallback(() => {
       dispatch({
         type: ACTION_TYPE.CLEAR_FORMATTING,
@@ -929,6 +937,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       });
     }, [selectedSheet]);
 
+    /**
+     * Trigger row or column resize
+     */
     const handleResize = useCallback(
       (id: SheetID, axis: AXIS, index: number, dimension: number) => {
         dispatch({

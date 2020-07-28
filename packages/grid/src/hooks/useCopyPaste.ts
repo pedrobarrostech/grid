@@ -75,21 +75,16 @@ const useCopyPaste = ({
 
   useEffect(() => {
     if (!gridRef.current) return;
-    document.addEventListener("copy", (e) => {
-      if (gridRef.current?.container !== document.activeElement) return;
-      handleCopy(e);
-    });
+    document.addEventListener("copy", handleCopy);
+    document.addEventListener("paste", handlePaste);
+    document.addEventListener("cut", handleCut);
 
-    document.addEventListener("paste", (e) => {
-      if (gridRef.current?.container !== document.activeElement) return;
-      handlePaste(e);
-    });
-
-    document.addEventListener("cut", (e) => {
-      if (gridRef.current?.container !== document.activeElement) return;
-      cutSelections.current = currentSelections();
-      handleCopy(e);
-    });
+    return () => {
+      document.removeEventListener('copy', handleCopy)
+      document.removeEventListener('paste', handlePaste)
+      document.removeEventListener('cut', handleCut)
+    }
+    
   }, []);
 
   const handleCut = useCallback(() => {
@@ -185,7 +180,6 @@ const useCopyPaste = ({
   const handleProgramaticCopy = useCallback(() => {
     if (!gridRef.current) return;
     gridRef.current.focus();
-    console.log("called");
     document.execCommand("copy");
   }, []);
 

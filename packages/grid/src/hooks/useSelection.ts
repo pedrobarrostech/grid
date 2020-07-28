@@ -443,7 +443,7 @@ const useSelection = ({
       const allowDeselect = allowDeselectSelection;
       const hasSelections = selections.length > 0;
       const isDeselecting = isMetaKey && allowDeselect;
-
+      
       if (!isContextMenuClick && selectionPolicy !== "single") {
         document.addEventListener("mouseup", handleMouseUp);
         document.addEventListener("mousemove", handleMouseMove);
@@ -583,7 +583,7 @@ const useSelection = ({
 
       gridRef.current?.scrollToItem(coords);
     },
-    [rowCount, columnCount]
+    []
   );
   /**
    * Mouse up handler

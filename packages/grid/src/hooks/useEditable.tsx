@@ -592,7 +592,7 @@ const useEditable = ({
       switch (direction) {
         case Direction.Right: {
           let columnIndex = clampIndex(
-            Math.min(bounds.right + 1, columnCount - 1),
+            Math.min(bounds.right + 1, selectionRightBound),
             isHiddenColumn,
             direction
           );
@@ -632,7 +632,7 @@ const useEditable = ({
           let rowIndex = clampIndex(
             Math.min(
               (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
-              columnCount - 1
+              selectionBottomBound
             ),
             isHiddenRow,
             direction

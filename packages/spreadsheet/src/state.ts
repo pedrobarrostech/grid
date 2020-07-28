@@ -348,7 +348,6 @@ export const createStateReducer = ({
                 }
               }
             }
-            const { cells } = changes;
             break;
           }
 
@@ -678,11 +677,11 @@ export const createStateReducer = ({
             if (sheet) {
               const { axis, index, dimension } = action;
               if (axis === AXIS.X) {
-                if (!("columnSizes" in sheet)) sheet.columnSizes = {};
-                if (sheet.columnSizes) sheet.columnSizes[index] = dimension;
+                sheet.columnSizes = sheet.columnSizes ?? {};
+                sheet.columnSizes[index] = dimension;
               } else {
-                if (!("rowSizes" in sheet)) sheet.rowSizes = {};
-                if (sheet.rowSizes) sheet.rowSizes[index] = dimension;
+                sheet.rowSizes = sheet.rowSizes ?? {};
+                sheet.rowSizes[index] = dimension;
               }
             }
             break;
