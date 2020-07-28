@@ -450,7 +450,7 @@ export const Formula = () => {
     const sheets: Sheet[] = [
       {
         name: "Sheet 1",
-        id: 1,
+        id: '1',
         activeCell: null,
         selections: [],
         tabColor: "red",
@@ -458,7 +458,7 @@ export const Formula = () => {
           1: {
             2: {
               datatype: "formula",
-              text: '=SUM(A1,2)'
+              text: "=SUM(C1:C12)"
             }
           }
         }
@@ -468,8 +468,8 @@ export const Formula = () => {
       <Spreadsheet
         minHeight={600}
         sheets={sheets}
-        onInitialize={(changes) => {
-          calcEngine.initialize(changes)
+        onInitialize={(changes, getvalue) => {
+          return calcEngine.initialize(changes, getvalue)
         }}
         onCalculate={async (value, sheet, cell, getCellConfig) => {
           const changes = await calcEngine.calculate(value, sheet, cell, getCellConfig)

@@ -86,7 +86,7 @@ const Cell: React.FC<CellProps> = memo(props => {
       : false;
   const isFormula = datatype === "formula";
   const textValue = isFormula
-    ? props.error || props.result || props.text
+    ? props.error ?? props.result ?? props.text
     : props.text;
   const text = formatter
     ? formatter(textValue, datatype, cellConfig)

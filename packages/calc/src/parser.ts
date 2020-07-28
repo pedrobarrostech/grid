@@ -3,6 +3,7 @@ import { DepParser } from "fast-formula-parser/grammar/dependency/hooks";
 import FormulaError from "fast-formula-parser/formulas/error";
 import { detectDataType, DATATYPES } from "./helpers";
 import { CellsBySheet } from "./calc";
+import merge from "lodash.merge";
 
 export type Sheet = string;
 
@@ -63,7 +64,7 @@ class FormulaParser {
   }
 
   cacheValues = (changes: CellsBySheet) => {
-    this.currentValues = changes;
+    this.currentValues = merge(this.currentValues, changes);
   };
 
   clearCachedValues = () => {
@@ -72,7 +73,7 @@ class FormulaParser {
 
   getCellConfig = (position: Position) => {
     const sheet = position.sheet;
-    const cell = { rowIndex: position.row, columnIndex: position.col };    
+    const cell = { rowIndex: position.row, columnIndex: position.col };
     const config = this.getValue?.(sheet, cell) ?? null;
     // console.log('cell',cell, config)
     if (config === null) return config;
@@ -81,7 +82,7 @@ class FormulaParser {
     }
     return config && config.datatype === "number"
       ? parseFloat(config.text || "0")
-      : config.text;
+      : config.text ?? null;
   };
 
   getCellValue = (pos: Position) => {

@@ -1,4 +1,10 @@
-import { FormulaParser, Sheet, GetValue, CellConfig } from "./parser";
+import {
+  FormulaParser,
+  Sheet,
+  GetValue,
+  CellConfig,
+  CellRange
+} from "./parser";
 import { Dag, Node, DependencyMapping } from "./graph";
 import { cellToAddress, isNull, createPosition } from "./helpers";
 import merge from "lodash.merge";
@@ -51,7 +57,7 @@ class CalcEngine {
       const dependencies = this.dag.visit([node]);
 
       if (dependencies.size > 0) {
-        dependencies.delete(node)
+        dependencies.delete(node);
         const values = await this.calculateDependencies(dependencies, getValue);
         return values;
       }
@@ -94,15 +100,31 @@ class CalcEngine {
     changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {};
     changes[sheet][cell.rowIndex][cell.columnIndex] = result;
 
+    this.parser.cacheValues(changes);
+
     /**
      * Add dependencies
      */
-
     for (const dep of dependencies) {
-      const { row, col, sheet, address } = dep;
-      const cellNode = { rowIndex: row, columnIndex: col };
-      const node = this.mapping.get(address, sheet, cellNode);
-      node?.children.add(parentNode);
+      if (dep.from) {
+        const { from, to, sheet } = dep as CellRange;
+        for (let i = from.row; i <= to.row; i++) {
+          for (let j = from.col; j <= to.col; j++) {
+            const cell = { rowIndex: i, columnIndex: j };
+            const address = cellToAddress(cell);
+            if (!address) {
+              continue;
+            }
+            const node = this.mapping.get(address, sheet, cell);
+            node?.children.add(parentNode);
+          }
+        }
+      } else {
+        const { row, col, sheet, address } = dep;
+        const cellNode = { rowIndex: row, columnIndex: col };
+        const node = this.mapping.get(address, sheet, cellNode);
+        node?.children.add(parentNode);
+      }
     }
 
     /**
@@ -111,7 +133,7 @@ class CalcEngine {
     const directDependencies = this.dag.visit([parentNode]);
     let values = {};
     if (directDependencies.size > 0) {
-      directDependencies.delete(parentNode)
+      directDependencies.delete(parentNode);
       values = await this.calculateDependencies(directDependencies, getValue);
     }
 
@@ -143,7 +165,7 @@ class CalcEngine {
   };
 
   calculateBatch = async (
-    changes: Cells,
+    changes: CellsBySheet,
     sheet: Sheet,
     getValue: GetValue
   ) => {};
@@ -152,7 +174,8 @@ class CalcEngine {
    * Set dependencies in graph
    * @param changes
    */
-  initialize = async (changes: CellsBySheet) => {
+  initialize = async (changes: CellsBySheet, getValue: GetValue) => {
+    const values = {};
     for (const sheet in changes) {
       for (const rowIndex in changes[sheet]) {
         for (const columnIndex in changes[sheet][rowIndex]) {
@@ -162,10 +185,15 @@ class CalcEngine {
 
           if (!isNull(text) && datatype === "formula") {
             const formula = text.substr(1);
-            const cell = { rowIndex, columnIndex };
-            // @ts-ignore
+            const cell = {
+              rowIndex: Number(rowIndex),
+              columnIndex: Number(columnIndex)
+            };
             const cellAddress = cellToAddress(cell);
-            // @ts-ignore
+            if (!cellAddress) {
+              continue;
+            }
+
             const parentNode = this.mapping.get(cellAddress, sheet, cell);
             if (!cellAddress || !parentNode) {
               continue;
@@ -175,20 +203,43 @@ class CalcEngine {
               Number(rowIndex),
               Number(columnIndex)
             );
+
+            const result = await this.calculate(text, sheet, cell, getValue);
+            /* Merge results  */
+            merge(values, result);
+
             try {
               const dependents = this.parser.getDependencies(formula, position);
               for (const dep of dependents) {
-                const { row, col, sheet, address } = dep;
-                const cellNode = { rowIndex: row, columnIndex: col };
-                const node = this.mapping.get(address, sheet, cellNode);
-                node?.children.add(parentNode);
+                if (dep.from) {
+                  const { from, to, sheet } = dep as CellRange;
+                  for (let i = from.row; i <= to.row; i++) {
+                    for (let j = from.col; j <= to.col; j++) {
+                      const cell = { rowIndex: i, columnIndex: j };
+                      const address = cellToAddress(cell);
+                      if (!address) {
+                        continue;
+                      }
+                      const node = this.mapping.get(address, sheet, cell);
+                      node?.children.add(parentNode);
+                    }
+                  }
+                } else {
+                  const { row, col, sheet, address } = dep;
+                  const cell = { rowIndex: row, columnIndex: col };
+                  const node = this.mapping.get(address, sheet, cell);
+                  node?.children.add(parentNode);
+                }
               }
+              console.log("dependents", this.mapping);
             } catch (err) {
               console.log("Error parsing formula ", err);
             }
           }
         }
       }
+
+      return values;
     }
   };
 }

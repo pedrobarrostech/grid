@@ -248,7 +248,7 @@ export interface SpreadSheetProps {
    * Called when the grid is initialized,
    * so that formula module can add dependencies in the graph
    */
-  onInitialize?: (changes: CellsBySheet) => void
+  onInitialize?: (changes: CellsBySheet, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet> | undefined
   /**
    * 
    */
@@ -587,18 +587,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.REPLACE_SHEETS,
         sheets: initialSheets
       });
-    }, [initialSheets]);
-
-    useEffect(() => {
-      const initial: Record<string, Cells> =  {}
-      const changes = sheets.reduce((acc, sheet) => {
-        // @ts-nocheck
-        acc[sheet.id] = sheet.cells
-        return acc
-      }, initial)
-
-      onInitialize?.(changes)
-    }, [])
+    }, [initialSheets]);    
 
     /**
      * Handle add new sheet
@@ -646,6 +635,25 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const getSheet = useCallback((id: SheetID) => {
       return sheetsById?.[id]
     }, [ sheetsById ])
+
+    useEffect(() => {
+      const initial: Record<string, Cells> =  {}
+      const changes = sheets.reduce((acc, sheet) => {
+        // @ts-nocheck
+        acc[sheet.id] = sheet.cells
+        return acc
+      }, initial)
+            
+      onInitialize?.(changes, getCellConfigRef.current)
+        .then(changes =>  {
+          if (changes !== void 0) {
+            dispatch({
+              type: ACTION_TYPE.UPDATE_CELLS,
+              changes,
+            })
+          }
+        })      
+    }, [])
     
     /**
      * Get max rows in a sheet
@@ -716,6 +724,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           const changes = await onCalculate?.(value, id, cell, getCellConfigRef.current)
+
           if (changes !== void 0) {
             dispatch({
               type: ACTION_TYPE.UPDATE_CELLS,

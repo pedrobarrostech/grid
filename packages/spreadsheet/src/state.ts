@@ -332,7 +332,7 @@ export const createStateReducer = ({
           case ACTION_TYPE.UPDATE_CELLS: {
             const { changes } = action;
             for (const id in changes) {              
-              const sheet = draft.sheets.find(sheet => sheet.id == id);
+              const sheet = draft.sheets.find(sheet => sheet.id == id);              
               if (sheet) {
                 for (const rowIndex in changes[id]) {
                   sheet.cells[rowIndex] = sheet.cells[rowIndex] ?? {};
@@ -340,7 +340,6 @@ export const createStateReducer = ({
                     sheet.cells[rowIndex][columnIndex] =
                       sheet.cells[rowIndex][columnIndex] ?? {};
                     const values = changes[id][rowIndex][columnIndex];                    
-
                     for (const key in values) {
                       sheet.cells[rowIndex][columnIndex][key] = values[key];
                     }
