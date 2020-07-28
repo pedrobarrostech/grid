@@ -1,6 +1,6 @@
 import produce, { enablePatches, applyPatches, Patch, original } from "immer";
 import { uuid, detectDataType, cellsInSelectionVariant, createCustomValidation, cloneCellConfig, cloneRow } from "./constants";
-import { Sheet, SheetID, Cells, CellConfig, DeltaChanges } from "./Spreadsheet";
+import { Sheet, SheetID, Cells, CellConfig, CellsBySheet } from "./Spreadsheet";
 import {
   PatchInterface,
   CellInterface,
@@ -258,8 +258,7 @@ export type ActionTypes =
   | { type: ACTION_TYPE.UNPROTECT_SHEET; id: SheetID; undoable?: boolean }
   | {
       type: ACTION_TYPE.UPDATE_CELLS;
-      id: SheetID;
-      changes: DeltaChanges;
+      changes: CellsBySheet;
       undoable?: boolean;
     };
 
@@ -332,15 +331,16 @@ export const createStateReducer = ({
 
           case ACTION_TYPE.UPDATE_CELLS: {
             const { changes } = action;
-            for (const id in changes) {
-              const sheet = draft.sheets.find(sheet => sheet.id === action.id);
+            for (const id in changes) {              
+              const sheet = draft.sheets.find(sheet => sheet.id == id);
               if (sheet) {
                 for (const rowIndex in changes[id]) {
                   sheet.cells[rowIndex] = sheet.cells[rowIndex] ?? {};
                   for (const columnIndex in changes[id][rowIndex]) {
                     sheet.cells[rowIndex][columnIndex] =
                       sheet.cells[rowIndex][columnIndex] ?? {};
-                    const values = changes[id][rowIndex][columnIndex];
+                    const values = changes[id][rowIndex][columnIndex];                    
+
                     for (const key in values) {
                       sheet.cells[rowIndex][columnIndex][key] = values[key];
                     }
@@ -594,6 +594,7 @@ export const createStateReducer = ({
                     for (let j = bounds.left; j <= bounds.right; j++) {
                       if (sheet.cells[i][j] === void 0) continue;
                       sheet.cells[i][j].text = "";
+                      delete sheet.cells[i][j].result
                       delete sheet.cells[i][j]?.image;
                     }
                   }
@@ -603,6 +604,7 @@ export const createStateReducer = ({
                 if (sheet.cells?.[rowIndex]?.[columnIndex]) {
                   sheet.cells[rowIndex][columnIndex].text = "";
                   delete sheet.cells[rowIndex][columnIndex]?.image;
+                  delete sheet.cells[rowIndex][columnIndex]?.result;
                 }
               }
             }

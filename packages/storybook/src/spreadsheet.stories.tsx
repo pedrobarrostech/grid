@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useCallback } from "react";
 import Spreadsheet, {
   Sheet,
@@ -5,7 +6,7 @@ import Spreadsheet, {
   DATATYPES
 } from "@rowsncolumns/spreadsheet";
 import { parse, download } from "@rowsncolumns/export";
-// import CalcEngine from '@rowsncolumns/calc'
+import CalcEngine from '@rowsncolumns/calc'
 
 export default {
   title: "Spreadsheet",
@@ -444,7 +445,7 @@ export const TabColors = () => {
 };
 
 export const Formula = () => {
-  // const calcEngine = new CalcEngine()
+  const calcEngine = new CalcEngine()
   const App = () => {
     const sheets: Sheet[] = [
       {
@@ -456,8 +457,8 @@ export const Formula = () => {
         cells: {
           1: {
             2: {
-              datatype: "boolean",
-              type: "hello"
+              datatype: "formula",
+              text: '=SUM(A1,2)'
             }
           }
         }
@@ -467,20 +468,13 @@ export const Formula = () => {
       <Spreadsheet
         minHeight={600}
         sheets={sheets}
-        // onAfterChange={(value, sheet, cell, getCellConfig, cb) => {
-        //   const results = calcEngine.parse( value.substr(1), sheet, cell, getCellConfig)
-        //   cb({
-        //     [sheet]: {
-        //       [cell.rowIndex]: {
-        //         [cell.columnIndex]: {
-        //           result: results.result,
-        //           formulaType: results.datatype,
-        //           error: results.error
-        //         }
-        //       }
-        //     }
-        //   })
-        // }}
+        onInitialize={(changes) => {
+          calcEngine.initialize(changes)
+        }}
+        onCalculate={async (value, sheet, cell, getCellConfig) => {
+          const changes = await calcEngine.calculate(value, sheet, cell, getCellConfig)
+          return changes
+        }}
       />
     );
   };

@@ -33,7 +33,8 @@ import {
   format as defaultFormat,
   FONT_FAMILIES,
   detectDataType,
-  getMinMax
+  getMinMax,
+  castToString
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -243,12 +244,23 @@ export interface SpreadSheetProps {
    * Toggle this to true
    */
   enableGlobalKeyHandlers?: boolean;
+  /**
+   * Called when the grid is initialized,
+   * so that formula module can add dependencies in the graph
+   */
+  onInitialize?: (changes: CellsBySheet) => void
+  /**
+   * 
+   */
+  onCalculate?: (value: React.ReactText, id: SheetID, cell: CellInterface, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>
   // TODO
   // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onMouseUp?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onClick?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
 }
+
+export type CellConfigGetter = (id: SheetID, cell: CellInterface | null) => CellConfig | undefined
 
 export interface Sheet {
   id: SheetID;
@@ -274,14 +286,11 @@ export interface Sheet {
 }
 
 export type SheetID = React.ReactText;
+export type CellsBySheet = Record<string, Cells>
 
 export type SizeType = {
   [key: number]: number;
 };
-
-export interface DeltaChanges {
-  [key: string]: Cells;
-}
 
 export type Cells = Record<string, Cell>;
 export type Cell = Record<string, CellConfig>;
@@ -387,7 +396,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       snap = false,
       stateReducer,
       onValidate = validate,
-      enableGlobalKeyHandlers = false
+      enableGlobalKeyHandlers = false,
+      onInitialize,
+      onCalculate
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -562,11 +573,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Change selected sheet */
     useEffect(() => {
       onChangeSelectedSheet?.(selectedSheet);
-    }, [selectedSheet]);
-
-    useEffect(() => {
       selectedSheetRef.current = selectedSheet;
-    });
+    }, [selectedSheet]);
 
     /* Listen to sheet change */
     useEffect(() => {
@@ -580,6 +588,17 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         sheets: initialSheets
       });
     }, [initialSheets]);
+
+    useEffect(() => {
+      const initial: Record<string, Cells> =  {}
+      const changes = sheets.reduce((acc, sheet) => {
+        // @ts-nocheck
+        acc[sheet.id] = sheet.cells
+        return acc
+      }, initial)
+
+      onInitialize?.(changes)
+    }, [])
 
     /**
      * Handle add new sheet
@@ -617,6 +636,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       [sheetsById]
     );
+
+    /* Add it to ref to prevent closures */
+    const getCellConfigRef = useRef<CellConfigGetter>()
+    useEffect(() => {
+      getCellConfigRef.current = getCellConfig
+    }, [ getCellConfig])
 
     const getSheet = useCallback((id: SheetID) => {
       return sheetsById?.[id]
@@ -689,6 +714,15 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               prompt: message
             });
           }
+
+          const changes = await onCalculate?.(value, id, cell, getCellConfigRef.current)
+          if (changes !== void 0) {
+            dispatch({
+              type: ACTION_TYPE.UPDATE_CELLS,
+              changes,
+            })
+          }
+
         });
       },
       [getCellConfig]

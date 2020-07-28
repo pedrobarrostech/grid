@@ -1,0 +1,31 @@
+{
+  "name": "@rowsncolumns/calc",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -b",
+    "build:watch": "tsc -p . --watch",
+    "check:types": "tsc --noEmit",
+    "prepublish": "yarn build",
+    "prettier": "prettier src/**/* --write",
+    "test": "jest"
+  },
+  "author": "Vinay M <rmdort@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rowsncolumns/grid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rowsncolumns/grid/issues"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@types/lodash.merge": "^4.6.6",
+    "fast-formula-parser": "^1.0.6",
+    "lodash.merge": "^4.6.2"
+  }
+}
