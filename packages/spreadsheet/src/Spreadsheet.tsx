@@ -1320,6 +1320,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       });
     }, []);
 
+    const handleChangeTabColor = useCallback((id: SheetID, color?: string) => {
+      dispatch({
+        type: ACTION_TYPE.CHANGE_TAB_COLOR,
+        id,
+        color
+      });
+    }, []);
+
     return (
       <>
         <Global
@@ -1440,6 +1448,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onShowSheet={handleShowSheet}
             onProtectSheet={handleProtectSheet}
             onUnProtectSheet={handleUnProtectSheet}
+            onChangeTabColor={handleChangeTabColor}
           />
         </Flex>
       </>

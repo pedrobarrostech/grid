@@ -6,12 +6,14 @@ import {
   Popover,
   PopoverTrigger,
   PopoverBody,
-  PopoverArrow
+  PopoverArrow,
+  Icon
 } from "@chakra-ui/core";
 import { MdArrowDropDown, MdLock } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
 import { IconButton, Button, PopoverContent } from "../styled";
 import { SheetID } from "../Spreadsheet";
+import { ColorPicker } from "../Toolbar/Toolbar";
 
 interface TabItemProps {
   name: string;
@@ -25,6 +27,7 @@ interface TabItemProps {
   onHideSheet?: (id: SheetID) => void;
   onProtectSheet?: (id: SheetID) => void;
   onUnProtectSheet?: (id: SheetID) => void;
+  onChangeTabColor?: (id: SheetID, color?: string) => void;
   locked?: boolean;
   canDelete?: boolean;
   canHide?: boolean;
@@ -46,7 +49,8 @@ const TabItem: React.FC<TabItemProps> = ({
   locked = false,
   canHide = true,
   canDelete = true,
-  tabColor = "transparent"
+  tabColor = "transparent",
+  onChangeTabColor
 }) => {
   const canEditSheet = !locked;
   const canDeleteSheet = !locked && canDelete;
@@ -203,6 +207,40 @@ const TabItem: React.FC<TabItemProps> = ({
                         >
                           Duplicate
                         </Button>
+                        <Popover placement="left" trigger="hover">
+                          <PopoverTrigger>
+                            <Button
+                              fontWeight="normal"
+                              size="sm"
+                              variant="ghost"
+                              isFullWidth
+                              textAlign="left"
+                              background="none"
+                              justifyContent="left"
+                              borderRadius={0}
+                              isDisabled={!canEditSheet}
+                            >
+                              <Box flex={1}>Change color</Box>
+                              <Icon name="chevron-right" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            width={280}
+                            borderStyle="solid"
+                            borderColor={borderColor}
+                          >
+                            <PopoverArrow />
+                            <PopoverBody>
+                              <ColorPicker
+                                color={tabColor}
+                                onChange={(value: string | undefined) => {
+                                  onChangeTabColor?.(id, value);
+                                  onClose?.();
+                                }}
+                              />
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
                         <Button
                           fontWeight="normal"
                           size="sm"

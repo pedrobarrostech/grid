@@ -112,6 +112,7 @@ export interface WorkbookProps
   onShowSheet?: (id: SheetID) => void;
   onProtectSheet?: (id: SheetID) => void;
   onUnProtectSheet?: (id: SheetID) => void;
+  onChangeTabColor?: (id: SheetID, color?: string) => void;
   StatusBar: React.ReactType;
   scale?: number;
 }
@@ -173,7 +174,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onHideSheet,
       onShowSheet,
       onProtectSheet,
-      onUnProtectSheet
+      onUnProtectSheet,
+      onChangeTabColor
     } = props;
 
     const { colorMode } = useColorMode();
@@ -414,6 +416,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
                   onProtectSheet={onProtectSheet}
                   onUnProtectSheet={onUnProtectSheet}
                   onDuplicateSheet={onDuplicateSheet}
+                  onChangeTabColor={onChangeTabColor}
                   isTabEditable={isTabEditable}
                   allowNewSheet={allowNewSheet}
                 />

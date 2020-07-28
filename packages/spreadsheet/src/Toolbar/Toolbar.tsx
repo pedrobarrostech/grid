@@ -124,7 +124,7 @@ interface ColorPickerProps {
   onChange: (value: string | undefined) => void;
 }
 const BUTTON_HEIGHT = "28px";
-const ColorPicker: React.FC<ColorPickerProps> = ({
+export const ColorPicker: React.FC<ColorPickerProps> = ({
   color,
   onChange,
   resetLabel = "Reset"

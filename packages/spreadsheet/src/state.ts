@@ -86,7 +86,8 @@ export enum ACTION_TYPE {
   HIDE_SHEET = "HIDE_SHEET",
   PROTECT_SHEET = "PROTECT_SHEET",
   UNPROTECT_SHEET = "UNPROTECT_SHEET",
-  UPDATE_CELLS = "UPDATE_CELLS"
+  UPDATE_CELLS = "UPDATE_CELLS",
+  CHANGE_TAB_COLOR = 'CHANGE_TAB_COLOR'
 }
 
 export type ActionTypes =
@@ -260,7 +261,13 @@ export type ActionTypes =
       type: ACTION_TYPE.UPDATE_CELLS;
       changes: CellsBySheet;
       undoable?: boolean;
-    };
+    }
+  | {
+      type: ACTION_TYPE.CHANGE_TAB_COLOR;
+      id: SheetID;
+      color?: string;
+      undoable?: boolean;
+    }
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
@@ -1002,6 +1009,16 @@ export const createStateReducer = ({
             ) as Sheet;
             if (sheet) {
               sheet.locked = false;
+            }
+            break;
+          }
+
+          case ACTION_TYPE.CHANGE_TAB_COLOR: {
+            const sheet = draft.sheets.find(
+              sheet => sheet.id === action.id
+            ) as Sheet;
+            if (sheet) {
+              sheet.tabColor = action.color;
             }
             break;
           }
