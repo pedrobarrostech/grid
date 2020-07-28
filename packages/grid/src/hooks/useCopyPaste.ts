@@ -56,7 +56,7 @@ const useCopyPaste = ({
   getValue,
   gridRef,
   onPaste,
-  onCut,
+  onCut
 }: CopyProps): CopyResults => {
   const selectionRef = useRef({ selections, activeCell, getValue });
   const cutSelections = useRef<SelectionArea>();
@@ -198,7 +198,7 @@ const useCopyPaste = ({
   return {
     copy: handleProgramaticCopy,
     paste: handleProgramaticPaste,
-    cut: handleCut,
+    cut: handleCut
   };
 };
 

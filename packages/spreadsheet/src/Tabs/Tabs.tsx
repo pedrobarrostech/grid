@@ -7,7 +7,7 @@ import {
   Flex,
   Box,
   useTheme,
-  useColorMode,
+  useColorMode
   // Tooltip,
 } from "@chakra-ui/core";
 import { COLUMN_HEADER_WIDTH, DARK_MODE_COLOR } from "../constants";
@@ -17,7 +17,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
+  PopoverArrow
 } from "@chakra-ui/core";
 import TabItem from "./TabItem";
 import { translations } from "../translations";
@@ -37,7 +37,7 @@ interface TabProps
   onUnProtectSheet?: (id: SheetID) => void;
 }
 
-const Tabs: React.FC<TabProps> = (props) => {
+const Tabs: React.FC<TabProps> = props => {
   const {
     sheets,
     onSelect,
@@ -51,13 +51,13 @@ const Tabs: React.FC<TabProps> = (props) => {
     onShowSheet,
     onHideSheet,
     onProtectSheet,
-    onUnProtectSheet,
+    onUnProtectSheet
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? theme.colors.gray[900] : theme.colors.gray[300];
-  const visibleSheets = sheets.filter((sheet) => !sheet.hidden);
+  const visibleSheets = sheets.filter(sheet => !sheet.hidden);
   const visibleSheetsLen = visibleSheets.length;
   return (
     <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
