@@ -51,6 +51,7 @@ class CalcEngine {
       const dependencies = this.dag.visit([node]);
 
       if (dependencies.size > 0) {
+        dependencies.delete(node)
         const values = await this.calculateDependencies(dependencies, getValue);
         return values;
       }
@@ -110,6 +111,7 @@ class CalcEngine {
     const directDependencies = this.dag.visit([parentNode]);
     let values = {};
     if (directDependencies.size > 0) {
+      directDependencies.delete(parentNode)
       values = await this.calculateDependencies(directDependencies, getValue);
     }
 

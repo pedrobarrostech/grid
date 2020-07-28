@@ -72,8 +72,9 @@ class FormulaParser {
 
   getCellConfig = (position: Position) => {
     const sheet = position.sheet;
-    const cell = { rowIndex: position.row, columnIndex: position.col };
+    const cell = { rowIndex: position.row, columnIndex: position.col };    
     const config = this.getValue?.(sheet, cell) ?? null;
+    // console.log('cell',cell, config)
     if (config === null) return config;
     if (config?.datatype === "formula") {
       return config?.result;
