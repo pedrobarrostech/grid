@@ -17,13 +17,13 @@ const useFonts = (config?: WebFont.Config) => {
       WebFont.load({
         ...config,
         loading: () => setIsFontActive(false),
-        active: () => setIsFontActive(true)
+        active: () => setIsFontActive(true),
       });
     }
   }, [config]);
 
   return {
-    isFontActive
+    isFontActive,
   };
 };
 

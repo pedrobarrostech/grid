@@ -3,7 +3,7 @@ import {
   Sheet,
   GetValue,
   CellConfig,
-  CellRange
+  CellRange,
 } from "./parser";
 import { Dag, Node, DependencyMapping } from "./graph";
 import { cellToAddress, isNull, createPosition } from "./helpers";
@@ -27,7 +27,7 @@ class CalcEngine {
   mapping: DependencyMapping;
   constructor() {
     this.parser = new FormulaParser();
-    this.dag = new Dag<Node>(node => node.children);
+    this.dag = new Dag<Node>((node) => node.children);
     this.mapping = new DependencyMapping();
   }
 
@@ -90,7 +90,7 @@ class CalcEngine {
     } catch (err) {
       console.warn("Error parsing formula: ", formula, cell);
       changes[sheet][cell.rowIndex][cell.columnIndex] = {
-        error: "Error parsing formula " + err.toString()
+        error: "Error parsing formula " + err.toString(),
       };
       return changes;
     }
@@ -132,7 +132,10 @@ class CalcEngine {
         }
       } else {
         const { row, col, sheet } = dep;
-        const address = cellToAddress({ rowIndex: row, columnIndex: col }) as string
+        const address = cellToAddress({
+          rowIndex: row,
+          columnIndex: col,
+        }) as string;
         const cellNode = { rowIndex: row, columnIndex: col };
         const node = this.mapping.get(address, sheet, cellNode);
         node?.children.add(parentNode);
@@ -204,7 +207,7 @@ class CalcEngine {
             const formula = text.substr(1);
             const cell = {
               rowIndex: Number(rowIndex),
-              columnIndex: Number(columnIndex)
+              columnIndex: Number(columnIndex),
             };
             const cellAddress = cellToAddress(cell);
             if (!cellAddress) {
@@ -243,7 +246,10 @@ class CalcEngine {
                   }
                 } else {
                   const { row, col, sheet } = dep;
-                  const address = cellToAddress({ rowIndex: row, columnIndex: col })  as string
+                  const address = cellToAddress({
+                    rowIndex: row,
+                    columnIndex: col,
+                  }) as string;
                   const cell = { rowIndex: row, columnIndex: col };
                   const node = this.mapping.get(address, sheet, cell);
                   node?.children.add(parentNode);

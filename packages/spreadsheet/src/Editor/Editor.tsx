@@ -3,7 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo
+  useMemo,
 } from "react";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { autoSizerCanvas } from "@rowsncolumns/grid";
@@ -13,7 +13,7 @@ import { useColorMode } from "@chakra-ui/core";
 import {
   DARK_MODE_COLOR_LIGHT,
   DEFAULT_FONT_FAMILY,
-  cellToAddress
+  cellToAddress,
 } from "../constants";
 import { EditorType } from "../types";
 
@@ -34,7 +34,7 @@ export interface CustomEditorProps extends EditorProps {
  * Default cell editor
  * @param props
  */
-const Editor: React.FC<CustomEditorProps> = props => {
+const Editor: React.FC<CustomEditorProps> = (props) => {
   const {
     rowIndex,
     columnIndex,
@@ -79,11 +79,11 @@ const Editor: React.FC<CustomEditorProps> = props => {
   const textSizer = useRef(autoSizerCanvas);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
-    text => {
+    (text) => {
       /*  Set font */
       textSizer.current.setFont({
         fontSize,
-        fontFamily
+        fontFamily,
       });
 
       const textWidth = textSizer.current.measureText(text)?.width || 0;
@@ -115,7 +115,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
   const inputHeight = height;
   /* Change */
   const handleChange = useCallback(
-    value => {
+    (value) => {
       onChange?.(value, cell);
     },
     [cell]
@@ -143,7 +143,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
         padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         border: "2px #1a73e8 solid",
-        background: backgroundColor
+        background: backgroundColor,
       }}
     >
       {address ? (
@@ -160,7 +160,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
             boxShadow: "0px 1px 2px rgba(0,0,0,0.5)",
             bottom: "100%",
             background: "#4589eb",
-            color: "white"
+            color: "white",
           }}
         >
           {address}

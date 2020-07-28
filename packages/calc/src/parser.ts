@@ -58,7 +58,7 @@ class FormulaParser {
     this.formulaParser = new FastFormulaParser({
       functions: functions,
       onCell: this.getCellValue,
-      onRange: this.getRangeValue
+      onRange: this.getRangeValue,
     });
     this.dependencyParser = new DepParser();
   }
