@@ -9,6 +9,7 @@ A calculation module for spreadsheet
 1. Able to return multiple results based on cell-dependency
 1. Able to run multiple calculations (batch)
 1. Able to run single calculation
+1. Ability to run in cloudflare workers (Todo)
 
 
 ```
