@@ -605,3 +605,31 @@ export const getEditorType = (type?: DataValidationType): EditorType => {
 };
 
 export const DEFAULT_CHECKBOX_VALUES = ["TRUE", "FALSE"];
+
+
+export const getMinMax = (o: Object) => {
+  const keys = Object.keys(o ?? {}).map(Number);
+  return [Math.min(...keys), Math.max(...keys)];
+};
+
+
+/* Create custom validation */
+export const createCustomValidation = (): DataValidation => {
+  return {
+    type: "custom"
+  };
+};
+
+/* Clone a cell config excluding text, result */
+export const cloneCellConfig = (config: CellConfig): Partial<CellConfig> => {
+  const { text, result, formula, ...rest } = config
+  return rest
+}
+
+/* Clone a row */
+export const cloneRow = (cells: Record<string, CellConfig>): Record<string, CellConfig> =>  {
+  for (const columnIndex in cells) {
+    cells[columnIndex] = cloneCellConfig(cells[columnIndex])
+  }
+  return cells
+}

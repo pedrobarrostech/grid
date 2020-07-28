@@ -32,7 +32,8 @@ import {
   SYSTEM_FONT,
   format as defaultFormat,
   FONT_FAMILIES,
-  detectDataType
+  detectDataType,
+  getMinMax
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -609,19 +610,38 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Get cell config
      */
     const getCellConfig = useCallback(
-      (sheet: SheetID, cell: CellInterface): CellConfig | undefined => {
-        return sheetsById?.[sheet].cells?.[cell.rowIndex]?.[cell.columnIndex];
+      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {
+        if (!cell) return void 0
+        return sheetsById?.[id].cells?.[cell.rowIndex]?.[cell.columnIndex];
       },
       [sheetsById]
     );
 
-    const [activeCellConfig, activeCell] = useMemo(() => {
-      const { activeCell, cells } = currentSheet || {};
-      const activeCellConfig = activeCell
-        ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
-        : null;
-      return [activeCellConfig, activeCell];
-    }, [currentSheet]);
+    const getSheet = useCallback((id: SheetID) => {
+      return sheetsById?.[id]
+    }, [ sheetsById ])
+    
+    /**
+     * Get max rows in a sheet
+     */
+    const getMinMaxRows = useCallback((sheet: SheetID) => {
+      return getMinMax(sheetsById[sheet]?.cells)  
+    }, [getCellConfig])
+
+    /**
+     * Get max columns in a sheet row
+     */
+    const getMinMaxColumns = useCallback((sheet: SheetID, rowIndex: number) => {
+      return getMinMax(sheetsById[sheet].cells?.[rowIndex])  
+    }, [getCellConfig])
+
+    const [ activeCellConfig, activeCell ] = useMemo(() => {
+      const sheet = getSheet(selectedSheet)
+      return [
+        getCellConfig(selectedSheet, sheet.activeCell),
+        sheet.activeCell
+      ]
+    }, [ getSheet, selectedSheet ])
 
     /**
      * Cell changes on user input

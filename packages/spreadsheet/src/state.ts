@@ -1,5 +1,5 @@
-import produce, { enablePatches, applyPatches, Patch } from "immer";
-import { uuid, detectDataType, cellsInSelectionVariant } from "./constants";
+import produce, { enablePatches, applyPatches, Patch, original } from "immer";
+import { uuid, detectDataType, cellsInSelectionVariant, createCustomValidation, cloneCellConfig, cloneRow } from "./constants";
 import { Sheet, SheetID, Cells, CellConfig, DeltaChanges } from "./Spreadsheet";
 import {
   PatchInterface,
@@ -27,13 +27,6 @@ import SheetGrid from "./Grid/Grid";
 
 /* Enabled patches in immer */
 enablePatches();
-
-/* Create custom validation */
-export const createCustomValidation = (): DataValidation => {
-  return {
-    type: "custom"
-  };
-};
 
 export const defaultSheets: Sheet[] = [
   {
@@ -891,8 +884,8 @@ export const createStateReducer = ({
                   ...Object.keys(cells[row] ?? {}).map(Number)
                 );
                 changes[row] = changes[row] ?? {};
-                for (let i = columnIndex; i <= maxCol; i++) {
-                  changes[row][i] = changes[row][i] ?? {};
+                changes[row][columnIndex] = cloneCellConfig(cells[row][columnIndex] ?? {});
+                for (let i = columnIndex; i <= maxCol; i++) {                  
                   changes[row][i + 1] = cells[row]?.[i];
                 }
               }
@@ -915,14 +908,14 @@ export const createStateReducer = ({
               const { rowIndex } = activeCell;
               const { cells } = sheet;
               const maxRow = Math.max(...Object.keys(cells).map(Number));
-              const changes: { [key: string]: any } = {};
+              const changes: { [key: string]: any } = {}; 
+              changes[rowIndex] = cloneRow({ ...cells[rowIndex] }) 
               for (let i = rowIndex; i <= maxRow; i++) {
                 changes[i + 1] = cells[i];
               }
               for (const index in changes) {
                 cells[index] = changes[index];
-              }
-              delete cells[rowIndex];
+              }              
             }
             break;
           }
