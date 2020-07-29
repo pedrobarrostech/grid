@@ -132,15 +132,13 @@ module.exports = {
         },
       },
     ],
-  ],
-  plugins: [
     [
       "@docusaurus/plugin-sitemap",
       {
         cacheTime: 600 * 1000, // 600 sec - cache purge period
         changefreq: "weekly",
         priority: 0.5,
-      },
-    ],
-  ],
+      }
+    ]
+  ]
 };
