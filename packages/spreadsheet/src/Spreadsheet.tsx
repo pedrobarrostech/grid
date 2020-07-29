@@ -643,7 +643,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     }, [ sheetsById ])
 
     /**
-     * Trigger batch calciulation
+     * Trigger batch calculation
      * @param changes 
      */
     const triggerBatchCalculation = async (changes: CellsBySheet, sheet: SheetID) => {
@@ -1021,8 +1021,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         setFormulaInput("");
         
+        /**
+         * Using RAF such that calculation engine gets the right values from state
+         */
         window.requestAnimationFrame(() => {
-
           const sel = selections.length
             ? selections
             : [{ bounds: getCellBounds(activeCell) as AreaProps }];
