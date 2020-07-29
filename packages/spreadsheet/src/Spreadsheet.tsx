@@ -782,7 +782,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           /* Trigger single calculation */
-          triggerSingleCalculation(value, id, cell)
+          // triggerSingleCalculation(value, id, cell)
 
         });
       },
@@ -1043,7 +1043,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           /* Trigger */
-          triggerBatchCalculation(values, id)
+          // triggerBatchCalculation(values, id)
         })                
       },
       []

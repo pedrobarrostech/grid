@@ -448,7 +448,7 @@ export const createStateReducer = ({
                   }
                   sheet.cells[i] = sheet.cells[i] ?? {};
                   for (let j = sel.bounds.left; j <= sel.bounds.right; j++) {
-                    sheet.cells[i][j] = sheet.cells[curSelRowIndex][j];
+                    sheet.cells[i][j] = sheet.cells?.[curSelRowIndex]?.[j];
                   }
                   counter--;
                 }
@@ -465,7 +465,7 @@ export const createStateReducer = ({
                       counter = 0;
                       curSelColumnIndex = sel.bounds.right;
                     }
-                    sheet.cells[i][j] = sheet.cells[i][curSelColumnIndex];
+                    sheet.cells[i][j] = sheet.cells?.[i]?.[curSelColumnIndex];
                     counter--;
                   }
                 }
@@ -482,7 +482,7 @@ export const createStateReducer = ({
                       counter = 0;
                       curSelColumnIndex = sel.bounds.left;
                     }
-                    sheet.cells[i][j] = sheet.cells[i][curSelColumnIndex];
+                    sheet.cells[i][j] = sheet.cells?.[i]?.[curSelColumnIndex];
                     counter++;
                   }
                 }

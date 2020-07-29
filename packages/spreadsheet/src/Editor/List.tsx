@@ -4,7 +4,7 @@ import React, {
   useRef,
   memo,
   useState,
-  useCallback,
+  useCallback
 } from "react";
 import { KeyCodes, Direction } from "@rowsncolumns/grid";
 import Downshift from "downshift";
@@ -66,7 +66,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
         <Downshift
           id="list-editor"
           initialInputValue={initialValue}
-          onChange={(value) => {
+          onChange={value => {
             onSubmit(value ?? undefined);
           }}
           initialIsOpen
@@ -80,11 +80,11 @@ const ListEditor: React.FC<ListEditorProps> = memo(
             getItemProps,
             inputValue,
             selectedItem,
-            highlightedIndex,
+            highlightedIndex
           }) => {
             direction.current = null;
             const inputProps = getInputProps();
-            const items = options.filter((item) => {
+            const items = options.filter(item => {
               if (!inputValue || inputValue === initialInputValue.current)
                 return true;
               return new RegExp(inputValue, "gi").test(item);
@@ -110,7 +110,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
                     background: "transparent",
                     color: color,
                     whiteSpace: wrapping,
-                    textAlign: horizontalAlign,
+                    textAlign: horizontalAlign
                   }}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     inputProps.onChange?.(e);
@@ -194,7 +194,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
                               ? isLight
                                 ? theme.colors.gray[100]
                                 : "rgba(255,255,255,0.06)"
-                              : dropdownBgColor,
+                              : dropdownBgColor
                         }}
                       >
                         {item}
