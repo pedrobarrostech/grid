@@ -64,6 +64,7 @@ import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
 import TooltipComponent, { TooltipProps } from "./Tooltip";
 import validate, { ValidationResponse } from "./validation";
+import { changeSheetCell, createValidationSuccess } from "./actions";
 
 export interface SpreadSheetProps {
   /**
@@ -93,7 +94,7 @@ export interface SpreadSheetProps {
   /**
    * Active  sheet on the workbook
    */
-  activeSheet?: string;
+  initialActiveSheet?: string;
   /**
    * Callback fired when cells are modified
    */
@@ -258,11 +259,6 @@ export interface SpreadSheetProps {
    * Batch calculate
    */
   onCalculateBatch?: (changes: CellsBySheet, sheet: SheetID, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>
-  // TODO
-  // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
-  // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
-  // onMouseUp?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
-  // onClick?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
 }
 
 export type CellConfigGetter = (id: SheetID, cell: CellInterface | null) => CellConfig | undefined
@@ -357,6 +353,13 @@ export interface PatchInterface {
   inversePatches: Patch;
 }
 
+export const initialState: StateInterface = {
+  selectedSheet: 0,
+  sheets: defaultSheets,
+  currentActiveCell: null,
+  currentSelections: null
+};
+
 /**
  * Spreadsheet component
  * TODO
@@ -366,13 +369,14 @@ export interface PatchInterface {
 const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
   forwardRef((props, forwardedRef) => {
     const {
-      sheets: initialSheets = defaultSheets,
+      sheets: sheetsProp,
+      initialSheets = defaultSheets,
       showFormulabar = true,
       minColumnWidth = DEFAULT_COLUMN_WIDTH,
       minRowHeight = DEFAULT_ROW_HEIGHT,
       CellRenderer,
       HeaderCellRenderer,
-      activeSheet,
+      initialActiveSheet,
       onChangeSelectedSheet,
       onChange,
       onChangeCell,
@@ -410,6 +414,45 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Last active cells: for undo, redo */
     const lastActiveCellRef = useRef<CellInterface | null | undefined>(null);
     const lastSelectionsRef = useRef<SelectionArea[] | null | undefined>([]);
+    const [scale, setScale] = useState(initialScale);    
+    const currentGrid = useRef<WorkbookGridRef>(null);
+    const [formulaInput, setFormulaInput] = useState("");
+    const [ valueState, setValueState ] = useState<StateInterface>(() => {
+      return {
+        ...initialState,
+        selectedSheet: initialActiveSheet || initialSheets[0].id
+      }
+    })
+    const currentStateRef = useRef<StateInterface>()
+    const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0)    
+    const state: StateInterface = isControlled ? { sheets: sheetsProp as Sheet[], selectedSheet: sheetsProp[0].id } : valueState
+    const sheets = state.sheets
+    const selectedSheet = state.selectedSheet
+    const selectedSheetRef = useRef(null);    
+    
+    /* Keep a reference to current sheet */
+    useEffect(() => {
+      currentStateRef.current = state
+    })
+
+    const actions = useMemo(() => {
+      console.log('currentStateRef', state)
+      return {
+        changeSheetCell: changeSheetCell.bind(null, currentStateRef.current)
+      }
+    }, [ state ])
+
+    const updateState = useCallback((newState: StateInterface) => {
+      if (!isControlled) {
+        setValueState(newState)
+      }
+
+      onChange?.(newState.sheets)
+
+      if (newState.selectedSheet !== state.selectedSheet) {
+        onChangeSelectedSheet?.(newState.selectedSheet as React.ReactText)
+      }
+    }, [ isControlled, state ])
 
     /**
      * Some grid side-effects during undo/redo
@@ -439,11 +482,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Side-effects */
         beforeUndoRedo(patches);
 
-        dispatch({
-          type: ACTION_TYPE.APPLY_PATCHES,
-          patches,
-          undoable: false
-        });
+        // dispatch({
+        //   type: ACTION_TYPE.APPLY_PATCHES,
+        //   patches,
+        //   undoable: false
+        // });
 
         if (lastActiveCellRef.current) {
           currentGrid.current?.setActiveCell(lastActiveCellRef.current);
@@ -458,11 +501,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Side-effects */
         beforeUndoRedo(patches);
 
-        dispatch({
-          type: ACTION_TYPE.APPLY_PATCHES,
-          patches,
-          undoable: false
-        });
+        // dispatch({
+        //   type: ACTION_TYPE.APPLY_PATCHES,
+        //   patches,
+        //   undoable: false
+        // });
 
         const activeCellPatch = patches.find((item: Patch) =>
           item.path.includes("currentActiveCell")
@@ -493,32 +536,34 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /**
      * State reducer
      */
-    const [state, dispatch] = useReducer(
-      useCallback(
-        createStateReducer({ addUndoPatch, getCellBounds, stateReducer }),
-        []
-      ),
-      {
-        sheets: initialSheets,
-        selectedSheet:
-          activeSheet === void 0
-            ? initialSheets.length
-              ? initialSheets[0].id
-              : null
-            : activeSheet
-      }
-    );
+    const currentActiveCell = null
+    const currentSelections = null
+    const dispatch = () => {
 
-    const {
-      selectedSheet,
-      sheets,
-      currentActiveCell,
-      currentSelections
-    } = state;
-    const [scale, setScale] = useState(initialScale);
-    const selectedSheetRef = useRef(selectedSheet);
-    const currentGrid = useRef<WorkbookGridRef>(null);
-    const [formulaInput, setFormulaInput] = useState("");
+    }
+    // const [state, dispatch] = useReducer(
+    //   useCallback(
+    //     createStateReducer({ addUndoPatch, getCellBounds, stateReducer }),
+    //     []
+    //   ),
+    //   {
+    //     sheets: initialSheets,
+    //     selectedSheet:
+    //       activeSheet === void 0
+    //         ? initialSheets.length
+    //           ? initialSheets[0].id
+    //           : null
+    //         : activeSheet
+    //   }
+    // );
+
+    // const {
+    //   selectedSheet,
+    //   sheets,
+    //   currentActiveCell,
+    //   currentSelections
+    // } = state;
+    
 
     /* Last */
     useEffect(() => {
@@ -530,10 +575,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const setSelectedSheet = useCallback(
       (id: React.ReactText) => {
         if (id === selectedSheet) return;
-        dispatch({
-          type: ACTION_TYPE.SELECT_SHEET,
-          id
-        });
+        // dispatch({
+        //   type: ACTION_TYPE.SELECT_SHEET,
+        //   id
+        // });
       },
       [selectedSheet]
     );
@@ -571,30 +616,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       []
     );
 
-    /* Callback when sheets is changed */
-    useEffect(() => {
-      onChange?.(sheets);
-    }, [sheets]);
-
-    /* Change selected sheet */
-    useEffect(() => {
-      onChangeSelectedSheet?.(selectedSheet);
-      selectedSheetRef.current = selectedSheet;
-    }, [selectedSheet]);
-
-    /* Listen to sheet change */
-    useEffect(() => {
-      /* If its the same sheets - Skip */
-      if (sheets === initialSheets) {
-        return;
-      }
-
-      dispatch({
-        type: ACTION_TYPE.REPLACE_SHEETS,
-        sheets: initialSheets
-      });
-    }, [initialSheets]);    
-
     /**
      * Handle add new sheet
      */
@@ -620,7 +641,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     /* Current sheet */
     const currentSheet = sheetsById[selectedSheet];
-
+    
     /**
      * Get cell config
      */
@@ -663,6 +684,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * @param cell 
      */
     const triggerSingleCalculation = async (value: React.ReactText, id: SheetID, cell: CellInterface) => {
+      if (!onCalculate) return
       dispatch({
         type: ACTION_TYPE.SET_LOADING,
         id,
@@ -745,17 +767,21 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
+        if (!currentStateRef.current) return
         const config = getCellConfig(id, cell);        
         const datatype = detectDataType(value);
-
-        dispatch({
-          type: ACTION_TYPE.CHANGE_SHEET_CELL,
+        console.log('actions', actions)
+        const newState = actions.changeSheetCell({
           value,
-          cell,
+          datatype,
           id,
-          datatype
-        });
+          cell
+        })
 
+        /* Trigger onChange Sheet */ 
+        updateState(newState)
+
+        /* Trigger onChange cell callback */
         onChangeCell?.(id, value, cell);
 
         /* Validate */
@@ -772,13 +798,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             /**
              * Update the state
              */
-            dispatch({
-              type: ACTION_TYPE.VALIDATION_SUCCESS,
-              cell,
-              id,
-              valid,
-              prompt: message
-            });
+            // if (currentSheetsRef.current) {
+            //   const newSheets = createValidationSuccess(currentSheetsRef.current, id, cell, valid, message)
+            // }
+
+            // updateSheets(newSheets)
           }
 
           /* Trigger single calculation */
@@ -786,7 +810,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         });
       },
-      [getCellConfig]
+      []
     );
 
     const handleSheetAttributesChange = useCallback(

@@ -286,8 +286,8 @@ export interface StateReducerProps {
 export const initialState: StateInterface = {
   selectedSheet: 0,
   sheets: defaultSheets,
-  currentActiveCell: null,
-  currentSelections: null
+  currentActiveCell?: null,
+  currentSelections?: null
 };
 
 const defaultStateReducer = (state: StateInterface) => state;
