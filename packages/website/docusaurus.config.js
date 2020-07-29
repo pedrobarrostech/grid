@@ -8,7 +8,9 @@ module.exports = {
   projectName: "grid", // Usually your repo name.
   themeConfig: {
     image: "/img/logo-2-full.png",
-    disableDarkMode: true,
+    colorMode: {
+      disableSwitch: true
+    },
     // sidebarCollapsible: false,
     algolia: {
       apiKey: "0c4892a9e16a5115dac7b31c0e43803d",
@@ -25,7 +27,7 @@ module.exports = {
         alt: "Rows n' Columns",
         src: "img/logo.png",
       },
-      links: [
+      items: [
         // {to: '/features', label: 'Features', position: 'left'},
         // {to: '/demo', label: 'Demo', position: 'left'},
         {

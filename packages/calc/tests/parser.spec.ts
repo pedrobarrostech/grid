@@ -9,7 +9,7 @@ describe('parser', () => {
     }
   }
   beforeEach(() => {
-    formulaParser = new FormulaParser(getValue)
+    formulaParser = new FormulaParser({ getValue })
   })
 
   it('exists', () => {
@@ -20,13 +20,25 @@ describe('parser', () => {
   })
 
   it('can parse formulas and ranges', async () => {
-    expect(formulaParser.parse('SUM(2,2)').result).toBe(4)
-    expect(formulaParser.parse('SUM(A1,2)').result).toBe(14)
-    expect(formulaParser.parse('SUM(A1:A3)').result).toBe(36)
-    expect(formulaParser.parse('SUM(A1:A3)').formulaType).toBe('number')
+    expect((await formulaParser.parse('SUM(2,2)')).result).toBe(4)
+    expect((await formulaParser.parse('SUM(A1,2)')).result).toBe(14)
+    expect((await formulaParser.parse('SUM(A1:A3)')).result).toBe(36)
+    expect((await formulaParser.parse('SUM(A1:A3)')).formulaType).toBe('number')
     expect((await formulaParser.parse('CONCAT(A1, hello)')).formulaType).toBe('string')
-    expect(formulaParser.parse('SUM(Sheet:A1, A2)').result).toBe(24)
-    expect(formulaParser.parse('SUM(A1, 2)', undefined, () => ({ text: '20', datatype: 'number'})).result).toBe(22)
+    expect((await formulaParser.parse('SUM(Sheet:A1, A2)')).result).toBe(24)
+    expect((await formulaParser.parse('SUM(A1, 2)', undefined, () => ({ text: '20', datatype: 'number'}))).result).toBe(22)
+  })
+
+  it('can parse async functions', async () => {
+    const asyncParser = new FormulaParser({
+      functions: {
+        SUMMER: async () => {
+          return 'hello'
+        }
+      }
+    })
+    const result = await asyncParser.parse('SUMMER()')
+    expect(result.result).toBe('hello')
   })
 
   it('can parse custom functions', async () => {
@@ -36,7 +48,9 @@ describe('parser', () => {
         return 'bar'
       }
     }
-    const customParser = new FormulaParser(undefined, fns)
+    const customParser = new FormulaParser({
+      functions: fns
+    })
     const result = await customParser.parse('FOO()')
     expect(result.result).toBe('bar')
   })

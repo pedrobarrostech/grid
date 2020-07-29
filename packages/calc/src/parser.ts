@@ -40,8 +40,13 @@ export interface CellConfig {
 }
 export type GetValue = (sheet: Sheet, cell: CellInterface) => CellConfig;
 
-interface Functions {
+export interface Functions {
   [key: string]: (args: any) => any;
+}
+
+export interface FormulaProps {
+  getValue?: GetValue | undefined;
+  functions?: Functions
 }
 
 /**
@@ -53,10 +58,12 @@ class FormulaParser {
   dependencyParser: DepParser;
   getValue: GetValue | undefined;
   currentValues: CellsBySheet | undefined;
-  constructor(getValue?: GetValue, readonly functions?: Functions) {
-    if (getValue) this.getValue = getValue;
+  constructor(options?: FormulaProps) {
+    if (options?.getValue) {
+      this.getValue = options.getValue
+    }
     this.formulaParser = new FastFormulaParser({
-      functions: functions,
+      functions: options?.functions,
       onCell: this.getCellValue,
       onRange: this.getRangeValue,
     });
@@ -103,18 +110,18 @@ class FormulaParser {
     }
     return arr;
   };
-  parse = (
+  parse = async (
     text: string | null,
     position: Position = basePosition,
     getValue?: GetValue
-  ): ParseResults => {
+  ): Promise<ParseResults> => {
     /* Update getter */
     if (getValue !== void 0) this.getValue = getValue;
     let result;
     let error;
     let formulaType: DATATYPES | undefined;
     try {
-      result = this.formulaParser.parse(text, position);
+      result = await this.formulaParser.parseAsync(text, position);
       if ((result as any) instanceof FormulaError) {
         error =
           ((result as unknown) as FormulaError).message ||

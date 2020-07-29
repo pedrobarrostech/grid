@@ -4,6 +4,7 @@ import {
   GetValue,
   CellConfig,
   CellRange,
+  Functions,
 } from "./parser";
 import { Dag, Node, DependencyMapping } from "./graph";
 import { cellToAddress, isNull, createPosition } from "./helpers";
@@ -17,6 +18,10 @@ export type CellsBySheet = Record<string, Cells>;
 type Cells = Record<string, Cell>;
 type Cell = Record<string, CellConfig>;
 
+export interface CalcEngineOptions {
+  functions?: Functions
+}
+
 /**
  * Todo
  * Remove dependencies on delete
@@ -25,8 +30,8 @@ class CalcEngine {
   parser: FormulaParser;
   dag: Dag<Node>;
   mapping: DependencyMapping;
-  constructor() {
-    this.parser = new FormulaParser();
+  constructor(options?: CalcEngineOptions) {
+    this.parser = new FormulaParser(options);
     this.dag = new Dag<Node>((node) => node.children);
     this.mapping = new DependencyMapping();
   }
@@ -97,6 +102,7 @@ class CalcEngine {
 
     /* Calculate */
     const result = await this.parser.parse(formula, position, getValue);
+    console.log('result', result)
 
     /* Create results */
     changes[sheet] = changes[sheet] ?? {};

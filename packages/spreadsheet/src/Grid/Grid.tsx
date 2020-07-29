@@ -1100,7 +1100,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       const text = formulae[checked ? 0 : 1];
       onChange?.(text, cell);
       onActiveCellValueChange?.(text, cell);
-    }, []);
+    }, [ selectedSheet ]);
 
     const itemRenderer = useCallback(
       (props: RendererProps) => {

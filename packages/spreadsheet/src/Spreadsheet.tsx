@@ -619,9 +619,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Get cell config
      */
     const getCellConfig = useCallback(
-      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {
+      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {        
         if (!cell) return void 0
-        return sheetsById?.[id].cells?.[cell.rowIndex]?.[cell.columnIndex];
+        return sheetsById?.[id]?.cells?.[cell.rowIndex]?.[cell.columnIndex];
       },
       [sheetsById]
     );
@@ -690,7 +690,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
-        const config = getCellConfig(id, cell);
+        const config = getCellConfig(id, cell);        
         const datatype = detectDataType(value);
 
         dispatch({
