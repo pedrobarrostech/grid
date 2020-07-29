@@ -19,7 +19,7 @@ type Cells = Record<string, Cell>;
 type Cell = Record<string, CellConfig>;
 
 export interface CalcEngineOptions {
-  functions?: Functions
+  functions?: Functions;
 }
 
 /**
@@ -102,7 +102,7 @@ class CalcEngine {
 
     /* Calculate */
     const result = await this.parser.parse(formula, position, getValue);
-    console.log('result', result)
+    console.log("result", result);
 
     /* Create results */
     changes[sheet] = changes[sheet] ?? {};

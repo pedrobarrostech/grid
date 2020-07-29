@@ -46,7 +46,7 @@ export interface Functions {
 
 export interface FormulaProps {
   getValue?: GetValue | undefined;
-  functions?: Functions
+  functions?: Functions;
 }
 
 /**
@@ -60,7 +60,7 @@ class FormulaParser {
   currentValues: CellsBySheet | undefined;
   constructor(options?: FormulaProps) {
     if (options?.getValue) {
-      this.getValue = options.getValue
+      this.getValue = options.getValue;
     }
     this.formulaParser = new FastFormulaParser({
       functions: options?.functions,

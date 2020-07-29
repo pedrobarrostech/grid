@@ -1085,22 +1085,25 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     /**
      * Called when checkbox is checked/unchecked
      */
-    const handleCheck = useCallback((cell: CellInterface, checked: boolean) => {
-      const cellConfig = getValueRef.current(cell);
-      const type = cellConfig?.dataValidation?.type;
-      const formulae: string[] =
-        cellConfig?.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
-      if (!type) {
-        console.error(
-          "Type is not specified. Cell Config should contain a dataValidation object",
-          cellConfig
-        );
-        return;
-      }
-      const text = formulae[checked ? 0 : 1];
-      onChange?.(text, cell);
-      onActiveCellValueChange?.(text, cell);
-    }, [ selectedSheet ]);
+    const handleCheck = useCallback(
+      (cell: CellInterface, checked: boolean) => {
+        const cellConfig = getValueRef.current(cell);
+        const type = cellConfig?.dataValidation?.type;
+        const formulae: string[] =
+          cellConfig?.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
+        if (!type) {
+          console.error(
+            "Type is not specified. Cell Config should contain a dataValidation object",
+            cellConfig
+          );
+          return;
+        }
+        const text = formulae[checked ? 0 : 1];
+        onChange?.(text, cell);
+        onActiveCellValueChange?.(text, cell);
+      },
+      [selectedSheet]
+    );
 
     const itemRenderer = useCallback(
       (props: RendererProps) => {
