@@ -270,10 +270,11 @@ export type ActionTypes =
       undoable?: boolean;
     }
   | {
-    type: ACTION_TYPE.SET_LOADING,
-    id: SheetID,
-    cell: CellInterface,
-    value?: boolean
+    type: ACTION_TYPE.SET_LOADING;
+    id: SheetID;
+    cell: CellInterface;
+    value?: boolean;
+    undoable?: boolean;
   }
 
 export interface StateReducerProps {
