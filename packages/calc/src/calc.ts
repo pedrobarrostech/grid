@@ -5,10 +5,13 @@ import {
   CellConfig,
   CellRange,
   Functions,
+  ParseResults,
 } from "./parser";
 import { Dag, Node, DependencyMapping } from "./graph";
-import { cellToAddress, isNull, createPosition } from "./helpers";
+import { cellToAddress, isNull, createPosition, detectDataType, addressToCell } from "./helpers";
 import merge from "lodash.merge";
+import { ParseResult } from "@babel/core";
+import FormulaError from "fast-formula-parser/formulas/error";
 
 interface CellInterface {
   rowIndex: number;
@@ -100,14 +103,27 @@ class CalcEngine {
       return changes;
     }
 
-    /* Calculate */
-    const result = await this.parser.parse(formula, position, getValue);
-    console.log("result", result);
-
     /* Create results */
     changes[sheet] = changes[sheet] ?? {};
     changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {};
-    changes[sheet][cell.rowIndex][cell.columnIndex] = result;
+
+    /* Calculate */
+    const result = await this.parser.parse(formula, position, getValue);
+    
+    /* Check collision */
+    const collides = this.detectCollision(result, sheet, cell, getValue)
+    if (collides) {
+      const collisionAddress = cellToAddress(collides as CellInterface)
+      changes[sheet][cell.rowIndex][cell.columnIndex] = {
+        formulatype: 'error',
+        errorMessage: `Array result was not expanded because it would overwrite data in ${collisionAddress}`,
+        error: new FormulaError('#REF').toString()
+      }
+      return changes
+    }
+    
+    /* Update results */
+    this.prepareResult(result, sheet, cell, changes)
 
     /**
      * Cache current value
@@ -164,11 +180,93 @@ class CalcEngine {
     return merge(changes, values);
   };
 
+  /**
+   * Does array formula collides
+   * @param result 
+   * @param sheet 
+   * @param cell 
+   * @param getValue 
+   */
+  detectCollision = (result: ParseResults, sheet: Sheet, cell: CellInterface, getValue: GetValue): boolean | CellInterface => {
+    const address = cellToAddress(cell)
+    if (result.formulatype === 'array') {
+      const arrayResult = result.result as any[][]
+      for (let i = 0; i < arrayResult.length; i++) {
+        for (let j = 0; j < arrayResult[i].length; j++) {
+          if (i === 0 && j === 0) {
+            continue
+          }
+          const currentCell = {
+            rowIndex: cell.rowIndex + i,
+            columnIndex: cell.columnIndex + j
+          }
+          const currentConfig = getValue(sheet, currentCell)
+          if (currentConfig && !isNull(currentConfig.text) && currentConfig?.parentCell !== address) {
+            return currentCell
+            break
+          }
+        }
+      }
+    }
+    return false
+  }
+
+  prepareResult = (result: ParseResults, sheet: Sheet, cell: CellInterface, changes: CellsBySheet) => {
+    changes[sheet] = changes[sheet]  ?? {}
+    changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {}
+    const parentCell = cellToAddress(cell) as  string
+    const parentNode = this.mapping.get(parentCell, sheet, cell);
+    if (!parentCell || !parentNode) {
+      return changes
+    }    
+    if (result.formulatype === 'array') {
+      const array = result.result as any[][]      
+      const vLen = array.length
+      const hLen = array[0].length
+      /* Add range of this array to formula cell */
+      changes[sheet][cell.rowIndex][cell.columnIndex] = changes[sheet][cell.rowIndex][cell.columnIndex] ?? {}      
+
+      for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array[i].length; j++) {
+          const value = array[i][j]
+          const row = cell.rowIndex + i
+          const col = cell.columnIndex + j
+          const currentCell = { rowIndex: row, columnIndex: col };
+          changes[sheet][row] = changes[sheet][row] ?? {}
+          changes[sheet][row][col] = {
+            result: value,
+            error: undefined,
+            parentCell,
+            formulatype: detectDataType(value)
+          }
+
+          const address = cellToAddress({
+            rowIndex: row,
+            columnIndex: col,
+          }) as string;
+          
+          const node = this.mapping.get(address, sheet, currentCell);
+          node?.children.add(parentNode);
+
+          if (i !== 0 || j !== 0) {
+            changes[sheet][row][col].text = value            
+          }
+        }
+      }
+      /* Add range */
+      changes[sheet][cell.rowIndex][cell.columnIndex].formulaRange = [hLen, vLen]
+    } else {    
+      // @ts-ignore
+      changes[sheet][cell.rowIndex][cell.columnIndex] = result;
+    }
+    return changes
+  }
+
   calculateDependencies = async (
     dependencies: Set<Node>,
     getValue: GetValue
   ) => {
-    const values: CellsBySheet = {};
+    const changes: CellsBySheet = {};
     for (const { cell, address, sheet } of dependencies) {
       const config = getValue(sheet, cell);
       const isFormula = config?.datatype === "formula";
@@ -180,14 +278,28 @@ class CalcEngine {
       );
       const formula = config.text.substr(1) ?? null;
       const result = await this.parser.parse(formula, position, getValue);
-      values[sheet] = values[sheet] ?? {};
-      values[sheet][cell.rowIndex] = values[sheet][cell.rowIndex] ?? {};
-      values[sheet][cell.rowIndex][cell.columnIndex] = result;
+      
+      /* Check collision in dependencies */
+      const collides = this.detectCollision(result, sheet, cell, getValue)
+      if (collides) {
+        changes[sheet] = changes[sheet] ?? {}
+        changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {}
+        const collisionAddress = cellToAddress(collides as CellInterface)
+        changes[sheet][cell.rowIndex][cell.columnIndex] = {
+          formulatype: 'error',
+          errorMessage: `Array result was not expanded because it would overwrite data in ${collisionAddress}`,
+          error: new FormulaError('#REF').toString()
+        }
+        return changes
+      }
+
+      /* Update results */
+      this.prepareResult(result, sheet, cell, changes)
 
       /* Cache current values so subsequent calculations can use the result */
-      this.parser.cacheValues(values);
+      this.parser.cacheValues(changes);
     }
-    return values;
+    return changes;
   };
 
   calculateBatch = async (

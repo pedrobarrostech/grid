@@ -19,9 +19,11 @@ export interface CellRange {
   to: Omit<Position, "sheet">;
 }
 
+export type ResultArray = any[][]
+
 export interface ParseResults {
-  result?: React.ReactText | undefined;
-  formulaType?: DATATYPES;
+  result?: React.ReactText | undefined | ResultArray;
+  formulatype?: DATATYPES;
   error?: string;
 }
 
@@ -36,7 +38,11 @@ export interface CellConfig {
   prevText?: string;
   result?: React.ReactText;
   error?: string;
+  errorMessage?: string;
+  parentCell?: string;
+  formulaRange?: number[];
   datatype?: DATATYPES;
+  formulatype?: DATATYPES
 }
 export type GetValue = (sheet: Sheet, cell: CellInterface) => CellConfig;
 
@@ -87,7 +93,7 @@ class FormulaParser {
     if (config?.datatype === "formula") {
       return config?.result;
     }
-    return config && config.datatype === "number"
+    return config && config.datatype === "number" || config?.formulatype === 'number'
       ? parseFloat(config.text || "0")
       : config.text ?? null;
   };
@@ -119,20 +125,20 @@ class FormulaParser {
     if (getValue !== void 0) this.getValue = getValue;
     let result;
     let error;
-    let formulaType: DATATYPES | undefined;
+    let formulatype: DATATYPES | undefined;
     try {
-      result = await this.formulaParser.parseAsync(text, position);
+      result = await this.formulaParser.parseAsync(text, position, true);
       if ((result as any) instanceof FormulaError) {
         error =
           ((result as unknown) as FormulaError).message ||
           ((result as unknown) as FormulaError).error;
       }
-      formulaType = detectDataType(result);
+      formulatype = detectDataType(result);
     } catch (err) {
       error = err.toString();
-      formulaType = "error";
+      formulatype = "error";
     }
-    return { result, formulaType, error };
+    return { result, formulatype, error };
   };
   getDependencies = (text: string, position: Position = basePosition) => {
     return this.dependencyParser.parse(text, position);

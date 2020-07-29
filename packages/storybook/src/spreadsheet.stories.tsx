@@ -447,8 +447,8 @@ export const TabColors = () => {
 export const Formula = () => {
   const calcEngine = new CalcEngine({
     functions: {
-      HELLO: async () => {
-        return JSON.stringify([[1,2,3],[4,5,6]])
+      HELLO: async (arg) => {
+        return [[arg?.value || 0,2,3],[4,5,'6']]
       }
     }
   })
@@ -464,9 +464,15 @@ export const Formula = () => {
           1: {
             2: {
               datatype: "formula",
-              text: "=SUM(C1:C12)"
+              text: "=HELLO()"
             }
-          }
+          },
+          // 2: {
+          //   2: {
+          //     datatype: "formula",
+          //     text: "=HELLO()"
+          //   }
+          // }
         }
       }
     ];

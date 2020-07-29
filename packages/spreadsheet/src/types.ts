@@ -84,12 +84,16 @@ export interface CellFormatting extends CellDataFormatting {
   /**
    * Used for formulas to indicate datatype of result
    */
-  formulaType?: DATATYPES;
+  formulatype?: DATATYPES;
   /**
    * Formulas can extend range of a cell
    * When a cell with `range` is deleted, all cells within that range will be cleared
    */
-  formulaRange?: AreaProps;
+  formulaRange?: number[];
+  /**
+   * Address of parent cell. For Array formula
+   */
+  parentCell?: string;
 
   plaintext?: boolean;
   [FORMATTING_TYPE.BOLD]?: boolean;

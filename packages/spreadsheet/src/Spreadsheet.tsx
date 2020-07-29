@@ -646,6 +646,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       
       async function triggerBatchCalculation (changes: CellsBySheet) {
         const values = await onInitialize?.(changes, getCellConfigRef.current)
+        
         if (values !== void 0) {
           dispatch({
             type: ACTION_TYPE.UPDATE_CELLS,

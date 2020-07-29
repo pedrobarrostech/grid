@@ -87,12 +87,18 @@ const useCopyPaste = ({
   }, []);
 
   const handleCut = useCallback(() => {
+    if (document.activeElement !== gridRef.current?.container) {
+      return
+    }
     cutSelections.current = currentSelections();
     handleProgramaticCopy();
   }, []);
 
   const handleCopy = useCallback(
     (e: ClipboardEvent) => {
+      if (document.activeElement !== gridRef.current?.container) {
+        return
+      }
       /* Only copy the last selection */
       const { bounds } = currentSelections();
       const { top, left, right, bottom } = bounds;
@@ -118,6 +124,9 @@ const useCopyPaste = ({
   );
 
   const handlePaste = (e: ClipboardEvent) => {
+    if (document.activeElement !== gridRef.current?.container) {
+      return
+    }
     const items = e.clipboardData?.items;
     if (!items) return;
     const mimeTypes = [MimeType.html, MimeType.csv, MimeType.plain];

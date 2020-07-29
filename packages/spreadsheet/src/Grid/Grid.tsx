@@ -829,6 +829,9 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       hideFilter();
       /* Hide editor */
       hideEditor();
+
+      /* Focus on the grid */
+      gridRef.current?.focus()
     }, [selectedSheet]);
 
     const handleSubmit = useCallback(
@@ -860,9 +863,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         if (isValid === false) {
           const validation = cellConfig?.dataValidation;
           content = validation?.prompt;
-        }
-        if (hasError) {
-          content = cellConfig?.error;
+        } else if (hasError) {
+          content = cellConfig?.errorMessage || cellConfig?.error;
         }
         if (hasTooltip) {
           content = cellConfig?.tooltip;

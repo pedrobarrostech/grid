@@ -144,7 +144,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     onCheck,
     error,
     image,
-    formulaType,
+    formulatype,
   } = props;
   const isBoolean = validatorType === "boolean";
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
@@ -158,7 +158,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const vAlign = verticalAlign;
   const hAlign =
     horizontalAlign === void 0
-      ? (datatype === "number" || formulaType === "number") && !plaintext
+      ? (datatype === "number" || formulatype === "number") && !plaintext
         ? "right"
         : "left"
       : horizontalAlign;

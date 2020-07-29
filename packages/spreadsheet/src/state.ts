@@ -328,6 +328,20 @@ export const createStateReducer = ({
               const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
               currentCell.text = value;
               currentCell.datatype = datatype;
+              delete currentCell.parentCell
+
+
+              /* Check for formula range */
+              // const formulaRange = currentCell.formulaRange
+              // if (formulaRange) {
+              //   const [ right, bottom ] = formulaRange
+              //   for (let a = 0; a < bottom; a++ ) {
+              //     for (let b = 0; b < right; b++) {
+              //       if (a === 0 && b === 0) continue
+              //       delete sheet.cells?.[cell.rowIndex + a]?.[cell.columnIndex + b]
+              //     }
+              //   }
+              // }
 
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
@@ -592,26 +606,38 @@ export const createStateReducer = ({
             ) as Sheet;
             if (sheet) {
               const { activeCell, selections } = action;
-              if (selections.length) {
-                selections.forEach(sel => {
-                  const { bounds } = sel;
-                  for (let i = bounds.top; i <= bounds.bottom; i++) {
-                    if (sheet.cells[i] === void 0) continue;
-                    for (let j = bounds.left; j <= bounds.right; j++) {
-                      if (sheet.cells[i][j] === void 0) continue;
-                      sheet.cells[i][j].text = "";
-                      delete sheet.cells[i][j].result
-                      delete sheet.cells[i][j]?.image;
+              const sel = selections.length
+              ? selections
+              : [{ bounds: getCellBounds(activeCell) }];
+              for (let i = 0; i < sel.length; i++) {
+                const { bounds } = sel[i];
+                if (!bounds) continue;
+                
+                for (let j = bounds.top; j <= bounds.bottom; j++) {
+                  if (sheet.cells[j] === void 0) continue;
+                  for (let k = bounds.left; k <= bounds.right; k++) {
+                    if (sheet.cells[j][k] === void 0) continue;
+                    sheet.cells[j][k].text = "";
+                    delete sheet.cells[j][k].result
+                    delete sheet.cells[j][k]?.image;
+                    delete sheet.cells[j][k]?.parentCell;
+
+                    /* Check for formula range */
+                    const formulaRange = sheet.cells?.[j]?.[k]?.formulaRange
+                    if (formulaRange) {
+                      const [ right, bottom ] = formulaRange
+                      for (let a = 0; a < bottom; a++ ) {
+                        for (let b = 0; b < right; b++) {
+                          delete sheet.cells?.[j + a]?.[k + b]
+                        }
+                      }
                     }
-                  }
-                });
-              } else if (activeCell) {
-                const { rowIndex, columnIndex } = activeCell;
-                if (sheet.cells?.[rowIndex]?.[columnIndex]) {
-                  sheet.cells[rowIndex][columnIndex].text = "";
-                  delete sheet.cells[rowIndex][columnIndex]?.image;
-                  delete sheet.cells[rowIndex][columnIndex]?.result;
+                  }                  
                 }
+
+                /* Keep reference of active cell, so we can focus back */
+                draft.currentActiveCell = activeCell;
+                draft.currentSelections = selections;
               }
             }
             break;
