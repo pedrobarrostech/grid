@@ -2,7 +2,11 @@ declare module "fast-formula-parser" {
   class FormulaParser {
     constructor(options: any) {}
     parse: (text: string | null, position: any) => any;
-    parseAsync: (text: string | null, position: any, array?: boolean) => Promise<any>;
+    parseAsync: (
+      text: string | null,
+      position: any,
+      array?: boolean
+    ) => Promise<any>;
     getValue: (
       sheet: Sheet,
       row: number,

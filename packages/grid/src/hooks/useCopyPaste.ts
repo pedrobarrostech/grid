@@ -88,7 +88,7 @@ const useCopyPaste = ({
 
   const handleCut = useCallback(() => {
     if (document.activeElement !== gridRef.current?.container) {
-      return
+      return;
     }
     cutSelections.current = currentSelections();
     handleProgramaticCopy();
@@ -97,7 +97,7 @@ const useCopyPaste = ({
   const handleCopy = useCallback(
     (e: ClipboardEvent) => {
       if (document.activeElement !== gridRef.current?.container) {
-        return
+        return;
       }
       /* Only copy the last selection */
       const { bounds } = currentSelections();
@@ -125,7 +125,7 @@ const useCopyPaste = ({
 
   const handlePaste = (e: ClipboardEvent) => {
     if (document.activeElement !== gridRef.current?.container) {
-      return
+      return;
     }
     const items = e.clipboardData?.items;
     if (!items) return;

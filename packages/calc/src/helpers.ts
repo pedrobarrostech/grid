@@ -14,7 +14,7 @@ export type DATATYPES =
   | "boolean"
   | "error"
   | "hyperlink"
-  | 'array';
+  | "array";
 /**
  * Detect datatype of a string
  * @param value
@@ -22,7 +22,7 @@ export type DATATYPES =
 export const detectDataType = (value?: any): DATATYPES | undefined => {
   if (isNull(value)) return void 0;
   if (!isNaN(Number(value))) return "number";
-  if (Array.isArray(value)) return 'array'
+  if (Array.isArray(value)) return "array";
   return "string";
 };
 

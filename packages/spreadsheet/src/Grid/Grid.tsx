@@ -831,7 +831,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       hideEditor();
 
       /* Focus on the grid */
-      gridRef.current?.focus()
+      gridRef.current?.focus();
     }, [selectedSheet]);
 
     const handleSubmit = useCallback(

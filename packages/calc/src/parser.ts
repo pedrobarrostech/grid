@@ -19,7 +19,7 @@ export interface CellRange {
   to: Omit<Position, "sheet">;
 }
 
-export type ResultArray = any[][]
+export type ResultArray = any[][];
 
 export interface ParseResults {
   result?: React.ReactText | undefined | ResultArray;
@@ -42,7 +42,7 @@ export interface CellConfig {
   parentCell?: string;
   formulaRange?: number[];
   datatype?: DATATYPES;
-  formulatype?: DATATYPES
+  formulatype?: DATATYPES;
 }
 export type GetValue = (sheet: Sheet, cell: CellInterface) => CellConfig;
 
@@ -93,7 +93,8 @@ class FormulaParser {
     if (config?.datatype === "formula") {
       return config?.result;
     }
-    return config && config.datatype === "number" || config?.formulatype === 'number'
+    return (config && config.datatype === "number") ||
+      config?.formulatype === "number"
       ? parseFloat(config.text || "0")
       : config.text ?? null;
   };
