@@ -127,10 +127,10 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     wrap = DEFAULT_WRAP,
     lineHeight = 1,
     isLightMode,
-    text,
     showStrokeOnFill = true,
     isSelected,
     selectionFill = "rgb(14, 101, 235, 0.1)",
+    loadingText = "Loading",
     plaintext,
     showFilter,
     isFilterActive,
@@ -145,7 +145,9 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     error,
     image,
     formulatype,
+    loading,
   } = props;
+  const text = loading ? loadingText : props.text;
   const isBoolean = validatorType === "boolean";
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${

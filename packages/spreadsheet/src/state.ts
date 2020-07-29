@@ -87,7 +87,8 @@ export enum ACTION_TYPE {
   PROTECT_SHEET = "PROTECT_SHEET",
   UNPROTECT_SHEET = "UNPROTECT_SHEET",
   UPDATE_CELLS = "UPDATE_CELLS",
-  CHANGE_TAB_COLOR = 'CHANGE_TAB_COLOR'
+  CHANGE_TAB_COLOR = 'CHANGE_TAB_COLOR',
+  SET_LOADING = 'SET_LOADING',
 }
 
 export type ActionTypes =
@@ -268,6 +269,12 @@ export type ActionTypes =
       color?: string;
       undoable?: boolean;
     }
+  | {
+    type: ACTION_TYPE.SET_LOADING,
+    id: SheetID,
+    cell: CellInterface,
+    value?: boolean
+  }
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
@@ -326,22 +333,23 @@ export const createStateReducer = ({
               sheet.cells[cell.rowIndex][cell.columnIndex] =
                 sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
               const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
+              const hasFormulaChanged = currentCell.text !== value
               currentCell.text = value;
               currentCell.datatype = datatype;
               delete currentCell.parentCell
 
 
-              /* Check for formula range */
-              // const formulaRange = currentCell.formulaRange
-              // if (formulaRange) {
-              //   const [ right, bottom ] = formulaRange
-              //   for (let a = 0; a < bottom; a++ ) {
-              //     for (let b = 0; b < right; b++) {
-              //       if (a === 0 && b === 0) continue
-              //       delete sheet.cells?.[cell.rowIndex + a]?.[cell.columnIndex + b]
-              //     }
-              //   }
-              // }
+              /* Check for formula range */              
+              const formulaRange = currentCell.formulaRange
+              if (hasFormulaChanged && formulaRange) {
+                const [ right, bottom ] = formulaRange
+                for (let a = 0; a < bottom; a++ ) {
+                  for (let b = 0; b < right; b++) {
+                    if (a === 0 && b === 0) continue
+                    delete sheet.cells?.[cell.rowIndex + a]?.[cell.columnIndex + b]
+                  }
+                }
+              }
 
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
@@ -620,6 +628,7 @@ export const createStateReducer = ({
                     sheet.cells[j][k].text = "";
                     delete sheet.cells[j][k].result
                     delete sheet.cells[j][k]?.image;
+                    delete sheet.cells[j][k]?.error;
                     delete sheet.cells[j][k]?.parentCell;
 
                     /* Check for formula range */
@@ -987,6 +996,17 @@ export const createStateReducer = ({
               draft.currentActiveCell = activeCell;
             }
             break;
+          }
+
+          case ACTION_TYPE.SET_LOADING: {
+            const sheet = draft.sheets.find(
+              sheet => sheet.id === action.id
+            ) as Sheet;
+            if (sheet) {
+              const { value, cell } = action
+              sheet.cells[cell.rowIndex][cell.columnIndex].loading = value
+            }
+            break
           }
 
           case ACTION_TYPE.REPLACE_SHEETS: {

@@ -252,7 +252,12 @@ export interface SpreadSheetProps {
   /**
    * 
    */
-  onCalculate?: (value: React.ReactText, id: SheetID, cell: CellInterface, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>
+  onCalculate?: (value: React.ReactText, id: SheetID, cell: CellInterface, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>;
+
+  /**
+   * Batch calculate
+   */
+  onCalculateBatch?: (changes: CellsBySheet, sheet: SheetID, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>
   // TODO
   // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
@@ -398,7 +403,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onValidate = validate,
       enableGlobalKeyHandlers = false,
       onInitialize,
-      onCalculate
+      onCalculate,
+      onCalculateBatch
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -636,6 +642,64 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return sheetsById?.[id]
     }, [ sheetsById ])
 
+    /**
+     * Trigger batch calciulation
+     * @param changes 
+     */
+    const triggerBatchCalculation = async (changes: CellsBySheet, sheet: SheetID) => {
+      const values = await onCalculateBatch?.(changes, sheet, getCellConfigRef.current)
+      if (values !== void 0) {
+        dispatch({
+          type: ACTION_TYPE.UPDATE_CELLS,
+          changes: values,
+        })
+      }
+    }
+
+    /**
+     * Trigger a single calculation
+     * @param value 
+     * @param id 
+     * @param cell 
+     */
+    const triggerSingleCalculation = async (value: React.ReactText, id: SheetID, cell: CellInterface) => {
+      dispatch({
+        type: ACTION_TYPE.SET_LOADING,
+        id,
+        cell,
+        value: true
+      })
+      const changes = await onCalculate?.(value, id, cell, getCellConfigRef.current)
+
+      dispatch({
+        type: ACTION_TYPE.SET_LOADING,
+        id,
+        cell,
+        value: false
+      })
+
+      if (changes !== void 0) {
+        dispatch({
+          type: ACTION_TYPE.UPDATE_CELLS,
+          changes,
+        })
+      }
+    }
+
+    /**
+     * Trigger batch calciulation
+     * @param changes 
+     */
+    const triggerBatchInitialization = async (changes: CellsBySheet) => {
+      const values = await onInitialize?.(changes, getCellConfigRef.current)
+      if (values !== void 0) {
+        dispatch({
+          type: ACTION_TYPE.UPDATE_CELLS,
+          changes: values,
+        })
+      }
+    }
+
     useEffect(() => {
       const initial: CellsBySheet =  {}
       const changes = sheets.reduce((acc, sheet) => {
@@ -644,18 +708,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         return acc
       }, initial)
       
-      async function triggerBatchCalculation (changes: CellsBySheet) {
-        const values = await onInitialize?.(changes, getCellConfigRef.current)
-        
-        if (values !== void 0) {
-          dispatch({
-            type: ACTION_TYPE.UPDATE_CELLS,
-            changes: values,
-          })
-        }
-      }
       /* Trigger batch calculation */
-      triggerBatchCalculation(changes)
+      triggerBatchInitialization(changes)
       
     }, [])
     
@@ -727,14 +781,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             });
           }
 
-          const changes = await onCalculate?.(value, id, cell, getCellConfigRef.current)
-
-          if (changes !== void 0) {
-            dispatch({
-              type: ACTION_TYPE.UPDATE_CELLS,
-              changes,
-            })
-          }
+          /* Trigger single calculation */
+          triggerSingleCalculation(value, id, cell)
 
         });
       },
@@ -779,6 +827,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           type: ACTION_TYPE.DELETE_SHEET,
           id
         });
+        
 
         /* Focus on the new grid */
         currentGrid.current?.focus();
@@ -969,7 +1018,31 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           activeCell,
           selections
         });
+
         setFormulaInput("");
+        
+        window.requestAnimationFrame(() => {
+
+          const sel = selections.length
+            ? selections
+            : [{ bounds: getCellBounds(activeCell) as AreaProps }];
+          
+          const values: CellsBySheet = {
+            [id]: {}
+          }
+          for (let i = 0; i < sel.length; i++) {
+            const { bounds } = sel[i]
+            for (let j = bounds?.top; j <= bounds?.bottom; j++) {
+              for (let k = bounds?.left; k <= bounds?.right; k++) {
+                values[id][j] = values[id][j] ?? {}
+                values[id][j][k] = {}
+              }
+            }
+          }
+
+          /* Trigger */
+          triggerBatchCalculation(values, id)
+        })                
       },
       []
     );

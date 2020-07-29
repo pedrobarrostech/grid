@@ -95,6 +95,12 @@ export interface CellFormatting extends CellDataFormatting {
    */
   parentCell?: string;
 
+  /**
+   * Indicate a process
+   */
+  loading?: boolean;
+  loadingText?: string;
+
   plaintext?: boolean;
   [FORMATTING_TYPE.BOLD]?: boolean;
   [FORMATTING_TYPE.COLOR]?: string;

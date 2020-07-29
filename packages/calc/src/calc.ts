@@ -13,10 +13,8 @@ import {
   isNull,
   createPosition,
   detectDataType,
-  addressToCell,
 } from "./helpers";
 import merge from "lodash.merge";
-import { ParseResult } from "@babel/core";
 import FormulaError from "fast-formula-parser/formulas/error";
 
 interface CellInterface {
@@ -53,13 +51,13 @@ class CalcEngine {
    * @param getValue
    */
   calculate = async (
-    value: string,
+    value: string | undefined,
     sheet: Sheet,
     cell: CellInterface,
     getValue: GetValue
   ) => {
     const config = getValue(sheet, cell);
-    if (config?.datatype !== "formula") {
+    if (value === void 0 || isNull(value) || config?.datatype !== "formula") {
       const cellAddress = cellToAddress(cell);
       if (!cellAddress) return;
       if (!this.mapping.has(cellAddress, sheet)) {
@@ -73,6 +71,10 @@ class CalcEngine {
       if (dependencies.size > 0) {
         dependencies.delete(node);
         const values = await this.calculateDependencies(dependencies, getValue);
+
+        /* Remove all caches after calculation is complete */
+        this.parser.clearCachedValues();
+
         return values;
       }
       return void 0;
@@ -106,6 +108,9 @@ class CalcEngine {
       changes[sheet][cell.rowIndex][cell.columnIndex] = {
         error: "Error parsing formula " + err.toString(),
       };
+      /* Remove all caches after calculation is complete */
+      this.parser.clearCachedValues();
+
       return changes;
     }
 
@@ -125,6 +130,9 @@ class CalcEngine {
         errorMessage: `Array result was not expanded because it would overwrite data in ${collisionAddress}`,
         error: new FormulaError("#REF").toString(),
       };
+
+      /* Remove all caches after calculation is complete */
+      this.parser.clearCachedValues();
       return changes;
     }
 
@@ -174,6 +182,7 @@ class CalcEngine {
      * Visit dependents
      */
     const directDependencies = this.dag.visit([parentNode]);
+
     let values = {};
     if (directDependencies.size > 0) {
       directDependencies.delete(parentNode);
@@ -291,7 +300,7 @@ class CalcEngine {
     getValue: GetValue
   ) => {
     const changes: CellsBySheet = {};
-    for (const { cell, address, sheet } of dependencies) {
+    for (const { cell, sheet } of dependencies) {
       const config = getValue(sheet, cell);
       const isFormula = config?.datatype === "formula";
       if (!isFormula || isNull(config.text) || config.text === void 0) continue;
@@ -330,7 +339,28 @@ class CalcEngine {
     changes: CellsBySheet,
     sheet: Sheet,
     getValue: GetValue
-  ) => {};
+  ) => {
+    const values = {};
+    for (const sheet in changes) {
+      for (const rowIndex in changes[sheet]) {
+        for (const columnIndex in changes[sheet][rowIndex]) {
+          const cell = {
+            rowIndex: Number(rowIndex),
+            columnIndex: Number(columnIndex),
+          };
+          const config = getValue(sheet, cell);
+          const changes = await this.calculate(
+            config?.text,
+            sheet,
+            cell,
+            getValue
+          );
+          merge(values, changes);
+        }
+      }
+    }
+    return values;
+  };
 
   /**
    * Set dependencies in graph

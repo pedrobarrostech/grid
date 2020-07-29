@@ -87,7 +87,7 @@ export const alpha2number = (letters: string): number => {
 export const createPosition = (id: Sheet, row = 1, col = 1): Position => {
   return {
     sheet: id,
-    row: 1,
-    col: 1,
+    row,
+    col,
   };
 };

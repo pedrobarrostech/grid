@@ -87,8 +87,11 @@ class FormulaParser {
   getCellConfig = (position: Position) => {
     const sheet = position.sheet;
     const cell = { rowIndex: position.row, columnIndex: position.col };
-    const config = this.getValue?.(sheet, cell) ?? null;
-    // console.log('cell',cell, config)
+    const config =
+      this.currentValues?.[position.sheet]?.[position.row]?.[position.col] ??
+      this.getValue?.(sheet, cell) ??
+      null;
+
     if (config === null) return config;
     if (config?.datatype === "formula") {
       return config?.result;
@@ -100,10 +103,7 @@ class FormulaParser {
   };
 
   getCellValue = (pos: Position) => {
-    return (
-      this.currentValues?.[pos.sheet]?.[pos.row]?.[pos.col]?.result ||
-      this.getCellConfig(pos)
-    );
+    return this.getCellConfig(pos);
   };
 
   getRangeValue = (ref: CellRange) => {
