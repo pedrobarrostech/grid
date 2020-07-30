@@ -6,7 +6,7 @@ import Spreadsheet, {
   DATATYPES
 } from "@rowsncolumns/spreadsheet";
 import { parse, download } from "@rowsncolumns/export";
-import CalcEngine from '@rowsncolumns/calc'
+import CalcEngine from "@rowsncolumns/calc";
 
 export default {
   title: "Spreadsheet",
@@ -83,7 +83,7 @@ export const Import = () => {
             Download CSV
           </button>
         </div>
-        <Spreadsheet sheets={sheets} />
+        <Spreadsheet sheets={sheets} onChange={setSheets} />
       </div>
     );
   };
@@ -415,7 +415,7 @@ export const ProtectedSheet = () => {
         }
       }
     ];
-    return <Spreadsheet minHeight={600} sheets={sheets} />;
+    return <Spreadsheet minHeight={600} initialSheets={sheets} />;
   };
   return <App />;
 };
@@ -447,26 +447,26 @@ export const TabColors = () => {
 export const Formula = () => {
   const calcEngine = new CalcEngine({
     functions: {
-      FETCH_CSV: async (arg) => {
+      FETCH_CSV: async arg => {
         return fetch(arg.value)
           .then(r => r.text())
           .then(response => {
-            const data = []
-            const rows = response.split('\n')
+            const data = [];
+            const rows = response.split("\n");
             for (const row of rows) {
-              const cols = row.split(',')
-              data.push(cols)
+              const cols = row.split(",");
+              data.push(cols);
             }
-            return data
-          })
+            return data;
+          });
       }
     }
-  })
+  });
   const App = () => {
     const initialSheets: Sheet[] = [
       {
         name: "Sheet 1",
-        id: '1',
+        id: "1",
         activeCell: null,
         selections: [],
         tabColor: "red",
@@ -474,9 +474,9 @@ export const Formula = () => {
           1: {
             2: {
               datatype: "formula",
-              text: "=HELLO()"
+              text: "=MMULT({1,5;2,3},{1,2;2,3})"
             }
-          },
+          }
           // 2: {
           //   2: {
           //     datatype: "formula",
@@ -486,25 +486,25 @@ export const Formula = () => {
         }
       }
     ];
-    const [ sheets, setSheets ] = useState(initialSheets)
+    const [sheets, setSheets] = useState(initialSheets);
     return (
       <Spreadsheet
         minHeight={600}
         sheets={sheets}
         onChange={setSheets}
         functions={{
-          FETCH_CSV: async (arg) => {
+          FETCH_CSV: async arg => {
             return fetch(arg.value)
               .then(r => r.text())
               .then(response => {
-                const data = []
-                const rows = response.split('\n')
+                const data = [];
+                const rows = response.split("\n");
                 for (const row of rows) {
-                  const cols = row.split(',')
-                  data.push(cols)
+                  const cols = row.split(",");
+                  data.push(cols);
                 }
-                return data
-              })
+                return data;
+              });
           }
         }}
       />

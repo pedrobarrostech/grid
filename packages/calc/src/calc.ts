@@ -40,10 +40,7 @@ class CalcEngine {
   mapping: DependencyMapping;
   constructor(options?: CalcEngineOptions) {
     this.parser = new FormulaParser(options);
-    this.dag = new Dag<Node>(node => {
-      if (!node) return new Set<Node>();
-      return node.children;
-    });
+    this.dag = new Dag<Node>(node => node.children);
     this.mapping = new DependencyMapping();
   }
 
@@ -71,11 +68,10 @@ class CalcEngine {
       const node = this.mapping.get(cellAddress, sheet, cell);
       if (!node) return void 0;
       const dependencies = this.dag.visit([node]);
-
+      /* Remove current node */
+      dependencies.delete(node);
       if (dependencies.size > 0) {
-        dependencies.delete(node);
         const values = await this.calculateDependencies(dependencies, getValue);
-
         /* Remove all caches after calculation is complete */
         this.parser.clearCachedValues();
 
@@ -161,12 +157,12 @@ class CalcEngine {
         const { from, to, sheet } = dep as CellRange;
         for (let i = from.row; i <= to.row; i++) {
           for (let j = from.col; j <= to.col; j++) {
-            const cell = { rowIndex: i, columnIndex: j };
-            const address = cellToAddress(cell);
+            const curCell = { rowIndex: i, columnIndex: j };
+            const address = cellToAddress(curCell);
             if (!address) {
               continue;
             }
-            const node = this.mapping.get(address, sheet, cell);
+            const node = this.mapping.get(address, sheet, curCell);
             node?.children.add(parentNode);
           }
         }
@@ -186,10 +182,9 @@ class CalcEngine {
      * Visit dependents
      */
     const directDependencies = this.dag.visit([parentNode]);
-
+    directDependencies.delete(parentNode);
     let values = {};
     if (directDependencies.size > 0) {
-      directDependencies.delete(parentNode);
       values = await this.calculateDependencies(directDependencies, getValue);
     }
 

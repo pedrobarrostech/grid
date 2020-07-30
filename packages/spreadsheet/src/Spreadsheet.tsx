@@ -1130,7 +1130,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           /* Trigger */
-          // triggerBatchCalculation(values, id)
+          triggerBatchCalculation(values, id);
         });
       },
       []

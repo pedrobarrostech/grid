@@ -4,7 +4,7 @@ export class Dag<T> {
   constructor(private readonly preVisit: (node: T) => Set<T>) {}
 
   visit(nodes: T[]): Set<T> {
-    const nodesToVisit = nodes.slice();
+    const nodesToVisit = [...nodes];
     const visited = new Set<T>();
     const stack: T[] = [];
     while (nodesToVisit.length > 0) {
@@ -15,8 +15,7 @@ export class Dag<T> {
         stack.push(current);
         visited.add(current);
 
-        const children = [...this.preVisit(current)];
-
+        const children = Array.from(this.preVisit(current));
         // previsit should return the children to visit
         for (let i = children.length - 1; i >= 0; i--) {
           const child = children[i];
@@ -31,6 +30,11 @@ export class Dag<T> {
       // check if stack exists, otherwise node is likely already via another path
       const stackLen = stack.length;
       if (stackLen > 0) {
+        const stackTop = stack[stackLen - 1];
+        if (current !== stackTop) {
+          // throw new Error(`Invalid stack: [current: ${current}, stackTop: ${stackTop}`);
+        }
+
         nodesToVisit.shift();
         stack.pop();
         continue;
