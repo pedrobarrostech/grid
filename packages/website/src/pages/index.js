@@ -246,7 +246,7 @@ function Home() {
           />
           <Feature
             align="left"
-            title="Outline support (coming soon)"
+            title="Outline/Grouping support (coming soon)"
             description="Allow collapsing rows and columns using native excel outline feature."
           />
           <Feature
@@ -261,7 +261,7 @@ function Home() {
           />
           <Feature
             align="left"
-            title="Formula (coming soon)"
+            title="Formula (beta)"
             description="Make complex calculations, with cross-sheet references, external data source etc. High performance as calculations run in a separate thread."
             url="/docs/formula"
           />
