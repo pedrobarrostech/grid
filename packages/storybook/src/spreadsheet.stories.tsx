@@ -459,12 +459,11 @@ export const Formula = () => {
             }
             return data
           })
-        return [[arg?.value || 0,2,3],[4,5,'6']]
       }
     }
   })
   const App = () => {
-    const sheets: Sheet[] = [
+    const initialSheets: Sheet[] = [
       {
         name: "Sheet 1",
         id: '1',
@@ -487,10 +486,12 @@ export const Formula = () => {
         }
       }
     ];
+    const [ sheets, setSheets ] = useState(initialSheets)
     return (
       <Spreadsheet
         minHeight={600}
         sheets={sheets}
+        onChange={setSheets}
         onInitialize={(changes, getvalue) => {
           return calcEngine.initialize(changes, getvalue)
         }}

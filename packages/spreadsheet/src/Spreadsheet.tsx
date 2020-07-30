@@ -6,9 +6,7 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
-  memo,
-  useReducer
-} from "react";
+  memo} from "react";
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
@@ -33,9 +31,7 @@ import {
   format as defaultFormat,
   FONT_FAMILIES,
   detectDataType,
-  getMinMax,
-  castToString
-} from "./constants";
+  getMinMax} from "./constants";
 import {
   FORMATTING_TYPE,
   CellFormatting,
@@ -64,7 +60,6 @@ import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
 import TooltipComponent, { TooltipProps } from "./Tooltip";
 import validate, { ValidationResponse } from "./validation";
-import { changeSheetCell, createValidationSuccess } from "./actions";
 
 export interface SpreadSheetProps {
   /**
@@ -362,14 +357,15 @@ export const initialState: StateInterface = {
 
 /**
  * Spreadsheet component
- * TODO
- * 1. Undo/redo
+ * 
  * @param props
  */
 const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
   forwardRef((props, forwardedRef) => {
     const {
+      /* Controlled, to persist the state, always provide onChange */
       sheets: sheetsProp,
+      /* Uncontrolled, to persist provide onChange */
       initialSheets = defaultSheets,
       showFormulabar = true,
       minColumnWidth = DEFAULT_COLUMN_WIDTH,
@@ -417,38 +413,74 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const [scale, setScale] = useState(initialScale);    
     const currentGrid = useRef<WorkbookGridRef>(null);
     const [formulaInput, setFormulaInput] = useState("");
+    const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0)
     const [ valueState, setValueState ] = useState<StateInterface>(() => {
       return {
-        ...initialState,
-        selectedSheet: initialActiveSheet || initialSheets[0].id
+        currentSelections: null,
+        currentActiveCell: null,
+        sheets: initialSheets,
+        selectedSheet: isControlled
+          ? sheetsProp?.[0].id
+          : initialActiveSheet || initialSheets[0].id
       }
     })
-    const currentStateRef = useRef<StateInterface>()
-    const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0)    
-    const state: StateInterface = isControlled ? { sheets: sheetsProp as Sheet[], selectedSheet: sheetsProp[0].id } : valueState
-    const sheets = state.sheets
-    const selectedSheet = state.selectedSheet
-    const selectedSheetRef = useRef(null);    
+    const currentStateRef = useRef<StateInterface>()    
+    const state: StateInterface = isControlled
+      ? { ...valueState, sheets: sheetsProp as Sheet[] }
+      : valueState
+    const { sheets, selectedSheet, currentActiveCell, currentSelections } = state
+
+    /**
+     * Exit early if selected sheet is invalid
+     */
+    invariant(
+      selectedSheet !== void 0 && selectedSheet !== null,
+      "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
+    );
     
     /* Keep a reference to current sheet */
     useEffect(() => {
       currentStateRef.current = state
-    })
+    }, [ state])
 
-    const actions = useMemo(() => {
-      console.log('currentStateRef', state)
-      return {
-        changeSheetCell: changeSheetCell.bind(null, currentStateRef.current)
-      }
-    }, [ state ])
+    /**
+     * State reducer
+     */
+    const currentStateReducer = useCallback(() => {
+      return createStateReducer({ addUndoPatch, getCellBounds, stateReducer })
+    }, [])
+    const dispatch = useCallback((action: ActionTypes) => {
+      const newState = currentStateReducer()(currentStateRef.current, action)
+      updateState(newState)
+    }, [])
 
+    /**
+     * Update local state or triggers callback
+     */
     const updateState = useCallback((newState: StateInterface) => {
       if (!isControlled) {
         setValueState(newState)
+      } else {    
+      /**
+       * Update current selection local state
+       * Only if its a controlled component
+       */
+        if (newState.currentActiveCell || newState.currentSelections ||
+          newState.selectedSheet !== state.selectedSheet) {
+          setValueState(prev => {
+            return {
+              ...prev,
+              currentActiveCell: newState.currentActiveCell || state.currentActiveCell,
+              currentSelections: newState.currentSelections || state.currentSelections,
+              selectedSheet: newState.selectedSheet
+            }
+          })
+        }
       }
 
+      /* Call back */
       onChange?.(newState.sheets)
-
+      
       if (newState.selectedSheet !== state.selectedSheet) {
         onChangeSelectedSheet?.(newState.selectedSheet as React.ReactText)
       }
@@ -482,11 +514,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Side-effects */
         beforeUndoRedo(patches);
 
-        // dispatch({
-        //   type: ACTION_TYPE.APPLY_PATCHES,
-        //   patches,
-        //   undoable: false
-        // });
+        dispatch({
+          type: ACTION_TYPE.APPLY_PATCHES,
+          patches,
+          undoable: false
+        });
 
         if (lastActiveCellRef.current) {
           currentGrid.current?.setActiveCell(lastActiveCellRef.current);
@@ -501,11 +533,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Side-effects */
         beforeUndoRedo(patches);
 
-        // dispatch({
-        //   type: ACTION_TYPE.APPLY_PATCHES,
-        //   patches,
-        //   undoable: false
-        // });
+        dispatch({
+          type: ACTION_TYPE.APPLY_PATCHES,
+          patches,
+          undoable: false
+        });
 
         const activeCellPatch = patches.find((item: Patch) =>
           item.path.includes("currentActiveCell")
@@ -533,36 +565,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return currentGrid.current?.getCellBounds?.(cell);
     }, []);
 
-    /**
-     * State reducer
-     */
-    const currentActiveCell = null
-    const currentSelections = null
-    const dispatch = () => {
-
-    }
-    // const [state, dispatch] = useReducer(
-    //   useCallback(
-    //     createStateReducer({ addUndoPatch, getCellBounds, stateReducer }),
-    //     []
-    //   ),
-    //   {
-    //     sheets: initialSheets,
-    //     selectedSheet:
-    //       activeSheet === void 0
-    //         ? initialSheets.length
-    //           ? initialSheets[0].id
-    //           : null
-    //         : activeSheet
-    //   }
-    // );
-
-    // const {
-    //   selectedSheet,
-    //   sheets,
-    //   currentActiveCell,
-    //   currentSelections
-    // } = state;
+    
     
 
     /* Last */
@@ -575,18 +578,13 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const setSelectedSheet = useCallback(
       (id: React.ReactText) => {
         if (id === selectedSheet) return;
-        // dispatch({
-        //   type: ACTION_TYPE.SELECT_SHEET,
-        //   id
-        // });
+        dispatch({
+          type: ACTION_TYPE.SELECT_SHEET,
+          id
+        });
       },
       [selectedSheet]
-    );
-
-    invariant(
-      selectedSheet !== null,
-      "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
-    );
+    );    
 
     /* Fonts */
     const { isFontActive } = useFonts(fontLoaderConfig);
@@ -655,6 +653,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     /* Add it to ref to prevent closures */
     const getCellConfigRef = useRef<CellConfigGetter>()
+
     useEffect(() => {
       getCellConfigRef.current = getCellConfig
     }, [ getCellConfig])
@@ -673,6 +672,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
           changes: values,
+          undoable: false
         })
       }
     }
@@ -689,7 +689,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.SET_LOADING,
         id,
         cell,
-        value: true
+        value: true,
+        undoable: false
       })
       const changes = await onCalculate?.(value, id, cell, getCellConfigRef.current)
 
@@ -697,13 +698,15 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.SET_LOADING,
         id,
         cell,
-        value: false
+        value: false,
+        undoable: false
       })
 
       if (changes !== void 0) {
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
           changes,
+          undoable: false,
         })
       }
     }
@@ -718,6 +721,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
           changes: values,
+          undoable: false
         })
       }
     }
@@ -770,16 +774,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (!currentStateRef.current) return
         const config = getCellConfig(id, cell);        
         const datatype = detectDataType(value);
-        console.log('actions', actions)
-        const newState = actions.changeSheetCell({
+        
+        dispatch({
+          type: ACTION_TYPE.CHANGE_SHEET_CELL,
           value,
           datatype,
           id,
           cell
         })
-
-        /* Trigger onChange Sheet */ 
-        updateState(newState)
 
         /* Trigger onChange cell callback */
         onChangeCell?.(id, value, cell);
@@ -798,11 +800,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             /**
              * Update the state
              */
-            // if (currentSheetsRef.current) {
-            //   const newSheets = createValidationSuccess(currentSheetsRef.current, id, cell, valid, message)
-            // }
-
-            // updateSheets(newSheets)
+            dispatch({
+              type: ACTION_TYPE.VALIDATION_SUCCESS,
+              cell,
+              id,
+              valid,
+              prompt: message,
+              undoable: false,
+            });
           }
 
           /* Trigger single calculation */

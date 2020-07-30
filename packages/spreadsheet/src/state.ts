@@ -47,7 +47,7 @@ export const defaultSheets: Sheet[] = [
 ];
 
 export interface StateInterface {
-  selectedSheet: React.ReactText | null;
+  selectedSheet: React.ReactText | null | undefined;
   sheets: Sheet[];
   currentActiveCell?: CellInterface | null;
   currentSelections?: SelectionArea[] | null;
@@ -286,8 +286,8 @@ export interface StateReducerProps {
 export const initialState: StateInterface = {
   selectedSheet: 0,
   sheets: defaultSheets,
-  currentActiveCell?: null,
-  currentSelections?: null
+  currentActiveCell: null,
+  currentSelections: null
 };
 
 const defaultStateReducer = (state: StateInterface) => state;
