@@ -13,7 +13,7 @@ const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
   const engine = useRef<CalcEngine>();
   useEffect(() => {
     engine.current = new CalcEngine({
-      functions
+      functions,
     });
   }, []);
 
@@ -52,7 +52,7 @@ const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
   return {
     onCalculate,
     onCalculateBatch,
-    initializeEngine
+    initializeEngine,
   };
 };
 

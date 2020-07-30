@@ -7,7 +7,7 @@ import merge from "lodash.merge";
 import {
   CellConfig,
   castToString,
-  CellConfigGetter
+  CellConfigGetter,
 } from "@rowsncolumns/spreadsheet";
 
 export type Sheet = string;
@@ -66,7 +66,7 @@ class FormulaParser {
     this.formulaParser = new FastFormulaParser({
       functions: options?.functions,
       onCell: this.getCellValue,
-      onRange: this.getRangeValue
+      onRange: this.getRangeValue,
     });
     this.dependencyParser = new DepParser();
   }
