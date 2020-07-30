@@ -20,7 +20,7 @@
     "@emotion/styled": "^10.0.27",
     "@juggle/resize-observer": "^3.2.0",
     "@rowsncolumns/calc": "1.0.2",
-    "@rowsncolumns/grid": "^4.0.39",
+    "@rowsncolumns/grid": "^4.0.41",
     "@types/react-list": "^0.8.5",
     "@types/webfontloader": "^1.6.32",
     "babel-plugin-emotion": "^10.0.33",
