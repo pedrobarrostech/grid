@@ -30,7 +30,16 @@ import {
 import { current } from "immer";
 
 export interface WorkbookProps
-  extends Omit<SpreadSheetProps, "onChange" | "StatusBar"> {
+  extends Omit<
+    SpreadSheetProps,
+    | "onChange"
+    | "StatusBar"
+    | "onInsertRow"
+    | "onDuplicateSheet"
+    | "onInsertColumn"
+    | "onDeleteRow"
+    | "onDeleteColumn"
+  > {
   currentSheet: Sheet;
   theme: ThemeType;
   sheets: Sheet[];

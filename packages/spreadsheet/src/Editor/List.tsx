@@ -76,7 +76,6 @@ const ListEditor: React.FC<ListEditorProps> = memo(
             getRootProps,
             getInputProps,
             getMenuProps,
-            isOpen,
             getItemProps,
             inputValue,
             selectedItem,
