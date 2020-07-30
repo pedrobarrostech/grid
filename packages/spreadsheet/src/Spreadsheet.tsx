@@ -448,6 +448,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
        * Previous state of controlled component is saved in ref
        */      
       if (isControlled) {
+        if (!currentStateRef.current) return
         const newState = currentStateReducer()(currentStateRef.current, action)
         updateState(newState)
       } else {

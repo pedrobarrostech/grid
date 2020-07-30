@@ -4,7 +4,11 @@ import FormulaError from "fast-formula-parser/formulas/error";
 import { detectDataType, DATATYPES } from "./helpers";
 import { CellsBySheet } from "./calc";
 import merge from "lodash.merge";
-import { CellConfig, castToString, CellConfigGetter } from '@rowsncolumns/spreadsheet'
+import {
+  CellConfig,
+  castToString,
+  CellConfigGetter
+} from "@rowsncolumns/spreadsheet";
 
 export type Sheet = string;
 

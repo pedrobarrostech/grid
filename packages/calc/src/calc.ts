@@ -15,7 +15,11 @@ import {
 } from "./helpers";
 import merge from "lodash.merge";
 import FormulaError from "fast-formula-parser/formulas/error";
-import { CellConfig, castToString, CellConfigGetter } from "@rowsncolumns/spreadsheet";
+import {
+  CellConfig,
+  castToString,
+  CellConfigGetter
+} from "@rowsncolumns/spreadsheet";
 
 interface CellInterface {
   rowIndex: number;
@@ -301,9 +305,10 @@ class CalcEngine {
   ) => {
     const changes: CellsBySheet = {};
     for (const { cell, sheet } of dependencies) {
-      const config = getValue(sheet, cell);      
+      const config = getValue(sheet, cell);
       const isFormula = config?.datatype === "formula";
-      if (!isFormula || isNull(config?.text) || config?.text === void 0) continue;
+      if (!isFormula || isNull(config?.text) || config?.text === void 0)
+        continue;
       const position = createPosition(
         sheet,
         Number(cell.rowIndex),
@@ -350,7 +355,7 @@ class CalcEngine {
           };
           const config = getValue(sheet, cell);
           if (config === void 0) {
-            continue
+            continue;
           }
           const changes = await this.calculate(
             castToString(config?.text),
