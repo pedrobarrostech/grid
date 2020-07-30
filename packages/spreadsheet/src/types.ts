@@ -59,7 +59,8 @@ export type DATATYPES =
   | "richtext"
   | "boolean"
   | "error"
-  | "hyperlink";
+  | "hyperlink"
+  | 'array';
 
 export enum STROKE_FORMATTING {
   STROKE = "stroke",

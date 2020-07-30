@@ -233,6 +233,22 @@ const initialState = [
   },
 ];
 
+const functions={
+  FETCH_CSV: async (arg) => {
+    return fetch(arg.value)
+      .then(r => r.text())
+      .then(response => {
+        const data = []
+        const rows = response.split('\n')
+        for (const row of rows) {
+          const cols = row.split(',')
+          data.push(cols)
+        }
+        return data
+      })
+  }
+}
+
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);
   return (
@@ -267,7 +283,11 @@ function Home() {
         `}
       />
       <Box padding={2} flex={1} display="flex" minWidth={0}>
-        <SpreadSheet initialColorMode="light" sheets={initialState} />
+        <SpreadSheet
+          initialColorMode="light"
+          initialSheets={initialState}
+          functions={functions}
+        />
       </Box>
     </Layout>
   );

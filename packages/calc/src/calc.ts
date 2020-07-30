@@ -2,20 +2,21 @@ import {
   FormulaParser,
   Sheet,
   GetValue,
-  CellConfig,
   CellRange,
   Functions,
-  ParseResults
+  ParseResults,
 } from "./parser";
 import { Dag, Node, DependencyMapping } from "./graph";
 import {
   cellToAddress,
   isNull,
   createPosition,
-  detectDataType
+  detectDataType,
+  castToString,
 } from "./helpers";
 import merge from "lodash.merge";
 import FormulaError from "fast-formula-parser/formulas/error";
+import { CellConfig, CellConfigGetter } from "./types";
 
 interface CellInterface {
   rowIndex: number;
@@ -39,7 +40,7 @@ class CalcEngine {
   mapping: DependencyMapping;
   constructor(options?: CalcEngineOptions) {
     this.parser = new FormulaParser(options);
-    this.dag = new Dag<Node>(node => node.children);
+    this.dag = new Dag<Node>((node) => node.children);
     this.mapping = new DependencyMapping();
   }
 
@@ -54,7 +55,7 @@ class CalcEngine {
     value: string | undefined,
     sheet: Sheet,
     cell: CellInterface,
-    getValue: GetValue
+    getValue: CellConfigGetter
   ) => {
     const config = getValue(sheet, cell);
     if (value === void 0 || isNull(value) || config?.datatype !== "formula") {
@@ -106,7 +107,7 @@ class CalcEngine {
     } catch (err) {
       console.warn("Error parsing formula: ", formula, cell);
       changes[sheet][cell.rowIndex][cell.columnIndex] = {
-        error: "Error parsing formula " + err.toString()
+        error: "Error parsing formula " + err.toString(),
       };
       /* Remove all caches after calculation is complete */
       this.parser.clearCachedValues();
@@ -128,7 +129,7 @@ class CalcEngine {
       changes[sheet][cell.rowIndex][cell.columnIndex] = {
         formulatype: "error",
         errorMessage: `Array result was not expanded because it would overwrite data in ${collisionAddress}`,
-        error: new FormulaError("#REF").toString()
+        error: new FormulaError("#REF").toString(),
       };
 
       /* Remove all caches after calculation is complete */
@@ -170,7 +171,7 @@ class CalcEngine {
         const { row, col, sheet } = dep;
         const address = cellToAddress({
           rowIndex: row,
-          columnIndex: col
+          columnIndex: col,
         }) as string;
         const cellNode = { rowIndex: row, columnIndex: col };
         const node = this.mapping.get(address, sheet, cellNode);
@@ -206,7 +207,7 @@ class CalcEngine {
     result: ParseResults,
     sheet: Sheet,
     cell: CellInterface,
-    getValue: GetValue
+    getValue: CellConfigGetter
   ): boolean | CellInterface => {
     const address = cellToAddress(cell);
     if (result.formulatype === "array") {
@@ -218,7 +219,7 @@ class CalcEngine {
           }
           const currentCell = {
             rowIndex: cell.rowIndex + i,
-            columnIndex: cell.columnIndex + j
+            columnIndex: cell.columnIndex + j,
           };
           const currentConfig = getValue(sheet, currentCell);
           if (
@@ -267,12 +268,12 @@ class CalcEngine {
             result: value,
             error: undefined,
             parentCell,
-            formulatype: detectDataType(value)
+            formulatype: detectDataType(value),
           };
 
           const address = cellToAddress({
             rowIndex: row,
-            columnIndex: col
+            columnIndex: col,
           }) as string;
 
           const node = this.mapping.get(address, sheet, currentCell);
@@ -286,7 +287,7 @@ class CalcEngine {
       /* Add range */
       changes[sheet][cell.rowIndex][cell.columnIndex].formulaRange = [
         hLen,
-        vLen
+        vLen,
       ];
     } else {
       // @ts-ignore
@@ -297,19 +298,20 @@ class CalcEngine {
 
   calculateDependencies = async (
     dependencies: Set<Node>,
-    getValue: GetValue
+    getValue: CellConfigGetter
   ) => {
     const changes: CellsBySheet = {};
     for (const { cell, sheet } of dependencies) {
       const config = getValue(sheet, cell);
       const isFormula = config?.datatype === "formula";
-      if (!isFormula || isNull(config.text) || config.text === void 0) continue;
+      if (!isFormula || isNull(config?.text) || config?.text === void 0)
+        continue;
       const position = createPosition(
         sheet,
         Number(cell.rowIndex),
         Number(cell.columnIndex)
       );
-      const formula = config.text.substr(1) ?? null;
+      const formula = castToString(config?.text)?.substr(1) ?? null;
       const result = await this.parser.parse(formula, position, getValue);
 
       /* Check collision in dependencies */
@@ -321,7 +323,7 @@ class CalcEngine {
         changes[sheet][cell.rowIndex][cell.columnIndex] = {
           formulatype: "error",
           errorMessage: `Array result was not expanded because it would overwrite data in ${collisionAddress}`,
-          error: new FormulaError("#REF").toString()
+          error: new FormulaError("#REF").toString(),
         };
         return changes;
       }
@@ -338,7 +340,7 @@ class CalcEngine {
   calculateBatch = async (
     changes: CellsBySheet,
     sheet: Sheet,
-    getValue: GetValue
+    getValue: CellConfigGetter
   ) => {
     const values = {};
     for (const sheet in changes) {
@@ -346,11 +348,14 @@ class CalcEngine {
         for (const columnIndex in changes[sheet][rowIndex]) {
           const cell = {
             rowIndex: Number(rowIndex),
-            columnIndex: Number(columnIndex)
+            columnIndex: Number(columnIndex),
           };
           const config = getValue(sheet, cell);
+          if (config === void 0) {
+            continue;
+          }
           const changes = await this.calculate(
-            config?.text,
+            castToString(config?.text),
             sheet,
             cell,
             getValue
@@ -366,7 +371,7 @@ class CalcEngine {
    * Set dependencies in graph
    * @param changes
    */
-  initialize = async (changes: CellsBySheet, getValue: GetValue) => {
+  initialize = async (changes: CellsBySheet, getValue: CellConfigGetter) => {
     const values = {};
     for (const sheet in changes) {
       for (const rowIndex in changes[sheet]) {
@@ -379,7 +384,7 @@ class CalcEngine {
             const formula = text.substr(1);
             const cell = {
               rowIndex: Number(rowIndex),
-              columnIndex: Number(columnIndex)
+              columnIndex: Number(columnIndex),
             };
             const cellAddress = cellToAddress(cell);
             if (!cellAddress) {
@@ -420,7 +425,7 @@ class CalcEngine {
                   const { row, col, sheet } = dep;
                   const address = cellToAddress({
                     rowIndex: row,
-                    columnIndex: col
+                    columnIndex: col,
                   }) as string;
                   const cell = { rowIndex: row, columnIndex: col };
                   const node = this.mapping.get(address, sheet, cell);

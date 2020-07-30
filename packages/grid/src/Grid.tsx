@@ -2797,7 +2797,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             })
           : null}
       </>
-    );
+    );    
     const fillHandleWidth = 8;
     const fillhandleComponent =
       showFillHandle && !isSelectionInProgress ? (

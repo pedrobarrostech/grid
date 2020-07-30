@@ -459,12 +459,11 @@ export const Formula = () => {
             }
             return data
           })
-        return [[arg?.value || 0,2,3],[4,5,'6']]
       }
     }
   })
   const App = () => {
-    const sheets: Sheet[] = [
+    const initialSheets: Sheet[] = [
       {
         name: "Sheet 1",
         id: '1',
@@ -487,20 +486,26 @@ export const Formula = () => {
         }
       }
     ];
+    const [ sheets, setSheets ] = useState(initialSheets)
     return (
       <Spreadsheet
         minHeight={600}
         sheets={sheets}
-        onInitialize={(changes, getvalue) => {
-          return calcEngine.initialize(changes, getvalue)
-        }}
-        onCalculate={async (value, sheet, cell, getCellConfig) => {
-          const changes = await calcEngine.calculate(value, sheet, cell, getCellConfig)
-          return changes
-        }}
-        onCalculateBatch={async (values, sheet, getCellConfig) => {
-          const changes = await calcEngine.calculateBatch(values, sheet, getCellConfig)
-          return changes
+        onChange={setSheets}
+        functions={{
+          FETCH_CSV: async (arg) => {
+            return fetch(arg.value)
+              .then(r => r.text())
+              .then(response => {
+                const data = []
+                const rows = response.split('\n')
+                for (const row of rows) {
+                  const cols = row.split(',')
+                  data.push(cols)
+                }
+                return data
+              })
+          }
         }}
       />
     );
