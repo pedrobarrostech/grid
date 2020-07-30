@@ -1,19 +1,19 @@
 import FormulaError from "fast-formula-parser/formulas/error";
 
 export interface FunctionArgument {
-  value: string;
+  value: string | number;
   isArray: boolean;
   isRangeRef: boolean;
   isCellRef: boolean;
 }
 export function importData(arg: FunctionArgument | undefined) {
-  if (!arg)
+  if (!arg || !arg.value)
     throw new FormulaError("#N/A", "Wrong number of arguments provided.");
   const { value } = arg;
-  return fetch(value)
+  return fetch(value.toString())
     .then((r) => r.text())
     .then((response) => {
-      const separator = value.endsWith("tsv") ? "\t" : ",";
+      const separator = value.toString().endsWith("tsv") ? "\t" : ",";
       const data = [];
       const rows = response.split("\n");
       for (const row of rows) {
@@ -24,9 +24,18 @@ export function importData(arg: FunctionArgument | undefined) {
     });
 }
 
+export function min(...arg: FunctionArgument[]) {
+  return Math.min(...arg.map((item) => Number(item.value)));
+}
+export function max(...arg: FunctionArgument[]) {
+  return Math.max(...arg.map((item) => Number(item.value)));
+}
+
 /* Default export */
 export const formulas = {
   IMPORTDATA: importData,
+  MIN: min,
+  MAX: max,
 };
 
 export { FormulaError };
