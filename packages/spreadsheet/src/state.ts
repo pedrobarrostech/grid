@@ -377,6 +377,15 @@ export const createStateReducer = ({
                       if (value === void 0) {
                         delete sheet.cells[rowIndex][columnIndex]?.[key];
                       } else {
+                        /* Exclude formatting values if it has been changed by user */
+                        if (
+                          Object.values(FORMATTING_TYPE).includes(
+                            key as FORMATTING_TYPE
+                          ) &&
+                          sheet.cells[rowIndex][columnIndex]?.[key] !== void 0
+                        ) {
+                          continue;
+                        }
                         sheet.cells[rowIndex][columnIndex][key] = value;
                       }
                     }
