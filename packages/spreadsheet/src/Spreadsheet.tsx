@@ -327,7 +327,7 @@ export interface SpreadSheetProps {
   ) => void;
 }
 
-export type FormulaMap = Record<string, (args: any) => void>;
+export type FormulaMap = Record<string, (...args: any[]) => any>;
 
 export type CellConfigGetter = (
   id: SheetID,

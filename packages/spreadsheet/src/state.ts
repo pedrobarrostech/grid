@@ -373,7 +373,12 @@ export const createStateReducer = ({
                       sheet.cells[rowIndex][columnIndex] ?? {};
                     const values = changes[id][rowIndex][columnIndex];
                     for (const key in values) {
-                      sheet.cells[rowIndex][columnIndex][key] = values[key];
+                      const value = values[key];
+                      if (value === void 0) {
+                        delete sheet.cells[rowIndex][columnIndex]?.[key];
+                      } else {
+                        sheet.cells[rowIndex][columnIndex][key] = value;
+                      }
                     }
                   }
                 }

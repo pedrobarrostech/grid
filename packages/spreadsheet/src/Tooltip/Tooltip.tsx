@@ -5,6 +5,7 @@ import {
   HYPERLINK_COLOR,
   ERROR_COLOR,
   INFO_COLOR,
+  castToString,
 } from "../constants";
 import { Box, Link } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
@@ -33,6 +34,8 @@ const Tooltip: React.FC<TooltipProps> = ({
   variant = "info",
   content,
   datatype,
+  formulatype,
+  result,
   hyperlink,
   text,
   onMouseEnter,
@@ -69,8 +72,12 @@ const Tooltip: React.FC<TooltipProps> = ({
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
     >
-      {datatype === "hyperlink" ? (
-        <HyperLink title={text} url={hyperlink} variantColor={variantColor} />
+      {datatype === "hyperlink" || formulatype === "hyperlink" ? (
+        <HyperLink
+          title={result ? castToString(result) : text}
+          url={hyperlink}
+          variantColor={variantColor}
+        />
       ) : (
         <Alert title={title} content={content} variantColor={variantColor} />
       )}
@@ -88,7 +95,7 @@ interface TooltipContentProps {
 const HyperLink: React.FC<TooltipContentProps> = ({ title, url }) => {
   return (
     <>
-      <Box mb={1} fontWeight="bold">
+      <Box mb={1} fontWeight="bold" wordBreak="break-word">
         <Link
           color={HYPERLINK_COLOR}
           _hover={{ color: HYPERLINK_COLOR }}
@@ -98,7 +105,9 @@ const HyperLink: React.FC<TooltipContentProps> = ({ title, url }) => {
           {title}
         </Link>
       </Box>
-      <Box color="#666">{url}</Box>
+      <Box wordBreak="break-word" color="#666">
+        {url}
+      </Box>
     </>
   );
 };

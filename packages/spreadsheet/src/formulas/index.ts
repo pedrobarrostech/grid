@@ -31,11 +31,23 @@ export function max(...arg: FunctionArgument[]) {
   return Math.max(...arg.map((item) => Number(item.value)));
 }
 
+export function hyperLink(
+  urlArg: FunctionArgument,
+  titleArg: FunctionArgument
+) {
+  return JSON.stringify({
+    title: titleArg?.value,
+    hyperlink: urlArg?.value,
+    datatype: "hyperlink",
+  });
+}
+
 /* Default export */
 export const formulas = {
   IMPORTDATA: importData,
   MIN: min,
   MAX: max,
+  HYPERLINK: hyperLink,
 };
 
 export { FormulaError };

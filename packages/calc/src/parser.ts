@@ -22,11 +22,17 @@ export interface CellRange {
 
 export type ResultArray = any[][];
 
+export const DEFAULT_HYPERLINK_COLOR = "#1155CC";
+
+// Should match SpreadSheet CellConfig
 export interface ParseResults {
   result?: React.ReactText | undefined | ResultArray;
   formulatype?: DATATYPES;
   error?: string;
+  hyperlink?: string;
   errorMessage?: string;
+  color?: string;
+  underline?: boolean;
 }
 
 const basePosition: Position = { row: 1, col: 1, sheet: "Sheet1" };
@@ -38,13 +44,19 @@ export interface CellInterface {
 
 export type GetValue = (sheet: Sheet, cell: CellInterface) => CellConfig;
 
-export interface Functions {
-  [key: string]: (args: any) => any;
-}
+export type Functions = Record<string, (...args: any[]) => any>;
 
 export interface FormulaProps {
   getValue?: CellConfigGetter | undefined;
   functions?: Functions;
+}
+
+function extractIfJSON(str: string) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return str;
+  }
 }
 
 /**
@@ -119,19 +131,45 @@ class FormulaParser {
     let result;
     let error;
     let errorMessage;
+    let hyperlink;
+    let underline;
+    let color;
     let formulatype: DATATYPES | undefined;
     try {
       result = await this.formulaParser.parseAsync(text, position, true);
+
+      /* Check if its JSON */
+      result = extractIfJSON(result);
+
+      if (!Array.isArray(result) && typeof result === "object") {
+        // Hyperlink
+        if (result.datatype === "hyperlink") {
+          formulatype = result.datatype;
+          hyperlink = result.hyperlink;
+          result = result.title || result.hyperlink;
+          color = DEFAULT_HYPERLINK_COLOR;
+          underline = true;
+        }
+      } else {
+        formulatype = detectDataType(result);
+      }
       if ((result as any) instanceof FormulaError) {
         error = ((result as unknown) as FormulaError).error;
         errorMessage = ((result as unknown) as FormulaError).message;
       }
-      formulatype = detectDataType(result);
     } catch (err) {
       error = err.toString();
       formulatype = "error";
     }
-    return { result, formulatype, error, errorMessage };
+    return {
+      result,
+      formulatype,
+      hyperlink,
+      color,
+      underline,
+      error,
+      errorMessage,
+    };
   };
   getDependencies = (text: string, position: Position = basePosition) => {
     return this.dependencyParser.parse(text, position);
