@@ -20,55 +20,55 @@ const initialState = [
         top: 3,
         left: 4,
         right: 8,
-        bottom: 3,
-      },
+        bottom: 3
+      }
     ],
     rowSizes: {
-      12: 60,
+      12: 60
     },
     cells: {
       2: {
         2: {
-          text: "Hello world",
+          text: "Hello world"
         },
         3: {
           text: "Tooltips",
-          tooltip: "Thanks for the support. Spread the word!",
-        },
+          tooltip: "Thanks for the support. Spread the word!"
+        }
       },
       3: {
         2: {
           text: "Black bg",
           fill: "#000000",
-          color: "white",
+          color: "white"
         },
         4: {
           text: "Filter views",
           bold: true,
-          fill: "#eeeeee",
-        },
+          fill: "#eeeeee"
+        }
       },
       4: {
         2: {
           text: "Pink text",
           fill: "pink",
-          color: "black",
+          color: "black"
         },
         4: {
-          text: "First Name",
+          text: "First Name"
         },
         5: {
-          text: "Last Name",
+          text: "Last Name"
         },
         6: {
-          text: "Gender",
+          text: "Gender"
         },
         7: {
-          text: "Country",
+          text: "Country"
         },
         8: {
-          text: "Age",
-        },
+          text: "Age"
+        }
       },
       5: {
         2: {
@@ -77,103 +77,103 @@ const initialState = [
           dataValidation: {
             prompt: "Select a country from the list",
             type: "list",
-            formulae: ["Singapore", "China", "Japan", "USA"],
-          },
+            formulae: ["Singapore", "China", "Japan", "USA"]
+          }
         },
         4: {
-          text: "Dulce",
+          text: "Dulce"
         },
         5: {
-          text: "Abril",
+          text: "Abril"
         },
         6: {
-          text: "Female",
+          text: "Female"
         },
         7: {
-          text: "United States",
+          text: "United States"
         },
         8: {
           text: "32",
-          datatype: "number",
-        },
+          datatype: "number"
+        }
       },
       6: {
         4: {
-          text: "Mara",
+          text: "Mara"
         },
         5: {
-          text: "Hashimoto",
+          text: "Hashimoto"
         },
         6: {
-          text: "Female",
+          text: "Female"
         },
         7: {
-          text: "Great Britain",
+          text: "Great Britain"
         },
         8: {
           text: "25",
-          datatype: "number",
-        },
+          datatype: "number"
+        }
       },
       7: {
         4: {
-          text: "Philip",
+          text: "Philip"
         },
         5: {
-          text: "Gent",
+          text: "Gent"
         },
         6: {
-          text: "Male",
+          text: "Male"
         },
         7: {
-          text: "France",
+          text: "France"
         },
         8: {
           text: "36",
-          datatype: "number",
-        },
+          datatype: "number"
+        }
       },
       8: {
         2: {
-          fill: "#4FC3F7",
+          fill: "#4FC3F7"
         },
         4: {
-          text: "Kathleen",
+          text: "Kathleen"
         },
         5: {
-          text: "Hanner",
+          text: "Hanner"
         },
         6: {
-          text: "Female",
+          text: "Female"
         },
         7: {
-          text: "United States",
+          text: "United States"
         },
         8: {
           text: "25",
-          datatype: "number",
-        },
+          datatype: "number"
+        }
       },
       9: {
         2: {
-          fill: "#4FC3F7",
+          fill: "#4FC3F7"
         },
         4: {
-          text: "Loreta",
+          text: "Loreta"
         },
         5: {
-          text: "Curren",
+          text: "Curren"
         },
         6: {
-          text: "Female",
+          text: "Female"
         },
         7: {
-          text: "France",
+          text: "France"
         },
         8: {
           text: "18",
-          datatype: "number",
-        },
+          datatype: "number"
+        }
       },
       10: {
         2: {
@@ -182,28 +182,28 @@ const initialState = [
           dataValidation: {
             allowBlank: true,
             type: "boolean",
-            formulae: ["TRUE", "FALSE"],
-          },
+            formulae: ["TRUE", "FALSE"]
+          }
         },
         3: {
-          text: "Checkboxes",
+          text: "Checkboxes"
         },
         4: {
-          text: "Belinda",
+          text: "Belinda"
         },
         5: {
-          text: "Partain",
+          text: "Partain"
         },
         6: {
-          text: "Female",
+          text: "Female"
         },
         7: {
-          text: "Spain",
+          text: "Spain"
         },
         8: {
           text: "29",
-          datatype: "number",
-        },
+          datatype: "number"
+        }
       },
       11: {
         2: {
@@ -211,14 +211,14 @@ const initialState = [
           text: "Visit Google",
           color: "#1155CC",
           underline: true,
-          hyperlink: "http://google.com",
-        },
+          hyperlink: "http://google.com"
+        }
       },
       12: {
         2: {
-          image: "https://picsum.photos/200/300",
-        },
-      },
+          image: "https://picsum.photos/200/300"
+        }
+      }
     },
     filterViews: [
       {
@@ -226,28 +226,40 @@ const initialState = [
           top: 4,
           bottom: 20,
           left: 4,
-          right: 8,
-        },
-      },
-    ],
-  },
+          right: 8
+        }
+      }
+    ]
+  }
 ];
 
-const functions={
-  FETCH_CSV: async (arg) => {
+const functions = {
+  FETCH_CSV: async arg => {
     return fetch(arg.value)
       .then(r => r.text())
       .then(response => {
-        const data = []
-        const rows = response.split('\n')
+        const data = [];
+        const rows = response.split("\n");
         for (const row of rows) {
-          const cols = row.split(',')
-          data.push(cols)
+          const cols = row.split(",");
+          data.push(cols);
         }
-        return data
-      })
+        return data;
+      });
+  },
+  FETCH_EXCHANGE_RATES: async () => {
+    return fetch("https://api.exchangeratesapi.io/latest")
+      .then(r => r.json())
+      .then(response => {
+        const data = [];
+        const rates = response.rates;
+        for (const currency in rates) {
+          data.push([currency, rates[currency]]);
+        }
+        return data;
+      });
   }
-}
+};
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);

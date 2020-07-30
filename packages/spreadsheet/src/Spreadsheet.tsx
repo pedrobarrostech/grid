@@ -21,8 +21,7 @@ import {
   FilterView,
   FilterDefinition,
   useUndo,
-  SelectionPolicy,
-  canUseDOM
+  SelectionPolicy
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
@@ -451,9 +450,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     /* Keep a reference to previous state */
     useEffect(() => {
-      currentStateRef.current = state;
       if (!isControlled) {
         onChange?.(state.sheets);
+      } else {
+        currentStateRef.current = state;
       }
     }, [state, isControlled]);
 
@@ -536,8 +536,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       [isControlled]
     );
-
-    /* Validate selectedSheet */
 
     /* Current sheet */
     const currentSheet = sheetsById[selectedSheet];
@@ -834,7 +832,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
-        if (!currentStateRef.current) return;
         const config = getCellConfig(id, cell);
         const datatype = detectDataType(value);
 
