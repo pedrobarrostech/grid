@@ -1,11 +1,14 @@
 import React, { useRef, useEffect, useCallback } from "react";
-import CalcEngine from "@rowsncolumns/calc";
+import CalcEngine, {
+  CellConfig as CalcCellConfig,
+  CellConfigGetter as CalcCellConfigGetter
+} from "@rowsncolumns/calc";
 import { CellInterface } from "@rowsncolumns/grid";
 import {
   SheetID,
   CellConfigGetter,
   CellsBySheet,
-  CellConfig,
+  CellConfig
 } from "./../Spreadsheet";
 import { castToString } from "../constants";
 
@@ -18,51 +21,53 @@ const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
   const engine = useRef<CalcEngine>();
   useEffect(() => {
     engine.current = new CalcEngine({
-      functions,
+      functions
     });
   }, []);
 
   const onCalculate = useCallback(
-    (
-      value: React.ReactText,
-      sheet: SheetID,
-      cell: CellInterface
-    ): Promise<Partial<CellConfig> | undefined> | undefined => {
+    (value: React.ReactText, sheet: SheetID, cell: CellInterface) => {
       const sheetId = castToString(sheet);
       if (!sheetId || !getCellConfig.current) return;
       return engine.current?.calculate(
-        castToString(value),
+        castToString(value) || "",
         sheetId,
         cell,
-        getCellConfig.current
+        getCellConfig.current as CalcCellConfigGetter
       );
     },
     []
   );
 
-  const onCalculateBatch = useCallback((changes: CellsBySheet, sheet: SheetID):
-    | Promise<Partial<CellConfig> | undefined>
-    | undefined => {
-    const sheetId = castToString(sheet);
-    if (!sheetId || !getCellConfig?.current) return;
-    return engine.current?.calculateBatch(
-      changes,
-      sheetId,
-      getCellConfig.current
-    );
-  }, []);
+  const onCalculateBatch = useCallback(
+    (changes: CellsBySheet, sheet: SheetID) => {
+      const sheetId = castToString(sheet);
+      if (!sheetId || !getCellConfig?.current) return;
+      // @ts-ignore
+      return engine.current?.calculateBatch(
+        changes as Partial<CellConfig>,
+        sheetId,
+        getCellConfig.current as CalcCellConfigGetter
+      );
+    },
+    []
+  );
 
   const initializeEngine = useCallback((changes: CellsBySheet):
     | Promise<Partial<CellConfig> | undefined>
     | undefined => {
     if (!getCellConfig?.current) return;
-    return engine.current?.initialize(changes, getCellConfig.current);
+    // @ts-ignore
+    return engine.current?.initialize(
+      changes as Partial<CellConfig>,
+      getCellConfig.current as CalcCellConfigGetter
+    );
   }, []);
 
   return {
     onCalculate,
     onCalculateBatch,
-    initializeEngine,
+    initializeEngine
   };
 };
 
