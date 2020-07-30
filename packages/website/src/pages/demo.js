@@ -233,7 +233,7 @@ const initialState = [
   }
 ];
 
-const functions = {
+const formulas = {
   FETCH_CSV: async arg => {
     return fetch(arg.value)
       .then(r => r.text())
@@ -298,7 +298,7 @@ function Home() {
         <SpreadSheet
           initialColorMode="light"
           initialSheets={initialState}
-          functions={functions}
+          formulas={formulas}
         />
       </Box>
     </Layout>
