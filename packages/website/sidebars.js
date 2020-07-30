@@ -5,10 +5,10 @@ module.exports = {
       "license",
       "formula",
       "formatting",
-      "konva",
       "roadmap",
+      "credits"
     ],
-    "Getting Started": ["install", "options"],
+    "Getting Started": ["install","controlled-uncontrolled", "options"],
     Features: [
       "features/initialize",
       "features/sheets",
