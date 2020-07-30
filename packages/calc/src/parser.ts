@@ -26,6 +26,7 @@ export interface ParseResults {
   result?: React.ReactText | undefined | ResultArray;
   formulatype?: DATATYPES;
   error?: string;
+  errorMessage?: string;
 }
 
 const basePosition: Position = { row: 1, col: 1, sheet: "Sheet1" };
@@ -117,20 +118,20 @@ class FormulaParser {
     if (getValue !== void 0) this.getValue = getValue;
     let result;
     let error;
+    let errorMessage;
     let formulatype: DATATYPES | undefined;
     try {
       result = await this.formulaParser.parseAsync(text, position, true);
       if ((result as any) instanceof FormulaError) {
-        error =
-          ((result as unknown) as FormulaError).message ||
-          ((result as unknown) as FormulaError).error;
+        error = ((result as unknown) as FormulaError).error;
+        errorMessage = ((result as unknown) as FormulaError).message;
       }
       formulatype = detectDataType(result);
     } catch (err) {
       error = err.toString();
       formulatype = "error";
     }
-    return { result, formulatype, error };
+    return { result, formulatype, error, errorMessage };
   };
   getDependencies = (text: string, position: Position = basePosition) => {
     return this.dependencyParser.parse(text, position);

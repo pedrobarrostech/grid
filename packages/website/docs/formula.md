@@ -1,61 +1,123 @@
 ---
 id: formula
-title: Formula
+title: Formula (beta)
 ---
+import SpreadSheet, { FormulaError } from "@rowsncolumns/spreadsheet"
 
-You can use existing parsers like [Hot formula Parser](https://github.com/handsontable/formula-parser)
+Formula support is now in beta. We have added a new Calculation Engine for SpreadSheet Grid. Calculations are always async and is an independent module.
 
-To format a value in SpreadSheet Grid, `formatter` prop lets you easily hook into the rendering output.
+## Adding custom formula
+
+A simple formula to add `+1` to any number
 
 ```jsx
-import SpreadSheet from '@rowsncolumns/spreadsheet'
-import { Parser as FormulaParser } from 'hot-formula-parser';
-const parser = new FormulaParser();
-
-<SpreadSheet
-  formatter={(value) => {
-    if (value && value.startsWith('=')) {
-      const output = parser.parse(value.substr(1))
-      return output.result || output.error
+const formulas = {
+  'PLUS_ONE': (arg: FunctionArgument) => {
+    if (!arg) {
+      return new FormulaError('#NA', 'Wrong number of arguments')
     }
-    return value
-  }}
-/>
+    const { value } = arg
+    if (isNaN(Number(value))) {
+      return new FormulaError('#NA', 'Please enter a number.')
+    }
+    return value + 1
+  }
+}
+
+return (
+  <SpreadSheet formulas={functions} />
+)
 ```
 
-### Demo
+#### Demo
 
-import SpreadSheet from "@rowsncolumns/spreadsheet"
-import { Parser as FormulaParser } from 'hot-formula-parser';
-const parser = new FormulaParser();
-const initialSheets = [
-  {
-    id: '0',
-    name: 'Hello',
-    activeCell: {
-      rowIndex: 1,
-      columnIndex: 1,
-    },
-    cells: {
-      1: {
-        1: {
-          text: '=SUM(1,2)'
-        }
+Enter `=PLUS_ONE(12)`
+
+export const App = () => {
+  const formulas = {
+    'PLUS_ONE': (arg) => {
+      if (!arg) {
+        return new FormulaError('#NA', 'Wrong number of arguments')
       }
+      const { value } = arg
+      if (isNaN(Number(value))) {
+        return new FormulaError('#NA', 'Please enter a number.')
+      }
+      return value + 1
     }
   }
-]
+  return (
+  <SpreadSheet formulas={formulas} />
+  )
+}
 
-<SpreadSheet
-  sheets={initialSheets}
-  formatter={(value) => {
-    if (value && value.startsWith('=')) {
-      const output = parser.parse(value.substr(1))
-      return output.result || output.error
+<App />
+
+## Asynchronous formula
+
+```jsx
+const formulas = {
+  'FETCH_USER_INFO': (arg: FunctionArgument) => {
+    if (!arg) {
+      return new FormulaError('#NA', 'Wrong number of arguments')
     }
-    return value
-  }}
-/>
+    return fetch('/api')
+  }
+}
+
+return (
+  <SpreadSheet formulas={functions} />
+)
+```
+
+### Spanning multiple cells
+
+```jsx
+const formulas = {
+  FETCH_EXCHANGE_RATES: async () => {
+    return fetch("https://api.exchangeratesapi.io/latest")
+      .then(r => r.json())
+      .then(response => {
+        const data = [];
+        const rates = response.rates;
+        for (const currency in rates) {
+          data.push([currency, rates[currency]]);
+        }
+        return data;
+      });
+  }
+}
+
+return (
+  <SpreadSheet formulas={functions} />
+)
+```
+
+#### Demo
+
+Type `=FETCH_EXCHANGE_RATES()`
+
+export const App2 = () => {
+  const formulas = {
+    FETCH_EXCHANGE_RATES: async () => {
+    return fetch("https://api.exchangeratesapi.io/latest")
+      .then(r => r.json())
+      .then(response => {
+        const data = [];
+        const rates = response.rates;
+        for (const currency in rates) {
+          data.push([currency, rates[currency]]);
+        }
+        return data;
+      });
+  }
+  }
+  return (
+  <SpreadSheet formulas={formulas} />
+  )
+}
+
+<App2 />
 
 ## Multi-selection mode
 

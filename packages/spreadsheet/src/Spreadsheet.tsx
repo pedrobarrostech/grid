@@ -246,7 +246,7 @@ export interface SpreadSheetProps {
   /**
    * Pass custom functions to calculation engine
    */
-  functions?: Functions;
+  formulas?: FormulaMap;
   /**
    * When user fill a cell
    */
@@ -327,7 +327,7 @@ export interface SpreadSheetProps {
   ) => void;
 }
 
-export type Functions = Record<string, (args: any) => void>;
+export type FormulaMap = Record<string, (args: any) => void>;
 
 export type CellConfigGetter = (
   id: SheetID,
@@ -478,7 +478,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       stateReducer,
       onValidate = validate,
       enableGlobalKeyHandlers = false,
-      functions,
+      formulas,
       onFill,
       onAddNewSheet,
       onSheetNameChange,
@@ -657,7 +657,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
 
     const { initializeEngine, onCalculateBatch, onCalculate } = useCalc({
-      functions,
+      formulas,
       getCellConfig: getCellConfigRef,
     });
 

@@ -1,27 +1,32 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import CalcEngine, {
   CellConfig as CalcCellConfig,
-  CellConfigGetter as CalcCellConfigGetter
+  CellConfigGetter as CalcCellConfigGetter,
 } from "@rowsncolumns/calc";
 import { CellInterface } from "@rowsncolumns/grid";
 import {
   SheetID,
   CellConfigGetter,
   CellsBySheet,
-  CellConfig
+  CellConfig,
+  FormulaMap,
 } from "./../Spreadsheet";
 import { castToString } from "../constants";
+import { formulas as defaultFormulas } from "../formulas";
 
 export interface UseCalcOptions {
-  functions?: Record<string, (args: any) => void>;
+  formulas?: FormulaMap;
   getCellConfig: React.MutableRefObject<CellConfigGetter | undefined>;
 }
 
-const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
+const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
   const engine = useRef<CalcEngine>();
   useEffect(() => {
     engine.current = new CalcEngine({
-      functions
+      functions: {
+        ...defaultFormulas,
+        ...formulas,
+      },
     });
   }, []);
 
@@ -67,7 +72,7 @@ const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
   return {
     onCalculate,
     onCalculateBatch,
-    initializeEngine
+    initializeEngine,
   };
 };
 

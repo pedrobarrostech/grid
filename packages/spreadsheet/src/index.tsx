@@ -2,7 +2,7 @@ import Spreadsheet, { defaultSheets } from "./Spreadsheet";
 import Editor from "./Editor";
 import Cell from "./Cell";
 import validate from "./validation";
-import Image from './Image'
+import Image from "./Image";
 
 export * from "./Spreadsheet";
 export default Spreadsheet;
@@ -13,4 +13,5 @@ export * from "./constants";
 export * from "./types";
 export * from "./state";
 export * from "./Cell";
-export * from './Image'
+export * from "./Image";
+export * from "./formulas";
