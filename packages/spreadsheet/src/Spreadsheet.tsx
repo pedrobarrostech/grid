@@ -60,6 +60,7 @@ import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
 import TooltipComponent, { TooltipProps } from "./Tooltip";
 import validate, { ValidationResponse } from "./validation";
+import useCalc from './hooks/useCalc'
 
 export interface SpreadSheetProps {
   /**
@@ -241,20 +242,12 @@ export interface SpreadSheetProps {
    */
   enableGlobalKeyHandlers?: boolean;
   /**
-   * Called when the grid is initialized,
-   * so that formula module can add dependencies in the graph
+   * Pass custom functions to calculation engine
    */
-  onInitialize?: (changes: CellsBySheet, getCellConfig: CellConfigGetter | undefined) => Promise<CellsBySheet> | undefined
-  /**
-   * 
-   */
-  onCalculate?: (value: React.ReactText, id: SheetID, cell: CellInterface, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>;
-
-  /**
-   * Batch calculate
-   */
-  onCalculateBatch?: (changes: CellsBySheet, sheet: SheetID, getCellConfig?: CellConfigGetter) => Promise<CellsBySheet>
+  functions?: Functions;  
 }
+
+export type Functions = Record<string, (args: any) => void>
 
 export type CellConfigGetter = (id: SheetID, cell: CellInterface | null) => CellConfig | undefined
 
@@ -402,9 +395,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       stateReducer,
       onValidate = validate,
       enableGlobalKeyHandlers = false,
-      onInitialize,
-      onCalculate,
-      onCalculateBatch
+      functions
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -438,10 +429,13 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
     );
     
-    /* Keep a reference to current sheet */
+    /* Keep a reference to previous state */
     useEffect(() => {
       currentStateRef.current = state
-    }, [ state])
+      if (!isControlled) {
+        onChange?.(state.sheets)
+      }
+    }, [ state, isControlled ])
 
     /**
      * State reducer
@@ -450,41 +444,100 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return createStateReducer({ addUndoPatch, getCellBounds, stateReducer })
     }, [])
     const dispatch = useCallback((action: ActionTypes) => {
-      const newState = currentStateReducer()(currentStateRef.current, action)
-      updateState(newState)
-    }, [])
+      /**
+       * Previous state of controlled component is saved in ref
+       */      
+      if (isControlled) {
+        const newState = currentStateReducer()(currentStateRef.current, action)
+        updateState(newState)
+      } else {
+        /**
+         * Use local state
+         */
+        setValueState(prevState => {
+          return currentStateReducer()(prevState, action)
+        })        
+      }
+    }, [ isControlled ])
+
+    /**
+     * Warn users when they switch from controlled to uncontrolled
+     */
+    useEffect(() => {
+      const nextIsControlled = sheetsProp !== void 0
+      const nextMode = nextIsControlled ? "a controlled" : "an uncontrolled"
+      const mode = isControlled ? "a controlled" : "an uncontrolled"
+      if (isControlled !== nextIsControlled) {
+        console.warn(
+          `Your component is changing from ${mode} to ${nextMode}.Components should not switch from controlled to uncontrolled (or vice versa).` + 
+          `Use initialSheets for uncontrolled and sheets and onChange for controlled SpreadSheet`
+        )
+      }
+
+    }, [ isControlled ])
 
     /**
      * Update local state or triggers callback
      */
-    const updateState = useCallback((newState: StateInterface) => {
-      if (!isControlled) {
-        setValueState(newState)
-      } else {    
-      /**
-       * Update current selection local state
-       * Only if its a controlled component
-       */
-        if (newState.currentActiveCell || newState.currentSelections ||
-          newState.selectedSheet !== state.selectedSheet) {
+    const updateState = useCallback((newState: StateInterface) => {      
+      /* Call back */
+      onChange?.(newState.sheets)
+
+      if (newState.selectedSheet !== currentStateRef.current?.selectedSheet
+        || newState.currentActiveCell !== currentStateRef.current?.currentActiveCell
+        || newState.currentSelections !== currentStateRef.current?.currentSelections) {
           setValueState(prev => {
             return {
               ...prev,
-              currentActiveCell: newState.currentActiveCell || state.currentActiveCell,
-              currentSelections: newState.currentSelections || state.currentSelections,
-              selectedSheet: newState.selectedSheet
+              selectedSheet: newState.selectedSheet,
+              currentActiveCell: newState.currentActiveCell || prev.currentActiveCell,
+              currentSelections: newState.currentSelections || prev.currentSelections,
             }
           })
         }
-      }
-
-      /* Call back */
-      onChange?.(newState.sheets)
       
       if (newState.selectedSheet !== state.selectedSheet) {
         onChangeSelectedSheet?.(newState.selectedSheet as React.ReactText)
       }
-    }, [ isControlled, state ])
+    }, [ isControlled ])
+
+
+    const sheetsById = useMemo(() => {
+      const initial: Record<string, Sheet> = {};
+      return sheets.reduce((acc, sheet) => {
+        acc[sheet.id] = sheet;
+        return acc;
+      }, initial);
+    }, [sheets]);
+
+    /* Current sheet */
+    const currentSheet = sheetsById[selectedSheet];
+    
+    /**
+     * Get cell config
+     */
+    const getCellConfig = useCallback(
+      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {        
+        if (!cell) return void 0
+        return sheetsById?.[id]?.cells?.[cell.rowIndex]?.[cell.columnIndex];
+      },
+      [sheetsById]
+    );
+
+    /* Add it to ref to prevent closures */
+    const getCellConfigRef = useRef<CellConfigGetter>()
+
+    useEffect(() => {
+      getCellConfigRef.current = getCellConfig
+    }, [ getCellConfig])
+
+    /**
+     * Calculation
+     */  
+    const {  initializeEngine, onCalculateBatch, onCalculate } = useCalc({
+      functions,
+      getCellConfig: getCellConfigRef
+    })
 
     /**
      * Some grid side-effects during undo/redo
@@ -565,9 +618,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return currentGrid.current?.getCellBounds?.(cell);
     }, []);
 
-    
-    
-
     /* Last */
     useEffect(() => {
       lastActiveCellRef.current = currentActiveCell;
@@ -627,36 +677,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
       /* Focus on the new grid */
       currentGrid.current?.focus();
-    }, [sheets, selectedSheet]);
-
-    const sheetsById = useMemo(() => {
-      const initial: Record<string, Sheet> = {};
-      return sheets.reduce((acc, sheet) => {
-        acc[sheet.id] = sheet;
-        return acc;
-      }, initial);
-    }, [sheets]);
-
-    /* Current sheet */
-    const currentSheet = sheetsById[selectedSheet];
-    
-    /**
-     * Get cell config
-     */
-    const getCellConfig = useCallback(
-      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {        
-        if (!cell) return void 0
-        return sheetsById?.[id]?.cells?.[cell.rowIndex]?.[cell.columnIndex];
-      },
-      [sheetsById]
-    );
-
-    /* Add it to ref to prevent closures */
-    const getCellConfigRef = useRef<CellConfigGetter>()
-
-    useEffect(() => {
-      getCellConfigRef.current = getCellConfig
-    }, [ getCellConfig])
+    }, [sheets, selectedSheet]);    
 
     const getSheet = useCallback((id: SheetID) => {
       return sheetsById?.[id]
@@ -667,7 +688,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * @param changes 
      */
     const triggerBatchCalculation = async (changes: CellsBySheet, sheet: SheetID) => {
-      const values = await onCalculateBatch?.(changes, sheet, getCellConfigRef.current)
+      const values = await onCalculateBatch?.(changes, sheet)
       if (values !== void 0) {
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
@@ -692,7 +713,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         value: true,
         undoable: false
       })
-      const changes = await onCalculate?.(value, id, cell, getCellConfigRef.current)
+      const changes = await onCalculate?.(value, id, cell)
 
       dispatch({
         type: ACTION_TYPE.SET_LOADING,
@@ -716,7 +737,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * @param changes 
      */
     const triggerBatchInitialization = async (changes: CellsBySheet) => {
-      const values = await onInitialize?.(changes, getCellConfigRef.current)
+      const values = await initializeEngine?.(changes)
       if (values !== void 0) {
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,

@@ -4,6 +4,7 @@ import FormulaError from "fast-formula-parser/formulas/error";
 import { detectDataType, DATATYPES } from "./helpers";
 import { CellsBySheet } from "./calc";
 import merge from "lodash.merge";
+import { CellConfig, castToString, CellConfigGetter } from '@rowsncolumns/spreadsheet'
 
 export type Sheet = string;
 
@@ -33,17 +34,7 @@ export interface CellInterface {
   rowIndex: number;
   columnIndex: number;
 }
-export interface CellConfig {
-  text?: string;
-  prevText?: string;
-  result?: React.ReactText;
-  error?: string;
-  errorMessage?: string;
-  parentCell?: string;
-  formulaRange?: number[];
-  datatype?: DATATYPES;
-  formulatype?: DATATYPES;
-}
+
 export type GetValue = (sheet: Sheet, cell: CellInterface) => CellConfig;
 
 export interface Functions {
@@ -51,7 +42,7 @@ export interface Functions {
 }
 
 export interface FormulaProps {
-  getValue?: GetValue | undefined;
+  getValue?: CellConfigGetter | undefined;
   functions?: Functions;
 }
 
@@ -62,7 +53,7 @@ export interface FormulaProps {
 class FormulaParser {
   formulaParser: FastFormulaParser;
   dependencyParser: DepParser;
-  getValue: GetValue | undefined;
+  getValue: CellConfigGetter | undefined;
   currentValues: CellsBySheet | undefined;
   constructor(options?: FormulaProps) {
     if (options?.getValue) {
@@ -98,7 +89,7 @@ class FormulaParser {
     }
     return (config && config.datatype === "number") ||
       config?.formulatype === "number"
-      ? parseFloat(config.text || "0")
+      ? parseFloat(castToString(config.text) || "0")
       : config.text ?? null;
   };
 
@@ -120,7 +111,7 @@ class FormulaParser {
   parse = async (
     text: string | null,
     position: Position = basePosition,
-    getValue?: GetValue
+    getValue?: CellConfigGetter
   ): Promise<ParseResults> => {
     /* Update getter */
     if (getValue !== void 0) this.getValue = getValue;

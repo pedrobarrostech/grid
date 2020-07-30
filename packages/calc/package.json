@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@rowsncolumns/spreadsheet": "2.0.55",
     "@types/lodash.merge": "^4.6.6",
     "fast-formula-parser": "^1.0.6",
     "lodash.merge": "^4.6.2"
