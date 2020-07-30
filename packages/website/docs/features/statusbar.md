@@ -18,6 +18,7 @@ export const App = () => {
   const initialSheets = [
     {
       name: 'Sheet 1',
+      id: 1,
       cells: {
         1: {
           1: {
@@ -83,6 +84,7 @@ export const AppStatusBar = () => {
   const initialSheets = [
     {
       name: 'Sheet 1',
+      id: 1,
       cells: {
         1: {
           1: {

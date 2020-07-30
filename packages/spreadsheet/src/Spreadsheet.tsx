@@ -21,7 +21,8 @@ import {
   FilterView,
   FilterDefinition,
   useUndo,
-  SelectionPolicy
+  SelectionPolicy,
+  canUseDOM
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
@@ -417,7 +418,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         sheets: initialSheets,
         selectedSheet: isControlled
           ? sheetsProp?.[0].id
-          : initialActiveSheet || initialSheets[0].id
+          : initialActiveSheet ?? initialSheets[0].id ?? sheetsProp?.[0].id
       };
     });
     const currentStateRef = useRef<StateInterface>();
