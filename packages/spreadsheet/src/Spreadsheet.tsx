@@ -6,7 +6,8 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
-  memo} from "react";
+  memo
+} from "react";
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
@@ -31,7 +32,8 @@ import {
   format as defaultFormat,
   FONT_FAMILIES,
   detectDataType,
-  getMinMax} from "./constants";
+  getMinMax
+} from "./constants";
 import {
   FORMATTING_TYPE,
   CellFormatting,
@@ -60,7 +62,7 @@ import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
 import TooltipComponent, { TooltipProps } from "./Tooltip";
 import validate, { ValidationResponse } from "./validation";
-import useCalc from './hooks/useCalc'
+import useCalc from "./hooks/useCalc";
 
 export interface SpreadSheetProps {
   /**
@@ -244,12 +246,15 @@ export interface SpreadSheetProps {
   /**
    * Pass custom functions to calculation engine
    */
-  functions?: Functions;  
+  functions?: Functions;
 }
 
-export type Functions = Record<string, (args: any) => void>
+export type Functions = Record<string, (args: any) => void>;
 
-export type CellConfigGetter = (id: SheetID, cell: CellInterface | null) => CellConfig | undefined
+export type CellConfigGetter = (
+  id: SheetID,
+  cell: CellInterface | null
+) => CellConfig | undefined;
 
 export interface Sheet {
   id: SheetID;
@@ -275,7 +280,7 @@ export interface Sheet {
 }
 
 export type SheetID = React.ReactText;
-export type CellsBySheet = Record<string, Cells>
+export type CellsBySheet = Record<string, Cells>;
 
 export type SizeType = {
   [key: number]: number;
@@ -350,7 +355,7 @@ export const initialState: StateInterface = {
 
 /**
  * Spreadsheet component
- * 
+ *
  * @param props
  */
 const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
@@ -401,11 +406,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Last active cells: for undo, redo */
     const lastActiveCellRef = useRef<CellInterface | null | undefined>(null);
     const lastSelectionsRef = useRef<SelectionArea[] | null | undefined>([]);
-    const [scale, setScale] = useState(initialScale);    
+    const [scale, setScale] = useState(initialScale);
     const currentGrid = useRef<WorkbookGridRef>(null);
     const [formulaInput, setFormulaInput] = useState("");
-    const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0)
-    const [ valueState, setValueState ] = useState<StateInterface>(() => {
+    const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0);
+    const [valueState, setValueState] = useState<StateInterface>(() => {
       return {
         currentSelections: null,
         currentActiveCell: null,
@@ -413,13 +418,18 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         selectedSheet: isControlled
           ? sheetsProp?.[0].id
           : initialActiveSheet || initialSheets[0].id
-      }
-    })
-    const currentStateRef = useRef<StateInterface>()    
+      };
+    });
+    const currentStateRef = useRef<StateInterface>();
     const state: StateInterface = isControlled
       ? { ...valueState, sheets: sheetsProp as Sheet[] }
-      : valueState
-    const { sheets, selectedSheet, currentActiveCell, currentSelections } = state
+      : valueState;
+    const {
+      sheets,
+      selectedSheet,
+      currentActiveCell,
+      currentSelections
+    } = state;
 
     /**
      * Exit early if selected sheet is invalid
@@ -428,80 +438,94 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       selectedSheet !== void 0 && selectedSheet !== null,
       "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
     );
-    
+
     /* Keep a reference to previous state */
     useEffect(() => {
-      currentStateRef.current = state
+      currentStateRef.current = state;
       if (!isControlled) {
-        onChange?.(state.sheets)
+        onChange?.(state.sheets);
       }
-    }, [ state, isControlled ])
+    }, [state, isControlled]);
 
     /**
      * State reducer
      */
     const currentStateReducer = useCallback(() => {
-      return createStateReducer({ addUndoPatch, getCellBounds, stateReducer })
-    }, [])
-    const dispatch = useCallback((action: ActionTypes) => {
-      /**
-       * Previous state of controlled component is saved in ref
-       */      
-      if (isControlled) {
-        if (!currentStateRef.current) return
-        const newState = currentStateReducer()(currentStateRef.current, action)
-        updateState(newState)
-      } else {
+      return createStateReducer({ addUndoPatch, getCellBounds, stateReducer });
+    }, []);
+    const dispatch = useCallback(
+      (action: ActionTypes) => {
         /**
-         * Use local state
+         * Previous state of controlled component is saved in ref
          */
-        setValueState(prevState => {
-          return currentStateReducer()(prevState, action)
-        })        
-      }
-    }, [ isControlled ])
+
+        if (isControlled) {
+          if (!currentStateRef.current) return;
+          const newState = currentStateReducer()(
+            currentStateRef.current,
+            action
+          );
+          updateState(newState);
+        } else {
+          /**
+           * Use local state
+           */
+          setValueState(prevState => {
+            return currentStateReducer()(prevState, action);
+          });
+        }
+      },
+      [isControlled]
+    );
 
     /**
      * Warn users when they switch from controlled to uncontrolled
      */
     useEffect(() => {
-      const nextIsControlled = sheetsProp !== void 0
-      const nextMode = nextIsControlled ? "a controlled" : "an uncontrolled"
-      const mode = isControlled ? "a controlled" : "an uncontrolled"
+      const nextIsControlled = sheetsProp !== void 0;
+      const nextMode = nextIsControlled ? "a controlled" : "an uncontrolled";
+      const mode = isControlled ? "a controlled" : "an uncontrolled";
       if (isControlled !== nextIsControlled) {
         console.warn(
-          `Your component is changing from ${mode} to ${nextMode}.Components should not switch from controlled to uncontrolled (or vice versa).` + 
-          `Use initialSheets for uncontrolled and sheets and onChange for controlled SpreadSheet`
-        )
+          `Your component is changing from ${mode} to ${nextMode}.Components should not switch from controlled to uncontrolled (or vice versa).` +
+            `Use initialSheets for uncontrolled and sheets and onChange for controlled SpreadSheet`
+        );
       }
-
-    }, [ isControlled ])
+    }, [isControlled]);
 
     /**
      * Update local state or triggers callback
      */
-    const updateState = useCallback((newState: StateInterface) => {      
-      /* Call back */
-      onChange?.(newState.sheets)
+    const updateState = useCallback(
+      (newState: StateInterface) => {
+        /* Call back */
+        onChange?.(newState.sheets);
 
-      if (newState.selectedSheet !== currentStateRef.current?.selectedSheet
-        || newState.currentActiveCell !== currentStateRef.current?.currentActiveCell
-        || newState.currentSelections !== currentStateRef.current?.currentSelections) {
+        if (
+          newState.selectedSheet !== currentStateRef.current?.selectedSheet ||
+          newState.currentActiveCell !==
+            currentStateRef.current?.currentActiveCell ||
+          newState.currentSelections !==
+            currentStateRef.current?.currentSelections
+        ) {
           setValueState(prev => {
             return {
               ...prev,
               selectedSheet: newState.selectedSheet,
-              currentActiveCell: newState.currentActiveCell || prev.currentActiveCell,
-              currentSelections: newState.currentSelections || prev.currentSelections,
-            }
-          })
+              currentActiveCell:
+                newState.currentActiveCell || prev.currentActiveCell,
+              currentSelections:
+                newState.currentSelections || prev.currentSelections
+            };
+          });
         }
-      
-      if (newState.selectedSheet !== state.selectedSheet) {
-        onChangeSelectedSheet?.(newState.selectedSheet as React.ReactText)
-      }
-    }, [ isControlled ])
 
+        if (newState.selectedSheet !== state.selectedSheet) {
+          onChangeSelectedSheet?.(newState.selectedSheet as React.ReactText);
+        }
+      },
+      [isControlled]
+    );
 
     const sheetsById = useMemo(() => {
       const initial: Record<string, Sheet> = {};
@@ -513,32 +537,33 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     /* Current sheet */
     const currentSheet = sheetsById[selectedSheet];
-    
+
     /**
      * Get cell config
      */
     const getCellConfig = useCallback(
-      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {        
-        if (!cell) return void 0
+      (id: SheetID, cell: CellInterface | null): CellConfig | undefined => {
+        if (!cell) return void 0;
         return sheetsById?.[id]?.cells?.[cell.rowIndex]?.[cell.columnIndex];
       },
       [sheetsById]
     );
 
     /* Add it to ref to prevent closures */
-    const getCellConfigRef = useRef<CellConfigGetter>()
+    const getCellConfigRef = useRef<CellConfigGetter>();
 
     useEffect(() => {
-      getCellConfigRef.current = getCellConfig
-    }, [ getCellConfig])
+      getCellConfigRef.current = getCellConfig;
+    }, [getCellConfig]);
 
     /**
      * Calculation
-     */  
-    const {  initializeEngine, onCalculateBatch, onCalculate } = useCalc({
+     */
+
+    const { initializeEngine, onCalculateBatch, onCalculate } = useCalc({
       functions,
       getCellConfig: getCellConfigRef
-    })
+    });
 
     /**
      * Some grid side-effects during undo/redo
@@ -635,7 +660,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         });
       },
       [selectedSheet]
-    );    
+    );
 
     /* Fonts */
     const { isFontActive } = useFonts(fontLoaderConfig);
@@ -678,43 +703,53 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
       /* Focus on the new grid */
       currentGrid.current?.focus();
-    }, [sheets, selectedSheet]);    
+    }, [sheets, selectedSheet]);
 
-    const getSheet = useCallback((id: SheetID) => {
-      return sheetsById?.[id]
-    }, [ sheetsById ])
+    const getSheet = useCallback(
+      (id: SheetID) => {
+        return sheetsById?.[id];
+      },
+      [sheetsById]
+    );
 
     /**
      * Trigger batch calculation
-     * @param changes 
+     * @param changes
      */
-    const triggerBatchCalculation = async (changes: CellsBySheet, sheet: SheetID) => {
-      const values = await onCalculateBatch?.(changes, sheet)
+    const triggerBatchCalculation = async (
+      changes: CellsBySheet,
+      sheet: SheetID
+    ) => {
+      const values = await onCalculateBatch?.(changes, sheet);
       if (values !== void 0) {
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
           changes: values,
           undoable: false
-        })
+        });
       }
-    }
+    };
 
     /**
      * Trigger a single calculation
-     * @param value 
-     * @param id 
-     * @param cell 
+     * @param value
+     * @param id
+     * @param cell
      */
-    const triggerSingleCalculation = async (value: React.ReactText, id: SheetID, cell: CellInterface) => {
-      if (!onCalculate) return
+    const triggerSingleCalculation = async (
+      value: React.ReactText,
+      id: SheetID,
+      cell: CellInterface
+    ) => {
+      if (!onCalculate) return;
       dispatch({
         type: ACTION_TYPE.SET_LOADING,
         id,
         cell,
         value: true,
         undoable: false
-      })
-      const changes = await onCalculate?.(value, id, cell)
+      });
+      const changes = await onCalculate?.(value, id, cell);
 
       dispatch({
         type: ACTION_TYPE.SET_LOADING,
@@ -722,70 +757,72 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         cell,
         value: false,
         undoable: false
-      })
+      });
 
       if (changes !== void 0) {
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
           changes,
-          undoable: false,
-        })
+          undoable: false
+        });
       }
-    }
+    };
 
     /**
      * Trigger batch calciulation
-     * @param changes 
+     * @param changes
      */
     const triggerBatchInitialization = async (changes: CellsBySheet) => {
-      const values = await initializeEngine?.(changes)
+      const values = await initializeEngine?.(changes);
       if (values !== void 0) {
         dispatch({
           type: ACTION_TYPE.UPDATE_CELLS,
           changes: values,
           undoable: false
-        })
+        });
       }
-    }
+    };
 
     useEffect(() => {
-      const initial: CellsBySheet =  {}
+      const initial: CellsBySheet = {};
       const changes = sheets.reduce((acc, sheet) => {
         // @ts-nocheck
-        acc[sheet.id] = sheet.cells
-        return acc
-      }, initial)
-      
+        acc[sheet.id] = sheet.cells;
+        return acc;
+      }, initial);
+
       /* Trigger batch calculation */
-      triggerBatchInitialization(changes)
-      
-    }, [])
-    
+      triggerBatchInitialization(changes);
+    }, []);
+
     /**
      * Get max rows in a sheet
      */
-    const getMinMaxRows = useCallback((sheet: SheetID) => {
-      return getMinMax(sheetsById[sheet]?.cells)  
-    }, [getCellConfig])
+    const getMinMaxRows = useCallback(
+      (sheet: SheetID) => {
+        return getMinMax(sheetsById[sheet]?.cells);
+      },
+      [getCellConfig]
+    );
 
     /**
      * Get max columns in a sheet row
      */
-    const getMinMaxColumns = useCallback((sheet: SheetID, rowIndex: number) => {
-      return getMinMax(sheetsById[sheet].cells?.[rowIndex])  
-    }, [getCellConfig])
+    const getMinMaxColumns = useCallback(
+      (sheet: SheetID, rowIndex: number) => {
+        return getMinMax(sheetsById[sheet].cells?.[rowIndex]);
+      },
+      [getCellConfig]
+    );
 
     /**
      * Active cell + Active cell config.
      * Used in toolbars
      */
-    const [ activeCellConfig, activeCell ] = useMemo(() => {
-      const sheet = getSheet(selectedSheet)
-      return [
-        getCellConfig(selectedSheet, sheet.activeCell),
-        sheet.activeCell
-      ]
-    }, [ getSheet, selectedSheet, getCellConfig ])
+    const [activeCellConfig, activeCell] = useMemo(() => {
+      const sheet = getSheet(selectedSheet);
+      return [getCellConfig(selectedSheet, sheet.activeCell), sheet.activeCell];
+    }, [getSheet, selectedSheet, getCellConfig]);
 
     /**
      * Cell changes on user input
@@ -793,17 +830,17 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
-        if (!currentStateRef.current) return
-        const config = getCellConfig(id, cell);        
+        if (!currentStateRef.current) return;
+        const config = getCellConfig(id, cell);
         const datatype = detectDataType(value);
-        
+
         dispatch({
           type: ACTION_TYPE.CHANGE_SHEET_CELL,
           value,
           datatype,
           id,
           cell
-        })
+        });
 
         /* Trigger onChange cell callback */
         onChangeCell?.(id, value, cell);
@@ -828,13 +865,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               id,
               valid,
               prompt: message,
-              undoable: false,
+              undoable: false
             });
           }
 
           /* Trigger single calculation */
-          // triggerSingleCalculation(value, id, cell)
-
+          triggerSingleCalculation(value, id, cell);
         });
       },
       []
@@ -878,7 +914,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           type: ACTION_TYPE.DELETE_SHEET,
           id
         });
-        
 
         /* Focus on the new grid */
         currentGrid.current?.focus();
@@ -1071,7 +1106,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         });
 
         setFormulaInput("");
-        
+
         /**
          * Using RAF such that calculation engine gets the right values from state
          */
@@ -1079,27 +1114,27 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           const sel = selections.length
             ? selections
             : [{ bounds: getCellBounds(activeCell) as AreaProps }];
-          
+
           const values: CellsBySheet = {
             [id]: {}
-          }
+          };
           for (let i = 0; i < sel.length; i++) {
-            const { bounds } = sel[i]
+            const { bounds } = sel[i];
             for (let j = bounds?.top; j <= bounds?.bottom; j++) {
               for (let k = bounds?.left; k <= bounds?.right; k++) {
-                values[id][j] = values[id][j] ?? {}
-                values[id][j][k] = {}
+                values[id][j] = values[id][j] ?? {};
+                values[id][j][k] = {};
               }
             }
           }
 
           /* Trigger */
           // triggerBatchCalculation(values, id)
-        })                
+        });
       },
       []
     );
-    
+
     /**
      * Clear formatting of selected area
      */
@@ -1589,7 +1624,11 @@ export interface SpreadSheetPropsWithTheme extends SpreadSheetProps {
 }
 const ThemeWrapper: React.FC<SpreadSheetPropsWithTheme &
   RefAttributeSheetGrid> = forwardRef((props, forwardedRef) => {
-  const { theme: defaultTheme = theme, initialColorMode = 'light', ...rest } = props;
+  const {
+    theme: defaultTheme = theme,
+    initialColorMode = "light",
+    ...rest
+  } = props;
   return (
     <ThemeProvider theme={defaultTheme}>
       <ColorModeProvider value={initialColorMode}>
