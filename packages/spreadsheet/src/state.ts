@@ -1,5 +1,12 @@
 import produce, { enablePatches, applyPatches, Patch, original } from "immer";
-import { uuid, detectDataType, cellsInSelectionVariant, createCustomValidation, cloneCellConfig, cloneRow } from "./constants";
+import {
+  uuid,
+  detectDataType,
+  cellsInSelectionVariant,
+  createCustomValidation,
+  cloneCellConfig,
+  cloneRow
+} from "./constants";
 import { Sheet, SheetID, Cells, CellConfig, CellsBySheet } from "./Spreadsheet";
 import {
   PatchInterface,
@@ -47,7 +54,7 @@ export const defaultSheets: Sheet[] = [
 ];
 
 export interface StateInterface {
-  selectedSheet: React.ReactText | null | undefined;
+  selectedSheet: React.ReactText | undefined;
   sheets: Sheet[];
   currentActiveCell?: CellInterface | null;
   currentSelections?: SelectionArea[] | null;
@@ -87,8 +94,8 @@ export enum ACTION_TYPE {
   PROTECT_SHEET = "PROTECT_SHEET",
   UNPROTECT_SHEET = "UNPROTECT_SHEET",
   UPDATE_CELLS = "UPDATE_CELLS",
-  CHANGE_TAB_COLOR = 'CHANGE_TAB_COLOR',
-  SET_LOADING = 'SET_LOADING',
+  CHANGE_TAB_COLOR = "CHANGE_TAB_COLOR",
+  SET_LOADING = "SET_LOADING"
 }
 
 export type ActionTypes =
@@ -270,19 +277,18 @@ export type ActionTypes =
       undoable?: boolean;
     }
   | {
-    type: ACTION_TYPE.SET_LOADING;
-    id: SheetID;
-    cell: CellInterface;
-    value?: boolean;
-    undoable?: boolean;
-  }
+      type: ACTION_TYPE.SET_LOADING;
+      id: SheetID;
+      cell: CellInterface;
+      value?: boolean;
+      undoable?: boolean;
+    };
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
   getCellBounds: (cell: CellInterface | null) => AreaProps | undefined;
   stateReducer?: (state: StateInterface, action: ActionTypes) => StateInterface;
 }
-
 
 const defaultStateReducer = (state: StateInterface) => state;
 
@@ -328,20 +334,22 @@ export const createStateReducer = ({
               sheet.cells[cell.rowIndex][cell.columnIndex] =
                 sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
               const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
-              const hasFormulaChanged = currentCell.text !== value
+              const hasFormulaChanged = currentCell.text !== value;
               currentCell.text = value;
               currentCell.datatype = datatype;
-              delete currentCell.parentCell
+              delete currentCell.parentCell;
 
+              /* Check for formula range */
 
-              /* Check for formula range */              
-              const formulaRange = currentCell.formulaRange
+              const formulaRange = currentCell.formulaRange;
               if (hasFormulaChanged && formulaRange) {
-                const [ right, bottom ] = formulaRange
-                for (let a = 0; a < bottom; a++ ) {
+                const [right, bottom] = formulaRange;
+                for (let a = 0; a < bottom; a++) {
                   for (let b = 0; b < right; b++) {
-                    if (a === 0 && b === 0) continue
-                    delete sheet.cells?.[cell.rowIndex + a]?.[cell.columnIndex + b]
+                    if (a === 0 && b === 0) continue;
+                    delete sheet.cells?.[cell.rowIndex + a]?.[
+                      cell.columnIndex + b
+                    ];
                   }
                 }
               }
@@ -355,15 +363,15 @@ export const createStateReducer = ({
 
           case ACTION_TYPE.UPDATE_CELLS: {
             const { changes } = action;
-            for (const id in changes) {              
-              const sheet = draft.sheets.find(sheet => sheet.id == id);              
+            for (const id in changes) {
+              const sheet = draft.sheets.find(sheet => sheet.id == id);
               if (sheet) {
                 for (const rowIndex in changes[id]) {
                   sheet.cells[rowIndex] = sheet.cells[rowIndex] ?? {};
                   for (const columnIndex in changes[id][rowIndex]) {
                     sheet.cells[rowIndex][columnIndex] =
                       sheet.cells[rowIndex][columnIndex] ?? {};
-                    const values = changes[id][rowIndex][columnIndex];                    
+                    const values = changes[id][rowIndex][columnIndex];
                     for (const key in values) {
                       sheet.cells[rowIndex][columnIndex][key] = values[key];
                     }
@@ -610,33 +618,33 @@ export const createStateReducer = ({
             if (sheet) {
               const { activeCell, selections } = action;
               const sel = selections.length
-              ? selections
-              : [{ bounds: getCellBounds(activeCell) }];
+                ? selections
+                : [{ bounds: getCellBounds(activeCell) }];
               for (let i = 0; i < sel.length; i++) {
                 const { bounds } = sel[i];
                 if (!bounds) continue;
-                
+
                 for (let j = bounds.top; j <= bounds.bottom; j++) {
                   if (sheet.cells[j] === void 0) continue;
                   for (let k = bounds.left; k <= bounds.right; k++) {
                     if (sheet.cells[j][k] === void 0) continue;
                     sheet.cells[j][k].text = "";
-                    delete sheet.cells[j][k].result
+                    delete sheet.cells[j][k].result;
                     delete sheet.cells[j][k]?.image;
                     delete sheet.cells[j][k]?.error;
                     delete sheet.cells[j][k]?.parentCell;
 
                     /* Check for formula range */
-                    const formulaRange = sheet.cells?.[j]?.[k]?.formulaRange
+                    const formulaRange = sheet.cells?.[j]?.[k]?.formulaRange;
                     if (formulaRange) {
-                      const [ right, bottom ] = formulaRange
-                      for (let a = 0; a < bottom; a++ ) {
+                      const [right, bottom] = formulaRange;
+                      for (let a = 0; a < bottom; a++) {
                         for (let b = 0; b < right; b++) {
-                          delete sheet.cells?.[j + a]?.[k + b]
+                          delete sheet.cells?.[j + a]?.[k + b];
                         }
                       }
                     }
-                  }                  
+                  }
                 }
 
                 /* Keep reference of active cell, so we can focus back */
@@ -921,8 +929,10 @@ export const createStateReducer = ({
                   ...Object.keys(cells[row] ?? {}).map(Number)
                 );
                 changes[row] = changes[row] ?? {};
-                changes[row][columnIndex] = cloneCellConfig(cells[row][columnIndex] ?? {});
-                for (let i = columnIndex; i <= maxCol; i++) {                  
+                changes[row][columnIndex] = cloneCellConfig(
+                  cells[row][columnIndex] ?? {}
+                );
+                for (let i = columnIndex; i <= maxCol; i++) {
                   changes[row][i + 1] = cells[row]?.[i];
                 }
               }
@@ -945,14 +955,14 @@ export const createStateReducer = ({
               const { rowIndex } = activeCell;
               const { cells } = sheet;
               const maxRow = Math.max(...Object.keys(cells).map(Number));
-              const changes: { [key: string]: any } = {}; 
-              changes[rowIndex] = cloneRow({ ...cells[rowIndex] }) 
+              const changes: { [key: string]: any } = {};
+              changes[rowIndex] = cloneRow({ ...cells[rowIndex] });
               for (let i = rowIndex; i <= maxRow; i++) {
                 changes[i + 1] = cells[i];
               }
               for (const index in changes) {
                 cells[index] = changes[index];
-              }              
+              }
             }
             break;
           }
@@ -998,10 +1008,10 @@ export const createStateReducer = ({
               sheet => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
-              const { value, cell } = action
-              sheet.cells[cell.rowIndex][cell.columnIndex].loading = value
+              const { value, cell } = action;
+              sheet.cells[cell.rowIndex][cell.columnIndex].loading = value;
             }
-            break
+            break;
           }
 
           case ACTION_TYPE.REPLACE_SHEETS: {

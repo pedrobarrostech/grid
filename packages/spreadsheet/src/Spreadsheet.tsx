@@ -425,12 +425,21 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const state: StateInterface = isControlled
       ? { ...valueState, sheets: sheetsProp as Sheet[] }
       : valueState;
-    const {
-      sheets,
-      selectedSheet,
-      currentActiveCell,
-      currentSelections
-    } = state;
+    const { sheets, currentActiveCell, currentSelections } = state;
+
+    const sheetsById = useMemo(() => {
+      const initial: Record<string, Sheet> = {};
+      return sheets.reduce((acc, sheet) => {
+        acc[sheet.id] = sheet;
+        return acc;
+      }, initial);
+    }, [sheets]);
+
+    /* Make sure selected sheet is present in the sheets */
+    const selectedSheet =
+      (state.selectedSheet ?? "") in sheetsById
+        ? state.selectedSheet
+        : sheets[0].id;
 
     /**
      * Exit early if selected sheet is invalid
@@ -528,13 +537,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       [isControlled]
     );
 
-    const sheetsById = useMemo(() => {
-      const initial: Record<string, Sheet> = {};
-      return sheets.reduce((acc, sheet) => {
-        acc[sheet.id] = sheet;
-        return acc;
-      }, initial);
-    }, [sheets]);
+    /* Validate selectedSheet */
 
     /* Current sheet */
     const currentSheet = sheetsById[selectedSheet];
