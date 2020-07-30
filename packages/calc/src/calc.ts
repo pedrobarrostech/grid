@@ -12,14 +12,11 @@ import {
   isNull,
   createPosition,
   detectDataType,
+  castToString,
 } from "./helpers";
 import merge from "lodash.merge";
 import FormulaError from "fast-formula-parser/formulas/error";
-import {
-  CellConfig,
-  castToString,
-  CellConfigGetter,
-} from "@rowsncolumns/spreadsheet";
+import { CellConfig, CellConfigGetter } from "./types";
 
 interface CellInterface {
   rowIndex: number;

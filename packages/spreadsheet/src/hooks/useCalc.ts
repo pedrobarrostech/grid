@@ -1,7 +1,12 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import CalcEngine from "@rowsncolumns/calc";
 import { CellInterface } from "@rowsncolumns/grid";
-import { SheetID, CellConfigGetter, CellsBySheet } from "./../Spreadsheet";
+import {
+  SheetID,
+  CellConfigGetter,
+  CellsBySheet,
+  CellConfig,
+} from "./../Spreadsheet";
 import { castToString } from "../constants";
 
 export interface UseCalcOptions {
@@ -18,7 +23,11 @@ const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
   }, []);
 
   const onCalculate = useCallback(
-    (value: React.ReactText, sheet: SheetID, cell: CellInterface) => {
+    (
+      value: React.ReactText,
+      sheet: SheetID,
+      cell: CellInterface
+    ): Promise<Partial<CellConfig> | undefined> | undefined => {
       const sheetId = castToString(sheet);
       if (!sheetId || !getCellConfig.current) return;
       return engine.current?.calculate(
@@ -31,20 +40,21 @@ const useCalc = ({ functions, getCellConfig }: UseCalcOptions) => {
     []
   );
 
-  const onCalculateBatch = useCallback(
-    (changes: CellsBySheet, sheet: SheetID) => {
-      const sheetId = castToString(sheet);
-      if (!sheetId || !getCellConfig?.current) return;
-      return engine.current?.calculateBatch(
-        changes,
-        sheetId,
-        getCellConfig.current
-      );
-    },
-    []
-  );
+  const onCalculateBatch = useCallback((changes: CellsBySheet, sheet: SheetID):
+    | Promise<Partial<CellConfig> | undefined>
+    | undefined => {
+    const sheetId = castToString(sheet);
+    if (!sheetId || !getCellConfig?.current) return;
+    return engine.current?.calculateBatch(
+      changes,
+      sheetId,
+      getCellConfig.current
+    );
+  }, []);
 
-  const initializeEngine = useCallback((changes: CellsBySheet) => {
+  const initializeEngine = useCallback((changes: CellsBySheet):
+    | Promise<Partial<CellConfig> | undefined>
+    | undefined => {
     if (!getCellConfig?.current) return;
     return engine.current?.initialize(changes, getCellConfig.current);
   }, []);
