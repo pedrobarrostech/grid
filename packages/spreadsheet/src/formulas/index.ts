@@ -13,10 +13,11 @@ export function importData(arg: FunctionArgument | undefined) {
   return fetch(value)
     .then((r) => r.text())
     .then((response) => {
+      const separator = value.endsWith("tsv") ? "\t" : ",";
       const data = [];
       const rows = response.split("\n");
       for (const row of rows) {
-        const cols = row.split(",");
+        const cols = row.split(separator);
         data.push(cols);
       }
       return data;
