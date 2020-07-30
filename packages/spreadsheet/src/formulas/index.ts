@@ -35,10 +35,10 @@ export function hyperLink(
   urlArg: FunctionArgument,
   titleArg: FunctionArgument
 ) {
-  if ((titleArg.value as any) instanceof FormulaError) {
+  if ((titleArg?.value as any) instanceof FormulaError) {
     throw new FormulaError("#VALUE", "Invalid title");
   }
-  if ((urlArg.value as any) instanceof FormulaError) {
+  if ((urlArg?.value as any) instanceof FormulaError) {
     throw new FormulaError("#VALUE", "Invalid url");
   }
   return JSON.stringify({
