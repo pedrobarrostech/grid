@@ -26,6 +26,6 @@ export interface CellConfig {
 }
 
 export type CellConfigGetter = (
-  id: any,
+  id: string,
   cell: CellInterface | null
 ) => CellConfig | undefined;

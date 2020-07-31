@@ -400,6 +400,7 @@ class CalcEngine {
             );
 
             const result = await this.calculate(text, sheet, cell, getValue);
+
             /* Merge results  */
             merge(values, result);
 

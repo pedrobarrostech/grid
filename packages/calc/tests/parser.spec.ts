@@ -1,8 +1,11 @@
+import FastFormulaParser from "fast-formula-parser";
 import { FormulaParser, CellInterface, Sheet } from "./../src/parser";
 import { CellConfig } from "../src/types";
 
 describe("parser", () => {
   let formulaParser: FormulaParser;
+  let baseParser: FastFormulaParser;
+  let position = { sheet: "Sheet1", row: 1, col: 1 };
   let getValue = (sheet: Sheet, cell: CellInterface): CellConfig => {
     return {
       text: "12",
@@ -11,6 +14,9 @@ describe("parser", () => {
   };
   beforeEach(() => {
     formulaParser = new FormulaParser({ getValue });
+    // baseParser = new FastFormulaParser({
+    //   onCell: ref => null
+    // })
   });
 
   it("exists", () => {
@@ -21,6 +27,7 @@ describe("parser", () => {
   });
 
   it("can parse formulas and ranges", async () => {
+    // expect((await baseParser.parse("A1", position, true))).toBe(1);
     expect((await formulaParser.parse("SUM(2,2)")).result).toBe(4);
     expect((await formulaParser.parse("SUM(A1,2)")).result).toBe(14);
     expect((await formulaParser.parse("SUM(A1:A3)")).result).toBe(36);

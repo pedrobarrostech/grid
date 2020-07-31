@@ -11,7 +11,13 @@ import React, {
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
-import { theme, ThemeProvider, ColorModeProvider, Flex } from "@chakra-ui/core";
+import {
+  theme,
+  ThemeProvider,
+  ColorModeProvider,
+  Flex,
+  useToast,
+} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   CellInterface,
@@ -328,7 +334,11 @@ export interface SpreadSheetProps {
   /**
    * Callback when users deletes cells
    */
-  onDeleteCells?: (id: SheetID, activeCell: CellInterface, selections: SelectionArea[]) => void
+  onDeleteCells?: (
+    id: SheetID,
+    activeCell: CellInterface,
+    selections: SelectionArea[]
+  ) => void;
   /**
    * Callback when user changes frozen columns
    */
@@ -347,6 +357,11 @@ export type FormulaMap = Record<string, (...args: any[]) => any>;
 
 export type CellConfigGetter = (
   id: SheetID,
+  cell: CellInterface | null
+) => CellConfig | undefined;
+
+export type CellConfigBySheetNameGetter = (
+  name: string,
   cell: CellInterface | null
 ) => CellConfig | undefined;
 
@@ -548,6 +563,17 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       }, initial);
     }, [sheets]);
 
+    /**
+     * Sheets by name
+     */
+    const sheetsByName = useMemo(() => {
+      const initial: Record<string, Sheet> = {};
+      return sheets.reduce((acc, sheet) => {
+        acc[sheet.name] = sheet;
+        return acc;
+      }, initial);
+    }, [sheets]);
+
     /* Make sure selected sheet is present in the sheets */
     const selectedSheet =
       (state.selectedSheet ?? "") in sheetsById
@@ -665,12 +691,35 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       [sheetsById]
     );
 
+    /**
+     * Get cell config
+     */
+    const getCellConfigBySheetName = useCallback(
+      (name: string, cell: CellInterface | null): CellConfig | undefined => {
+        if (!cell) return void 0;
+        return sheetsByName?.[name]?.cells?.[cell.rowIndex]?.[cell.columnIndex];
+      },
+      [sheetsByName]
+    );
+
+    /* Get sheet by id */
+    const getSheet = useCallback(
+      (id: SheetID) => {
+        return sheetsById?.[id];
+      },
+      [sheetsById]
+    );
+
     /* Add it to ref to prevent closures */
     const getCellConfigRef = useRef<CellConfigGetter>();
+    const getCellConfigBySheetNameRef = useRef<CellConfigBySheetNameGetter>();
+    const getSheetRef = useRef<(id: SheetID) => Sheet | undefined>();
 
     useEffect(() => {
       getCellConfigRef.current = getCellConfig;
-    }, [getCellConfig]);
+      getCellConfigBySheetNameRef.current = getCellConfigBySheetName;
+      getSheetRef.current = getSheet;
+    }, [getCellConfig, getCellConfigBySheetName, getSheet]);
 
     /**
      * Calculation
@@ -678,7 +727,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     const { initializeEngine, onCalculateBatch, onCalculate } = useCalc({
       formulas,
-      getCellConfig: getCellConfigRef,
+      getCellConfig: getCellConfigBySheetNameRef,
     });
 
     /**
@@ -753,6 +802,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     });
 
     /**
+     * Toast notifications
+     */
+    const toast = useToast();
+
+    /**
      * Get cell bounds
      */
     const getCellBounds = useCallback((cell: CellInterface | null) => {
@@ -824,13 +878,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onAddNewSheet?.(newSheet);
     }, [sheets, selectedSheet]);
 
-    const getSheet = useCallback(
-      (id: SheetID) => {
-        return sheetsById?.[id];
-      },
-      [sheetsById]
-    );
-
     /**
      * Trigger batch calculation
      * @param changes
@@ -861,6 +908,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       cell: CellInterface
     ) => {
       if (!onCalculate) return;
+      const sheetName = getSheetRef.current?.(id)?.name;
+      if (!sheetName) return;
       dispatch({
         type: ACTION_TYPE.SET_LOADING,
         id,
@@ -868,7 +917,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         value: true,
         undoable: false,
       });
-      const changes = await onCalculate?.(value, id, cell);
+      const changes = await onCalculate?.(value, sheetName, cell);
 
       dispatch({
         type: ACTION_TYPE.SET_LOADING,
@@ -906,7 +955,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       const initial: CellsBySheet = {};
       const changes = sheets.reduce((acc, sheet) => {
         // @ts-nocheck
-        acc[sheet.id] = sheet.cells;
+        acc[sheet.name] = sheet.cells;
         return acc;
       }, initial);
 
@@ -1016,15 +1065,30 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /**
      * Handle sheet name
      */
-    const handleChangeSheetName = useCallback((id: SheetID, name: string) => {
-      dispatch({
-        type: ACTION_TYPE.CHANGE_SHEET_NAME,
-        id,
-        name,
-      });
+    const handleChangeSheetName = useCallback(
+      (id: SheetID, name: string) => {
+        /**
+         * Validate sheet name
+         */
+        if (name in sheetsByName && sheetsByName[name].id !== id) {
+          return toast({
+            title: "There was a problem",
+            description: `Sheet with the name ${name} exists. Please enter another name`,
+            status: "error",
+            isClosable: true,
+            duration: 90000,
+          });
+        }
+        dispatch({
+          type: ACTION_TYPE.CHANGE_SHEET_NAME,
+          id,
+          name,
+        });
 
-      onSheetNameChange?.(id, name);
-    }, []);
+        onSheetNameChange?.(id, name);
+      },
+      [sheetsByName]
+    );
 
     const handleDeleteSheet = useCallback(
       (id: SheetID) => {
@@ -1236,25 +1300,29 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       activeCell: CellInterface,
       selections: SelectionArea[]
     ) => {
+      const sheetName = getSheetRef.current?.(id)?.name;
+      if (!sheetName) return;
       const sel = selections.length
         ? selections
         : [{ bounds: getCellBounds(activeCell) as AreaProps }];
 
       const values: CellsBySheet = {
-        [id]: {},
+        [sheetName]: {},
       };
       for (let i = 0; i < sel.length; i++) {
         const { bounds } = sel[i];
         for (let j = bounds?.top; j <= bounds?.bottom; j++) {
           for (let k = bounds?.left; k <= bounds?.right; k++) {
-            values[id][j] = values[id][j] ?? {};
-            values[id][j][k] = {};
+            values[sheetName][j] = values[sheetName][j] ?? {};
+            values[sheetName][j][k] = {};
           }
         }
       }
 
       /* Trigger */
-      window.requestAnimationFrame(() => triggerBatchCalculation(values, id));
+      window.requestAnimationFrame(() =>
+        triggerBatchCalculation(values, sheetName)
+      );
     };
 
     /**
@@ -1271,7 +1339,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         setFormulaInput("");
 
-        onDeleteCells?.(id, activeCell, selections)
+        onDeleteCells?.(id, activeCell, selections);
 
         /**
          * Using RAF such that calculation engine gets the right values from state
@@ -1290,8 +1358,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         id: selectedSheet,
       });
 
-      onClearFormatting?.(selectedSheet)
-
+      onClearFormatting?.(selectedSheet);
     }, [selectedSheet]);
 
     /**
@@ -1335,7 +1402,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           count,
         });
 
-        onFrozenRowsChange?.(selectedSheet, count)
+        onFrozenRowsChange?.(selectedSheet, count);
       },
       [selectedSheet]
     );
@@ -1348,7 +1415,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           count,
         });
 
-        onFrozenColumnsChange?.(selectedSheet, count)
+        onFrozenColumnsChange?.(selectedSheet, count);
       },
       [selectedSheet]
     );
@@ -1669,6 +1736,16 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           styles={css`
             .rowsncolumns-spreadsheet {
               font-family: ${fontFamily};
+            }
+            .Toaster {
+              font-family: ${fontFamily};
+              font-size: 0.875rem;
+            }
+            .Toaster button {
+              background: none;
+              border: none;
+              color: white;
+              cursor: pointer;
             }
             .rowsncolumns-spreadsheet *,
             .rowsncolumns-spreadsheet *:before,

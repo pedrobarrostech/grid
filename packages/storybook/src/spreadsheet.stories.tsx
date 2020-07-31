@@ -228,7 +228,7 @@ export const FilterViews = () => {
         ],
       },
     ];
-    return <Spreadsheet sheets={initialSheets} />;
+    return <Spreadsheet initialSheets={initialSheets} />;
   };
 
   return <App />;
@@ -465,7 +465,7 @@ export const Formula = () => {
   const App = () => {
     const initialSheets: Sheet[] = [
       {
-        name: "Sheet 1",
+        name: "Sheet1",
         id: "1",
         activeCell: null,
         selections: [],

@@ -6,17 +6,19 @@ import CalcEngine, {
 import { CellInterface } from "@rowsncolumns/grid";
 import {
   SheetID,
-  CellConfigGetter,
   CellsBySheet,
   CellConfig,
   FormulaMap,
+  CellConfigBySheetNameGetter,
 } from "./../Spreadsheet";
 import { castToString } from "../constants";
 import { formulas as defaultFormulas } from "../formulas";
 
 export interface UseCalcOptions {
   formulas?: FormulaMap;
-  getCellConfig: React.MutableRefObject<CellConfigGetter | undefined>;
+  getCellConfig: React.MutableRefObject<
+    CellConfigBySheetNameGetter | undefined
+  >;
 }
 
 const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
