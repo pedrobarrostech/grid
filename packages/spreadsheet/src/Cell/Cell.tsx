@@ -3,13 +3,13 @@ import {
   RendererProps,
   isNull,
   CellInterface,
-  Image
+  Image,
+  castToString
 } from "@rowsncolumns/grid";
 import {
   DARK_MODE_COLOR_LIGHT,
   luminance,
   DEFAULT_FONT_SIZE,
-  castToString,
   INVALID_COLOR,
   ERROR_COLOR
 } from "../constants";

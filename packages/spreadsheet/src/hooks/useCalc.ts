@@ -3,7 +3,7 @@ import CalcEngine, {
   CellConfig as CalcCellConfig,
   CellConfigGetter as CalcCellConfigGetter
 } from "@rowsncolumns/calc";
-import { CellInterface } from "@rowsncolumns/grid";
+import { CellInterface, castToString } from "@rowsncolumns/grid";
 import {
   SheetID,
   CellsBySheet,
@@ -11,7 +11,6 @@ import {
   FormulaMap,
   CellConfigBySheetNameGetter
 } from "./../Spreadsheet";
-import { castToString } from "../constants";
 import { formulas as defaultFormulas } from "../formulas";
 
 export interface UseCalcOptions {

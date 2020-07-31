@@ -1,6 +1,12 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
-import { debounce, HiddenType, isNull, autoSizerCanvas } from "./../helpers";
+import {
+  debounce,
+  HiddenType,
+  isNull,
+  autoSizerCanvas,
+  castToString
+} from "./../helpers";
 import invariant from "tiny-invariant";
 
 export interface IProps {
@@ -99,7 +105,7 @@ export interface AutoResizerResults {
   /**
    * Text size getter
    */
-  getTextMetrics: (text: string) => TextDimensions;
+  getTextMetrics: (text: React.ReactText) => TextDimensions;
 }
 
 export interface TextDimensions {
@@ -187,8 +193,8 @@ const useAutoSizer = ({
     autoSizer.current.setFont({ fontFamily, fontSize, fontWeight, fontStyle });
   }, [fontFamily, fontSize, fontWeight, fontStyle]);
 
-  const getTextMetrics = useCallback((text: string) => {
-    return autoSizer.current.measureText(text);
+  const getTextMetrics = useCallback((text: React.ReactText) => {
+    return autoSizer.current.measureText(castToString(text) as string);
   }, []);
 
   /**

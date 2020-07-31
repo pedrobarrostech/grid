@@ -29,7 +29,8 @@ import Grid, {
   SelectionPolicy,
   useTooltip,
   StylingProps,
-  DefaultTooltipProps
+  DefaultTooltipProps,
+  castToString
 } from "@rowsncolumns/grid";
 import { debounce, cellIdentifier } from "@rowsncolumns/grid";
 import { ThemeProvider, ColorModeProvider } from "@chakra-ui/core";
@@ -42,7 +43,6 @@ import {
   number2Alpha,
   getEditorType,
   DEFAULT_CHECKBOX_VALUES,
-  castToString,
   ROW_HEADER_WIDTH,
   COLUMN_HEADER_HEIGHT
 } from "./../constants";
@@ -264,7 +264,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       selectionMode,
       isLightMode,
       onChangeFilter,
-      scale,
+      scale = 1,
       selectionTopBound = 1,
       selectionLeftBound = 1,
       ContextMenu,
@@ -510,7 +510,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     /**
      * Column resizer
      */
-    const { getColumnWidth, onViewChange } = useAutoSizer({
+    const { getColumnWidth, onViewChange, getTextMetrics } = useAutoSizer({
       gridRef,
       frozenRows,
       scale,
@@ -854,8 +854,17 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
 
         /* Focus on next active cell */
         if (nextActiveCell) setActiveCell(nextActiveCell, true);
+
+        /* Resize if height has changed */
+        const { rowIndex } = cell;
+        const height =
+          rowSizes[rowIndex] ??
+          Math.max(minRowHeight, getTextMetrics(value).height / scale);
+        if (height !== minRowHeight) {
+          onResize?.(AXIS.Y, rowIndex, height);
+        }
       },
-      [selectedSheet, cells]
+      [selectedSheet, cells, scale]
     );
 
     const { tooltipComponent, ...tooltipProps } = useTooltip({
