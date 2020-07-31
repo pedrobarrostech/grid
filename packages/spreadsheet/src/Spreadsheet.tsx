@@ -325,6 +325,22 @@ export interface SpreadSheetProps {
     key: keyof CellFormatting,
     value: any
   ) => void;
+  /**
+   * Callback when users deletes cells
+   */
+  onDeleteCells?: (id: SheetID, activeCell: CellInterface, selections: SelectionArea[]) => void
+  /**
+   * Callback when user changes frozen columns
+   */
+  onFrozenColumnsChange?: (id: SheetID, count: number) => void;
+  /**
+   * Callback when user changes frozen columns
+   */
+  onFrozenRowsChange?: (id: SheetID, count: number) => void;
+  /**
+   * Clear formatting
+   */
+  onClearFormatting?: (id: SheetID) => void;
 }
 
 export type FormulaMap = Record<string, (...args: any[]) => any>;
@@ -495,6 +511,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onUnProtectSheet,
       onSheetColorChange,
       onFormattingChange,
+      onDeleteCells,
+      onFrozenRowsChange,
+      onFrozenColumnsChange,
+      onClearFormatting,
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -1251,6 +1271,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
         setFormulaInput("");
 
+        onDeleteCells?.(id, activeCell, selections)
+
         /**
          * Using RAF such that calculation engine gets the right values from state
          */
@@ -1267,6 +1289,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         type: ACTION_TYPE.CLEAR_FORMATTING,
         id: selectedSheet,
       });
+
+      onClearFormatting?.(selectedSheet)
+
     }, [selectedSheet]);
 
     /**
@@ -1309,6 +1334,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id: selectedSheet,
           count,
         });
+
+        onFrozenRowsChange?.(selectedSheet, count)
       },
       [selectedSheet]
     );
@@ -1320,6 +1347,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           id: selectedSheet,
           count,
         });
+
+        onFrozenColumnsChange?.(selectedSheet, count)
       },
       [selectedSheet]
     );
