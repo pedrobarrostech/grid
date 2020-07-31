@@ -60,7 +60,7 @@ export type DATATYPES =
   | "boolean"
   | "error"
   | "hyperlink"
-  | 'array';
+  | "array";
 
 export enum STROKE_FORMATTING {
   STROKE = "stroke",
@@ -265,11 +265,6 @@ export interface DataValidation {
   showInputMessage?: boolean;
 }
 
-export enum EditorType {
-  TEXT = "text",
-  DATE = "date",
-  LIST = "list",
-  BOOLEAN = "boolean"
-}
+export type EditorType = "text" | "date" | "list" | "boolean" | "formula";
 
 export type ResultType = string | number | boolean | Date;

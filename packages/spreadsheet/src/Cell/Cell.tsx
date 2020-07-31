@@ -3,7 +3,7 @@ import {
   RendererProps,
   isNull,
   CellInterface,
-  Image,
+  Image
 } from "@rowsncolumns/grid";
 import {
   DARK_MODE_COLOR_LIGHT,
@@ -11,13 +11,13 @@ import {
   DEFAULT_FONT_SIZE,
   castToString,
   INVALID_COLOR,
-  ERROR_COLOR,
+  ERROR_COLOR
 } from "../constants";
 import {
   FONT_WEIGHT,
   FONT_STYLE,
   TEXT_DECORATION,
-  Formatter,
+  Formatter
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
@@ -54,7 +54,7 @@ const ERROR_TAG_WIDTH = 6.5;
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo((props) => {
+const Cell: React.FC<CellProps> = memo(props => {
   const { datatype, formatter, isLightMode } = props;
   const {
     stroke,
@@ -85,9 +85,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
       ? props.text === dataValidation?.formulae?.[0]
       : false;
   const isFormula = datatype === "formula";
-  const textValue = isFormula
-    ? props.error ?? props.result ?? props.text
-    : props.text;
+  const textValue = isFormula ? props.error ?? props.result : props.text;
   const text = formatter
     ? formatter(textValue, datatype, cellConfig)
     : castToString(textValue);
@@ -105,7 +103,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
+const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   const {
     x = 0,
     y = 0,
@@ -145,7 +143,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     error,
     image,
     formulatype,
-    loading,
+    loading
   } = props;
   const text = loading ? loadingText : props.text;
   const isBoolean = validatorType === "boolean";
@@ -295,13 +293,13 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
 export const ErrorTag: React.FC<ShapeConfig> = ({
   x,
   y,
-  color = INVALID_COLOR,
+  color = INVALID_COLOR
 }) => {
   return (
     <Shape
       x={x}
       y={y}
-      sceneFunc={(context) => {
+      sceneFunc={context => {
         context.beginPath();
         context.setAttr("fillStyle", color);
         context.moveTo(0, 0);

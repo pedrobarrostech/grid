@@ -6,12 +6,13 @@ declare module "fast-formula-parser" {
       text: string | null,
       position: any,
       array?: boolean
-    ) => Promise<any>;
+    ) => Promise<any | undefined>;
     getValue: (
       sheet: Sheet,
       row: number,
       col: number
     ) => React.ReactText | undefined;
+    getSupportedFormulas: () => string[];
   }
 
   export default FormulaParser;

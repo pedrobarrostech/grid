@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import CalcEngine, {
   CellConfig as CalcCellConfig,
-  CellConfigGetter as CalcCellConfigGetter,
+  CellConfigGetter as CalcCellConfigGetter
 } from "@rowsncolumns/calc";
 import { CellInterface } from "@rowsncolumns/grid";
 import {
@@ -9,7 +9,7 @@ import {
   CellsBySheet,
   CellConfig,
   FormulaMap,
-  CellConfigBySheetNameGetter,
+  CellConfigBySheetNameGetter
 } from "./../Spreadsheet";
 import { castToString } from "../constants";
 import { formulas as defaultFormulas } from "../formulas";
@@ -27,8 +27,8 @@ const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
     engine.current = new CalcEngine({
       functions: {
         ...defaultFormulas,
-        ...formulas,
-      },
+        ...formulas
+      }
     });
   }, []);
 
@@ -71,10 +71,15 @@ const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
     );
   }, []);
 
+  const getSupportedFormulas = useCallback(() => {
+    return engine.current?.parser.formulaParser.supportedFunctions() ?? [];
+  }, []);
+
   return {
     onCalculate,
     onCalculateBatch,
     initializeEngine,
+    getSupportedFormulas
   };
 };
 

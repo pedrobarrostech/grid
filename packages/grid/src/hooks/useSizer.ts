@@ -81,10 +81,7 @@ export interface IProps {
   getText: (config: any) => string | undefined;
 }
 
-export enum ResizeStrategy {
-  "lazy" = "lazy",
-  "full" = "full",
-}
+export type ResizeStrategy = "lazy" | "full";
 
 export interface AutoResizerResults {
   /**
@@ -102,7 +99,12 @@ export interface AutoResizerResults {
   /**
    * Text size getter
    */
-  getTextMetrics: (text: string) => TextMetrics | undefined;
+  getTextMetrics: (text: string) => TextDimensions;
+}
+
+export interface TextDimensions {
+  width: number;
+  height: number;
 }
 
 export type SizeType = {
@@ -125,7 +127,7 @@ const useAutoSizer = ({
   cellSpacing = 10,
   minColumnWidth = 60,
   timeout = 300,
-  resizeStrategy = ResizeStrategy.lazy,
+  resizeStrategy = "lazy",
   rowCount,
   resizeOnScroll = true,
   fontFamily = "Arial",
@@ -138,10 +140,10 @@ const useAutoSizer = ({
   scale = 1,
   isHiddenRow,
   isHiddenColumn,
-  getText = defaultGetText,
+  getText = defaultGetText
 }: IProps): AutoResizerResults => {
   invariant(
-    !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
+    !(resizeStrategy === "full" && rowCount === void 0),
     "Row count should be specified if resize stragtegy is full"
   );
 
@@ -154,7 +156,7 @@ const useAutoSizer = ({
     visibleRowStartIndex: 0,
     visibleRowStopIndex: 0,
     visibleColumnStartIndex: 0,
-    visibleColumnStopIndex: 0,
+    visibleColumnStopIndex: 0
   });
   const isMounted = useRef(false);
   const getValueRef = useRef<typeof getValue>();
@@ -197,7 +199,7 @@ const useAutoSizer = ({
       const cellValue =
         getValueRef.current?.({
           rowIndex,
-          columnIndex,
+          columnIndex
         }) ?? null;
       let width = cellValue?.spacing ?? 0;
       /* Check if its null */
@@ -213,7 +215,7 @@ const useAutoSizer = ({
             autoSizer.current.setFont({
               fontWeight: isBold ? "bold" : "normal",
               fontSize: (cellValue.fontSize || fontSize) * scale,
-              fontFamily: cellValue.fontFamily,
+              fontFamily: cellValue.fontFamily
             });
           }
 
@@ -235,10 +237,10 @@ const useAutoSizer = ({
     (columnIndex: number) => {
       const { rowStartIndex = 0, rowStopIndex = 0 } = viewPortRef.current ?? {};
       const visibleRows =
-        resizeStrategy === ResizeStrategy.full
+        resizeStrategy === "full"
           ? (rowCount as number)
           : rowStopIndex || initialVisibleRows;
-      let start = resizeStrategy === ResizeStrategy.full ? 0 : rowStartIndex;
+      let start = resizeStrategy === "full" ? 0 : rowStartIndex;
       let maxWidth = minColumnWidth;
 
       /* Calculate for frozen rows */
@@ -273,7 +275,7 @@ const useAutoSizer = ({
 
       /* Check if viewport has changed */
       if (
-        resizeStrategy === ResizeStrategy.full ||
+        resizeStrategy === "full" ||
         !resizeOnScroll ||
         (cells.rowStartIndex === viewport.rowStartIndex &&
           cells.columnStartIndex === viewport.columnStartIndex)
@@ -284,7 +286,7 @@ const useAutoSizer = ({
         if (!isMounted.current) return;
         debounceResizer.current({
           rowIndex: cells.rowStartIndex,
-          columnIndex: cells.columnStartIndex,
+          columnIndex: cells.columnStartIndex
         });
       }
     },
@@ -296,7 +298,7 @@ const useAutoSizer = ({
     getColumnWidth,
     // getRowHeight,
     onViewChange: handleViewChange,
-    getTextMetrics,
+    getTextMetrics
   };
 };
 

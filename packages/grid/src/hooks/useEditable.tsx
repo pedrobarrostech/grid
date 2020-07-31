@@ -3,14 +3,14 @@ import React, {
   useEffect,
   useRef,
   useState,
-  useMemo,
+  useMemo
 } from "react";
 import {
   CellInterface,
   ScrollCoords,
   CellPosition,
   GridRef,
-  SelectionArea,
+  SelectionArea
 } from "../Grid";
 import { KeyCodes, Direction } from "./../types";
 import {
@@ -18,7 +18,7 @@ import {
   isEqualCells,
   clampIndex,
   HiddenType,
-  autoSizerCanvas,
+  autoSizerCanvas
 } from "../helpers";
 
 export interface UseEditableOptions {
@@ -182,11 +182,11 @@ export interface EditableResults {
   cancelEditor: () => void;
 }
 
-export interface EditorProps extends CellInterface {
+export interface EditorProps {
   /**
    * Currently selected bounds, useful for fomulas
    */
-  selections: SelectionArea[];
+  selections?: SelectionArea[];
   /**
    * Initial value of the cell
    */
@@ -194,7 +194,7 @@ export interface EditorProps extends CellInterface {
   /**
    * Callback when a value has changed.
    */
-  onChange: (value: string, activeCell: CellInterface) => void;
+  onChange?: (value: string, activeCell: CellInterface) => void;
   /**
    * Callback to submit the value back to data store
    */
@@ -222,26 +222,34 @@ export interface EditorProps extends CellInterface {
   /**
    * Scroll position of the grid
    */
-  scrollPosition: ScrollCoords;
+  scrollPosition?: ScrollCoords;
   /**
    * Next cell that should receive focus
    */
-  nextFocusableCell: (
+  nextFocusableCell?: (
     activeCell: CellInterface,
     direction?: Direction
   ) => CellInterface | null;
-  /* Autofocus on the editor */
+  /**
+   * Autofocus the editor when open
+   */
   autoFocus?: boolean;
+  /**
+   * On keydown event
+   */
+  onKeyDown?: (
+    e: React.KeyboardEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLDivElement
+    >
+  ) => void;
 }
 
 /**
  * Default cell editor
  * @param props
  */
-const DefaultEditor: React.FC<EditorProps> = (props) => {
+const DefaultEditor: React.FC<EditorProps> = props => {
   const {
-    rowIndex,
-    columnIndex,
     onChange,
     onSubmit,
     onCancel,
@@ -251,6 +259,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     value = "",
     activeCell,
     autoFocus = true,
+    onKeyDown,
     ...rest
   } = props;
   const borderWidth = 2;
@@ -259,7 +268,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
-    (text) => {
+    text => {
       const textWidth = textSizer.current.measureText(text)?.width || 0;
       return Math.max(textWidth + padding, width + borderWidth / 2);
     },
@@ -287,7 +296,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         border: "2px #1a73e8 solid",
-        background: "white",
+        background: "white"
       }}
     >
       <textarea
@@ -308,10 +317,10 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           resize: "none",
           overflow: "hidden",
           verticalAlign: "top",
-          background: "transparent",
+          background: "transparent"
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-          onChange(e.target.value, cell);
+          onChange?.(e.target.value, cell);
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
           if (!inputRef.current) return;
@@ -324,7 +333,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
               onSubmit(
                 value,
                 cell,
-                nextFocusableCell(
+                nextFocusableCell?.(
                   cell,
                   isShiftKey ? Direction.Up : Direction.Down
                 )
@@ -341,12 +350,14 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
               onSubmit(
                 value,
                 cell,
-                nextFocusableCell(
+                nextFocusableCell?.(
                   cell,
                   isShiftKey ? Direction.Left : Direction.Right
                 )
               );
           }
+
+          onKeyDown?.(e);
         }}
         {...rest}
       />
@@ -384,7 +395,7 @@ const useEditable = ({
   selectionTopBound = 0,
   selectionBottomBound = rowCount - 1,
   selectionLeftBound = 0,
-  selectionRightBound = columnCount - 1,
+  selectionRightBound = columnCount - 1
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -392,13 +403,13 @@ const useEditable = ({
     x: 0,
     y: 0,
     width: 0,
-    height: 0,
+    height: 0
   });
   const currentActiveCellRef = useRef<CellInterface | null>(null);
   const initialActiveCell = useRef<CellInterface | null>();
   const [scrollPosition, setScrollPosition] = useState<ScrollCoords>({
     scrollLeft: 0,
-    scrollTop: 0,
+    scrollTop: 0
   });
   const [autoFocus, setAutoFocus] = useState<boolean>(true);
   const isDirtyRef = useRef<boolean>(false);
@@ -490,7 +501,7 @@ const useEditable = ({
       x:
         (position.x as number) -
         (isFrozenColumn ? 0 : scrollPosition.scrollLeft),
-      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop),
+      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop)
     };
   };
 
@@ -527,7 +538,7 @@ const useEditable = ({
         KeyCodes.ScrollLock,
         KeyCodes.NumLock,
         KeyCodes.Insert,
-        KeyCodes.Pause,
+        KeyCodes.Pause
       ].includes(keyCode) ||
       // Exclude Function keys
       (keyCode >= KeyCodes.F1 && keyCode <= KeyCodes.F12)
@@ -598,7 +609,7 @@ const useEditable = ({
           );
           nextActiveCell = {
             rowIndex: bounds.top,
-            columnIndex,
+            columnIndex
           };
           break;
         }
@@ -610,7 +621,7 @@ const useEditable = ({
           );
           nextActiveCell = {
             rowIndex,
-            columnIndex: bounds.left,
+            columnIndex: bounds.left
           };
           break;
 
@@ -622,7 +633,7 @@ const useEditable = ({
           );
           nextActiveCell = {
             rowIndex: bounds.top,
-            columnIndex,
+            columnIndex
           };
           break;
         }
@@ -639,7 +650,7 @@ const useEditable = ({
           );
           nextActiveCell = {
             rowIndex,
-            columnIndex: initialActiveCell.current?.columnIndex ?? bounds.left,
+            columnIndex: initialActiveCell.current?.columnIndex ?? bounds.left
           };
           break;
         }
@@ -779,7 +790,7 @@ const useEditable = ({
     submitEditor: handleSubmit,
     cancelEditor: handleCancel,
     onMouseDown: handleMouseDown,
-    onScroll: handleScroll,
+    onScroll: handleScroll
   };
 };
 

@@ -3,7 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo,
+  useMemo
 } from "react";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { autoSizerCanvas } from "@rowsncolumns/grid";
@@ -13,7 +13,7 @@ import { useColorMode } from "@chakra-ui/core";
 import {
   DARK_MODE_COLOR_LIGHT,
   DEFAULT_FONT_FAMILY,
-  cellToAddress,
+  cellToAddress
 } from "../constants";
 import { EditorType } from "../types";
 
@@ -34,10 +34,8 @@ export interface CustomEditorProps extends EditorProps {
  * Default cell editor
  * @param props
  */
-const Editor: React.FC<CustomEditorProps> = (props) => {
+const Editor: React.FC<CustomEditorProps> = props => {
   const {
-    rowIndex,
-    columnIndex,
     onChange,
     onSubmit,
     onCancel,
@@ -73,32 +71,41 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
   const textColor =
     color !== void 0 ? color : isLight ? DARK_MODE_COLOR_LIGHT : "white";
   const borderWidth = 2;
-  const padding = 10; /* 2 + 1 + 1 + 2 + 2 */
+  const padding = 10; /* 2x (border) + 2x (left/right spacing) + 2 (buffer) */
   const hasScrollPositionChanged = useRef(false);
   const isMounted = useRef(false);
   const textSizer = useRef(autoSizerCanvas);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
-  const getWidth = useCallback(
-    (text) => {
+  const getInputDims = useCallback(
+    text => {
       /*  Set font */
       textSizer.current.setFont({
         fontSize,
-        fontFamily,
+        fontFamily
       });
 
-      const textWidth = textSizer.current.measureText(text)?.width || 0;
-      return Math.max(textWidth + padding, width + borderWidth / 2);
+      const {
+        width: measuredWidth,
+        height: measuredHeight
+      } = textSizer.current.measureText(text);
+      return [
+        Math.max(measuredWidth + padding, width + borderWidth / 2),
+        Math.max(measuredHeight + borderWidth * 2, height)
+      ];
     },
-    [width, fontSize, fontFamily, wrapping]
+    [width, height, fontSize, fontFamily, wrapping]
   );
+
   /* Keep updating value of input */
   useEffect(() => {
-    setInputWidth(getWidth(value));
+    setInputDims(getInputDims(value));
   }, [value]);
-  /* Width of the input  */
-  const [inputWidth, setInputWidth] = useState(() => getWidth(value));
-  /* Tracks scroll position: To show address token */
 
+  /* Width of the input  */
+  const [inputDims, setInputDims] = useState(() => getInputDims(value));
+  const [inputWidth, inputHeight] = inputDims;
+
+  /* Tracks scroll position: To show address token */
   useEffect(() => {
     if (!isMounted.current) return;
     hasScrollPositionChanged.current = true;
@@ -112,10 +119,9 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
     () => hasScrollPositionChanged.current && cellToAddress(activeCell),
     [activeCell, hasScrollPositionChanged.current]
   );
-  const inputHeight = height;
   /* Change */
   const handleChange = useCallback(
-    (value) => {
+    value => {
       onChange?.(value, cell);
     },
     [cell]
@@ -123,7 +129,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
   /* Submit */
   const handleSubmit = useCallback(
     (value, direction) => {
-      const nextCell = direction ? nextFocusableCell(cell, direction) : cell;
+      const nextCell = direction ? nextFocusableCell?.(cell, direction) : cell;
       onSubmit?.(value, cell, nextCell);
     },
     [cell]
@@ -143,7 +149,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
         padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         border: "2px #1a73e8 solid",
-        background: backgroundColor,
+        background: backgroundColor
       }}
     >
       {address ? (
@@ -160,7 +166,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
             boxShadow: "0px 1px 2px rgba(0,0,0,0.5)",
             bottom: "100%",
             background: "#4589eb",
-            color: "white",
+            color: "white"
           }}
         >
           {address}

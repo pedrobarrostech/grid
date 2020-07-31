@@ -75,7 +75,7 @@ class FormulaParser {
     this.formulaParser = new FastFormulaParser({
       functions: options?.functions,
       onCell: this.getCellValue,
-      onRange: this.getRangeValue,
+      onRange: this.getRangeValue
     });
     this.dependencyParser = new DepParser();
   }
@@ -141,9 +141,13 @@ class FormulaParser {
       /* Check if its JSON */
       result = extractIfJSON(result);
 
+      /**
+       * Parse special types
+       * 1. Hyperlink
+       */
       if (!Array.isArray(result) && typeof result === "object") {
         // Hyperlink
-        if (result.datatype === "hyperlink") {
+        if (result?.datatype === "hyperlink") {
           formulatype = result.datatype;
           hyperlink = result.hyperlink;
           result = result.title || result.hyperlink;
@@ -153,6 +157,7 @@ class FormulaParser {
       } else {
         formulatype = detectDataType(result);
       }
+
       if ((result as any) instanceof FormulaError) {
         error = ((result as unknown) as FormulaError).error;
         errorMessage = ((result as unknown) as FormulaError).message;
@@ -168,7 +173,7 @@ class FormulaParser {
       color,
       underline,
       error,
-      errorMessage,
+      errorMessage
     };
   };
   getDependencies = (text: string, position: Position = basePosition) => {
