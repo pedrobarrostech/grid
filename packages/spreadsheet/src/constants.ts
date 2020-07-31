@@ -21,9 +21,9 @@ import SSF from "ssf";
 
 export const DEFAULT_ROW_COUNT = 1000;
 export const DEFAULT_COLUMN_COUNT = 1000;
-export const COLUMN_HEADER_WIDTH = 46;
+export const COLUMN_HEADER_HEIGHT = 24;
 export const FORMULABAR_LEFT_CORNER_WIDTH = 47;
-export const ROW_HEADER_HEIGHT = 24;
+export const ROW_HEADER_WIDTH = 46;
 export const DEFAULT_ROW_HEIGHT = 21;
 export const DEFAULT_COLUMN_WIDTH = 100;
 export const DARK_MODE_COLOR = "rgb(26, 32, 44)";

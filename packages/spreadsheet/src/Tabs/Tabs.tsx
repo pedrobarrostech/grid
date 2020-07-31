@@ -7,17 +7,17 @@ import {
   Flex,
   Box,
   useTheme,
-  useColorMode,
+  useColorMode
   // Tooltip,
 } from "@chakra-ui/core";
-import { COLUMN_HEADER_WIDTH, DARK_MODE_COLOR } from "../constants";
+import { ROW_HEADER_WIDTH, DARK_MODE_COLOR } from "../constants";
 import { IconButton, Tooltip, Button } from "./../styled";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
+  PopoverArrow
 } from "@chakra-ui/core";
 import TabItem from "./TabItem";
 import { translations } from "../translations";
@@ -38,7 +38,7 @@ interface TabProps
   onChangeTabColor?: (id: SheetID, color?: string) => void;
 }
 
-const Tabs: React.FC<TabProps> = (props) => {
+const Tabs: React.FC<TabProps> = props => {
   const {
     sheets,
     onSelect,
@@ -53,16 +53,16 @@ const Tabs: React.FC<TabProps> = (props) => {
     onHideSheet,
     onProtectSheet,
     onUnProtectSheet,
-    onChangeTabColor,
+    onChangeTabColor
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? theme.colors.gray[900] : theme.colors.gray[300];
-  const visibleSheets = sheets.filter((sheet) => !sheet.hidden);
+  const visibleSheets = sheets.filter(sheet => !sheet.hidden);
   const visibleSheetsLen = visibleSheets.length;
   return (
-    <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
+    <Flex pl={ROW_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
       {allowNewSheet && (
         <Tooltip
           placement="top-start"

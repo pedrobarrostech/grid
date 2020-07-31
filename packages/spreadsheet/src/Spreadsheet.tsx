@@ -38,7 +38,9 @@ import {
   format as defaultFormat,
   FONT_FAMILIES,
   detectDataType,
-  getMinMax
+  getMinMax,
+  COLUMN_HEADER_HEIGHT,
+  ROW_HEADER_WIDTH
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -79,6 +81,14 @@ export interface SpreadSheetProps {
    * Minimum row height of the grid
    */
   minRowHeight?: number;
+  /**
+   * Column header height
+   */
+  columnHeaderHeight?: number;
+  /**
+   * Row header width
+   */
+  rowHeaderWidth?: number;
   /**
    * Customize cell rendering
    */
@@ -476,6 +486,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       initialSheets = defaultSheets,
       showFormulabar = true,
       minColumnWidth = DEFAULT_COLUMN_WIDTH,
+      columnHeaderHeight = COLUMN_HEADER_HEIGHT,
+      rowHeaderWidth = ROW_HEADER_WIDTH,
       minRowHeight = DEFAULT_ROW_HEIGHT,
       CellRenderer,
       HeaderCellRenderer,
@@ -1854,6 +1866,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onProtectSheet={handleProtectSheet}
             onUnProtectSheet={handleUnProtectSheet}
             onChangeTabColor={handleChangeTabColor}
+            rowHeaderWidth={rowHeaderWidth}
+            columnHeaderHeight={columnHeaderHeight}
           />
         </Flex>
       </>

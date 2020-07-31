@@ -387,3 +387,11 @@ Enable or disable dark mode support
 ## `enableGlobalKeyHandlers?: boolean`
 
 Enable global key handlers for undo, redo events
+
+## `columnHeaderHeight`
+
+Default column header height
+
+## `rowHeaderWidth`
+
+Default row header width
