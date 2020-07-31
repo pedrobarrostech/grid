@@ -432,6 +432,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
                   onChangeTabColor={onChangeTabColor}
                   isTabEditable={isTabEditable}
                   allowNewSheet={allowNewSheet}
+                  leftSpacing={rowHeaderWidth}
                 />
               )}
               {showStatusBar && (

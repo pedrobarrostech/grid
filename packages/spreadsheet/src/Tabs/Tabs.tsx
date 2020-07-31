@@ -36,6 +36,7 @@ interface TabProps
   onProtectSheet?: (id: SheetID) => void;
   onUnProtectSheet?: (id: SheetID) => void;
   onChangeTabColor?: (id: SheetID, color?: string) => void;
+  leftSpacing?: number;
 }
 
 const Tabs: React.FC<TabProps> = props => {
@@ -53,7 +54,8 @@ const Tabs: React.FC<TabProps> = props => {
     onHideSheet,
     onProtectSheet,
     onUnProtectSheet,
-    onChangeTabColor
+    onChangeTabColor,
+    leftSpacing = 0
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -62,7 +64,7 @@ const Tabs: React.FC<TabProps> = props => {
   const visibleSheets = sheets.filter(sheet => !sheet.hidden);
   const visibleSheetsLen = visibleSheets.length;
   return (
-    <Flex pl={ROW_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
+    <Flex pl={leftSpacing} alignItems="center" minWidth={0} flex={1}>
       {allowNewSheet && (
         <Tooltip
           placement="top-start"
