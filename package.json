@@ -1,10 +1,15 @@
 {
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "examples/*",
-    "hooks/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "examples/*",
+      "hooks/*"
+    ],
+    "nohoist": [
+      "packages/storybook"
+    ]
+  },
   "scripts": {
     "storybook": "lerna run storybook --stream",
     "docs:start": "cd packages/website; yarn docs:start",
