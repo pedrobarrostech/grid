@@ -838,6 +838,7 @@ interface AutoSizerProps {
   fontWeight?: string;
   fontStyle?: string;
   lineHeight?: number;
+  scale?: number;
 }
 
 type IOptions = {
@@ -850,14 +851,16 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
     fontSize = 12,
     fontWeight = "normal",
     fontStyle = "",
-    lineHeight = 16
+    lineHeight = 16,
+    scale = 1
   } = defaults;
   var o: IOptions = {
     fontFamily,
     fontSize,
     fontWeight,
     fontStyle,
-    lineHeight
+    lineHeight,
+    scale
   };
   const canvas =
     canUseDOM && <HTMLCanvasElement>document.createElement("canvas");
@@ -868,7 +871,8 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
       o[key] = options[key] ?? o[key];
     }
     if (context) {
-      context.font = `${o.fontStyle} ${o.fontWeight} ${o.fontSize}px ${o.fontFamily}`;
+      context.font = `${o.fontStyle} ${o.fontWeight} ${o.fontSize *
+        o.scale}px ${o.fontFamily}`;
     }
   };
   const getWidthOfLongestText = (text: string) => {
@@ -879,7 +883,7 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
       const line = lines[i];
       const lineWidth = context?.measureText(line).width ?? 0;
       width = Math.max(width, lineWidth);
-      height += lineHeight;
+      height += o.lineHeight * o.scale;
     }
     return { width, height };
   };

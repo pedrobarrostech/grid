@@ -61,7 +61,7 @@ const TextEditor: React.FC<TextEditorProps> = memo(
           color: color,
           whiteSpace: "pre-wrap",
           textAlign: horizontalAlign,
-          lineHeight: "14px",
+          lineHeight: 14 * scale + "px",
           textDecoration: underline ? "underline" : "none"
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {

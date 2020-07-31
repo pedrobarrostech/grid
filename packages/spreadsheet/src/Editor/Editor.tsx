@@ -81,7 +81,8 @@ const Editor: React.FC<CustomEditorProps> = props => {
       /*  Set font */
       textSizer.current.setFont({
         fontSize,
-        fontFamily
+        fontFamily,
+        scale
       });
 
       const {
@@ -93,7 +94,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
         Math.max(measuredHeight + borderWidth * 2, height)
       ];
     },
-    [width, height, fontSize, fontFamily, wrapping]
+    [width, height, fontSize, fontFamily, wrapping, scale]
   );
 
   /* Keep updating value of input */
