@@ -883,9 +883,9 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
       const line = lines[i];
       const lineWidth = context?.measureText(line).width ?? 0;
       width = Math.max(width, lineWidth);
-      height += o.lineHeight * o.scale;
+      height += o.fontSize * 1.2 * o.scale;
     }
-    return { width, height };
+    return { width: Math.ceil(width), height: Math.ceil(height) };
   };
   const measureText = (text: string) => getWidthOfLongestText(text);
   const reset = () => setFont(defaults);

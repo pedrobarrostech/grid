@@ -11,7 +11,8 @@ import {
   luminance,
   DEFAULT_FONT_SIZE,
   INVALID_COLOR,
-  ERROR_COLOR
+  ERROR_COLOR,
+  LINE_HEIGHT_RATIO
 } from "../constants";
 import {
   FONT_WEIGHT,

@@ -44,7 +44,9 @@ import {
   getEditorType,
   DEFAULT_CHECKBOX_VALUES,
   ROW_HEADER_WIDTH,
-  COLUMN_HEADER_HEIGHT
+  COLUMN_HEADER_HEIGHT,
+  DEFAULT_CELL_PADDING,
+  CELL_BORDER_WIDTH
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -859,7 +861,10 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         const { rowIndex } = cell;
         const height =
           rowSizes[rowIndex] ??
-          Math.max(minRowHeight, getTextMetrics(value).height / scale);
+          Math.max(
+            minRowHeight,
+            (getTextMetrics(value).height + DEFAULT_CELL_PADDING) / scale
+          );
         if (height !== minRowHeight) {
           onResize?.(AXIS.Y, rowIndex, height);
         }

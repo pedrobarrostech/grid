@@ -13,7 +13,8 @@ import { useColorMode } from "@chakra-ui/core";
 import {
   DARK_MODE_COLOR_LIGHT,
   DEFAULT_FONT_FAMILY,
-  cellToAddress
+  cellToAddress,
+  DEFAULT_CELL_PADDING
 } from "../constants";
 import { EditorType } from "../types";
 
@@ -89,9 +90,10 @@ const Editor: React.FC<CustomEditorProps> = props => {
         width: measuredWidth,
         height: measuredHeight
       } = textSizer.current.measureText(text);
+
       return [
         Math.max(measuredWidth + padding, width + borderWidth / 2),
-        Math.max(measuredHeight + borderWidth * 2, height)
+        Math.max(measuredHeight + DEFAULT_CELL_PADDING + borderWidth, height)
       ];
     },
     [width, height, fontSize, fontFamily, wrapping, scale]

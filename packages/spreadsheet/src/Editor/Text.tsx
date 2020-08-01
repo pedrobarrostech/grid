@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef, memo } from "react";
 import { KeyCodes, Direction } from "@rowsncolumns/grid";
+import { LINE_HEIGHT_RATIO } from "../constants";
 
 export interface TextEditorProps {
   value: string;
@@ -61,7 +62,7 @@ const TextEditor: React.FC<TextEditorProps> = memo(
           color: color,
           whiteSpace: "pre-wrap",
           textAlign: horizontalAlign,
-          lineHeight: 14 * scale + "px",
+          lineHeight: "normal",
           textDecoration: underline ? "underline" : "none"
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
