@@ -649,9 +649,10 @@ export const createStateReducer = ({
                      * Formatting should be preserved
                      * For hyperlinks, default colors, underline should be removed
                      */
-                    delete sheet.cells[j][k].result;
+                    delete sheet.cells[j][k]?.result;
                     delete sheet.cells[j][k]?.image;
                     delete sheet.cells[j][k]?.error;
+                    delete sheet.cells[j][k]?.datatype;
                     delete sheet.cells[j][k]?.errorMessage;
                     delete sheet.cells[j][k]?.parentCell;
                     delete sheet.cells[j][k]?.formulatype;
