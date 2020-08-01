@@ -4,7 +4,8 @@ import {
   GetValue,
   CellRange,
   Functions,
-  ParseResults
+  ParseResults,
+  CellPosition
 } from "./parser";
 import { Dag, Node, DependencyMapping } from "./graph";
 import {
@@ -82,11 +83,12 @@ class CalcEngine {
     }
 
     const formula = value.substr(1);
-    // @ts-ignore
     const cellAddress = cellToAddress(cell);
-    // @ts-ignore
+    if (!cellAddress) {
+      return void 0;
+    }
     const parentNode = this.mapping.get(cellAddress, sheet, cell);
-    if (!cellAddress || !parentNode) {
+    if (!parentNode) {
       return void 0;
     }
     const position = createPosition(
@@ -154,7 +156,7 @@ class CalcEngine {
      * Add dependencies
      */
     for (const dep of dependencies) {
-      if (dep.from) {
+      if ((dep as CellRange).from) {
         const { from, to, sheet } = dep as CellRange;
         for (let i = from.row; i <= to.row; i++) {
           for (let j = from.col; j <= to.col; j++) {
@@ -168,7 +170,7 @@ class CalcEngine {
           }
         }
       } else {
-        const { row, col, sheet } = dep;
+        const { row, col, sheet } = dep as CellPosition;
         const address = cellToAddress({
           rowIndex: row,
           columnIndex: col
@@ -408,7 +410,7 @@ class CalcEngine {
             try {
               const dependents = this.parser.getDependencies(formula, position);
               for (const dep of dependents) {
-                if (dep.from) {
+                if ((dep as CellRange).from) {
                   const { from, to, sheet } = dep as CellRange;
                   for (let i = from.row; i <= to.row; i++) {
                     for (let j = from.col; j <= to.col; j++) {
@@ -422,7 +424,7 @@ class CalcEngine {
                     }
                   }
                 } else {
-                  const { row, col, sheet } = dep;
+                  const { row, col, sheet } = dep as CellPosition;
                   const address = cellToAddress({
                     rowIndex: row,
                     columnIndex: col

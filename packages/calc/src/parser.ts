@@ -8,7 +8,7 @@ import { CellConfig, CellConfigGetter } from "./types";
 
 export type Sheet = string;
 
-export interface Position {
+export interface CellPosition {
   sheet: Sheet;
   row: number;
   col: number;
@@ -16,8 +16,8 @@ export interface Position {
 
 export interface CellRange {
   sheet: Sheet;
-  from: Omit<Position, "sheet">;
-  to: Omit<Position, "sheet">;
+  from: Omit<CellPosition, "sheet">;
+  to: Omit<CellPosition, "sheet">;
 }
 
 export type ResultArray = any[][];
@@ -35,7 +35,7 @@ export interface ParseResults {
   underline?: boolean;
 }
 
-const basePosition: Position = { row: 1, col: 1, sheet: "Sheet1" };
+const basePosition: CellPosition = { row: 1, col: 1, sheet: "Sheet1" };
 
 export interface CellInterface {
   rowIndex: number;
@@ -88,7 +88,7 @@ class FormulaParser {
     this.currentValues = undefined;
   };
 
-  getCellConfig = (position: Position) => {
+  getCellConfig = (position: CellPosition) => {
     const sheet = position.sheet;
     const cell = { rowIndex: position.row, columnIndex: position.col };
     const config =
@@ -105,7 +105,7 @@ class FormulaParser {
       : config.text ?? null;
   };
 
-  getCellValue = (pos: Position) => {
+  getCellValue = (pos: CellPosition) => {
     return this.getCellConfig(pos);
   };
 
@@ -122,7 +122,7 @@ class FormulaParser {
   };
   parse = async (
     text: string | null,
-    position: Position = basePosition,
+    position: CellPosition = basePosition,
     getValue?: CellConfigGetter
   ): Promise<ParseResults> => {
     /* Update getter */
@@ -180,7 +180,10 @@ class FormulaParser {
       errorMessage
     };
   };
-  getDependencies = (text: string, position: Position = basePosition) => {
+  getDependencies = (
+    text: string,
+    position: CellPosition = basePosition
+  ): CellRange[] | CellPosition[] => {
     return this.dependencyParser.parse(text, position);
   };
 }

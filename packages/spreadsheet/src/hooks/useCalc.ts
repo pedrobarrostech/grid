@@ -75,11 +75,16 @@ const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
     return engine.current?.parser.formulaParser.supportedFunctions() ?? [];
   }, []);
 
+  const getDepedencies = useCallback((text: string) => {
+    return engine.current?.parser.getDependencies(text);
+  }, []);
+
   return {
     onCalculate,
     onCalculateBatch,
     initializeEngine,
-    getSupportedFormulas
+    getSupportedFormulas,
+    getDepedencies
   };
 };
 

@@ -1,4 +1,4 @@
-import { CellInterface, Sheet, Position } from "./parser";
+import { CellInterface, Sheet, CellPosition } from "./parser";
 
 /* Check if a value is null */
 export const isNull = (value: any) =>
@@ -84,7 +84,7 @@ export const alpha2number = (letters: string): number => {
   return letters.split("").reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
 };
 
-export const createPosition = (id: Sheet, row = 1, col = 1): Position => {
+export const createPosition = (id: Sheet, row = 1, col = 1): CellPosition => {
   return {
     sheet: id,
     row,
