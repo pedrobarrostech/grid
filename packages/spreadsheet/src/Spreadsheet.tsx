@@ -1003,7 +1003,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
-        const config = getCellConfig(id, cell);
+        const config = getCellConfigRef.current?.(id, cell);
         const datatype = detectDataType(value);
 
         dispatch({

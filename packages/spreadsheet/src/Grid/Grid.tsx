@@ -869,7 +869,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           onResize?.(AXIS.Y, rowIndex, height);
         }
       },
-      [selectedSheet, cells, scale, rowSizes]
+      [selectedSheet, scale, rowSizes]
     );
 
     const { tooltipComponent, ...tooltipProps } = useTooltip({
