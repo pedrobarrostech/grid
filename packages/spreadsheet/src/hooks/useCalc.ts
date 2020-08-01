@@ -32,7 +32,11 @@ const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
   }, []);
 
   const onCalculate = useCallback(
-    (value: React.ReactText, sheet: SheetID, cell: CellInterface) => {
+    (
+      value: React.ReactText,
+      sheet: SheetID,
+      cell: CellInterface
+    ): Promise<CellsBySheet | undefined> | undefined => {
       const sheetId = castToString(sheet);
       if (!sheetId || !getCellConfig.current) return;
       return engine.current?.calculate(
@@ -45,25 +49,22 @@ const useCalc = ({ formulas, getCellConfig }: UseCalcOptions) => {
     []
   );
 
-  const onCalculateBatch = useCallback(
-    (changes: CellsBySheet, sheet: SheetID) => {
-      const sheetId = castToString(sheet);
-      if (!sheetId || !getCellConfig?.current) return;
-      // @ts-ignore
-      return engine.current?.calculateBatch(
-        changes as Partial<CellConfig>,
-        sheetId,
-        getCellConfig.current as CalcCellConfigGetter
-      );
-    },
-    []
-  );
+  const onCalculateBatch = useCallback((sheet: SheetID, changes: CellsBySheet):
+    | Promise<CellsBySheet | undefined>
+    | undefined => {
+    const sheetId = castToString(sheet);
+    if (!sheetId || !getCellConfig?.current) return;
+    return engine.current?.calculateBatch(
+      sheetId,
+      changes as Partial<CellConfig>,
+      getCellConfig.current as CalcCellConfigGetter
+    );
+  }, []);
 
   const initializeEngine = useCallback((changes: CellsBySheet):
-    | Promise<Partial<CellConfig> | undefined>
+    | Promise<CellsBySheet | undefined>
     | undefined => {
     if (!getCellConfig?.current) return;
-    // @ts-ignore
     return engine.current?.initialize(
       changes as Partial<CellConfig>,
       getCellConfig.current as CalcCellConfigGetter

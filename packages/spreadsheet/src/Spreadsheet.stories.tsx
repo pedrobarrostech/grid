@@ -7,5 +7,17 @@ export default {
 };
 
 export const Default = () => {
-  return <SpreadSheet minHeight={800} initialSheets={defaultSheets} />;
+  return (
+    <SpreadSheet
+      minHeight={800}
+      initialSheets={defaultSheets}
+      // disableFormula={true}
+      onChangeCells={(sheet, changes) => {
+        console.log("d", sheet, changes);
+      }}
+      // calculationApi={(changes) => {
+
+      // }}
+    />
+  );
 };

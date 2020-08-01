@@ -180,6 +180,18 @@ Callback fired when a cell or group of cells change
 >
 ```
 
+### `onChangeCells`
+
+Callback fired when a single cell or a group of cells are changed. Fired during onDelete, onFill etc
+
+```jsx
+<SpreadSheet
+  onChangeCells={(activeSheetId: string, changes: CellsBySheet) => {
+    // Persist in your data model
+  }}
+>
+```
+
 ### `CellRenderer`
 
 React component to customize cell rendering
@@ -395,3 +407,7 @@ Default column header height
 ## `rowHeaderWidth`
 
 Default row header width
+
+## `disableFormula`
+
+Disable formula mode.

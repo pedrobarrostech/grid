@@ -6,10 +6,6 @@ export interface UseFontResults {
   isFontActive: boolean;
 }
 
-export interface UseFontProps {
-  google?: string[];
-}
-
 const useFonts = (config?: WebFont.Config) => {
   const [isFontActive, setIsFontActive] = useState(false);
   useEffect(() => {
@@ -17,13 +13,13 @@ const useFonts = (config?: WebFont.Config) => {
       WebFont.load({
         ...config,
         loading: () => setIsFontActive(false),
-        active: () => setIsFontActive(true),
+        active: () => setIsFontActive(true)
       });
     }
   }, [config]);
 
   return {
-    isFontActive,
+    isFontActive
   };
 };
 

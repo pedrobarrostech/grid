@@ -118,6 +118,11 @@ export interface SpreadSheetProps {
     cell: CellInterface
   ) => void;
   /**
+   * Callback when multiple cells change
+   * Eg: Delete action
+   */
+  onChangeCells?: (id: SheetID, changes: Cells) => void;
+  /**
    * Get the new selected sheet
    */
   onChangeSelectedSheet?: (id: SheetID) => void;
@@ -361,6 +366,10 @@ export interface SpreadSheetProps {
    * Clear formatting
    */
   onClearFormatting?: (id: SheetID) => void;
+  /**
+   * Disable formula calculation
+   */
+  disableFormula?: boolean;
 }
 
 export type FormulaMap = Record<string, (...args: any[]) => any>;
@@ -495,6 +504,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onChangeSelectedSheet,
       onChange,
       onChangeCell,
+      onChangeCells,
       showToolbar = true,
       formatter = defaultFormat,
       enableDarkMode = true,
@@ -541,7 +551,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onDeleteCells,
       onFrozenRowsChange,
       onFrozenColumnsChange,
-      onClearFormatting
+      onClearFormatting,
+      disableFormula
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -730,7 +741,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Calculation
      */
 
-    const { initializeEngine, onCalculateBatch, onCalculate } = useCalc({
+    const { initializeEngine, onCalculateBatch } = useCalc({
       formulas,
       getCellConfig: getCellConfigBySheetNameRef
     });
@@ -887,74 +898,37 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Trigger batch calculation
      * @param changes
      */
-    const triggerBatchCalculation = async (
-      changes: CellsBySheet,
-      sheet: SheetID
-    ) => {
-      const values = await onCalculateBatch?.(changes, sheet);
-      if (values !== void 0) {
-        dispatch({
-          type: ACTION_TYPE.UPDATE_CELLS,
-          changes: values,
-          undoable: false
-        });
-      }
-    };
-
-    /**
-     * Trigger a single calculation
-     * @param value
-     * @param id
-     * @param cell
-     */
-    const triggerSingleCalculation = async (
-      value: React.ReactText,
-      id: SheetID,
-      cell: CellInterface
-    ) => {
-      if (!onCalculate) return;
-      const sheetName = getSheetRef.current?.(id)?.name;
-      if (!sheetName) return;
-      dispatch({
-        type: ACTION_TYPE.SET_LOADING,
-        id,
-        cell,
-        value: true,
-        undoable: false
-      });
-      const changes = await onCalculate?.(value, sheetName, cell);
-
-      dispatch({
-        type: ACTION_TYPE.SET_LOADING,
-        id,
-        cell,
-        value: false,
-        undoable: false
-      });
-
-      if (changes !== void 0) {
-        dispatch({
-          type: ACTION_TYPE.UPDATE_CELLS,
-          changes,
-          undoable: false
-        });
-      }
-    };
+    const triggerBatchCalculation = useCallback(
+      async (sheet: SheetID, changes: CellsBySheet) => {
+        const values = await onCalculateBatch?.(sheet, changes);
+        if (values !== void 0) {
+          dispatch({
+            type: ACTION_TYPE.UPDATE_CELLS,
+            changes: values,
+            undoable: false
+          });
+        }
+      },
+      []
+    );
 
     /**
      * Trigger batch calciulation
      * @param changes
      */
-    const triggerBatchInitialization = async (changes: CellsBySheet) => {
-      const values = await initializeEngine?.(changes);
-      if (values !== void 0) {
-        dispatch({
-          type: ACTION_TYPE.UPDATE_CELLS,
-          changes: values,
-          undoable: false
-        });
-      }
-    };
+    const triggerBatchInitialization = useCallback(
+      async (changes: CellsBySheet) => {
+        const values = await initializeEngine?.(changes);
+        if (values !== void 0) {
+          dispatch({
+            type: ACTION_TYPE.UPDATE_CELLS,
+            changes: values,
+            undoable: false
+          });
+        }
+      },
+      []
+    );
 
     useEffect(() => {
       const initial: CellsBySheet = {};
@@ -1004,7 +978,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleChange = useCallback(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
         const config = getCellConfigRef.current?.(id, cell);
-        const datatype = detectDataType(value);
+        let datatype = detectDataType(value);
+        /* If user has disabled */
+        if (disableFormula && datatype === "formula") {
+          datatype = "string";
+        }
 
         dispatch({
           type: ACTION_TYPE.CHANGE_SHEET_CELL,
@@ -1042,10 +1020,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           /* Trigger single calculation */
-          triggerSingleCalculation(value, id, cell);
+          callBackOnCellModification(id, cell);
         });
       },
-      []
+      [disableFormula]
     );
 
     const handleSheetAttributesChange = useCallback(
@@ -1300,35 +1278,50 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * @param activeCell
      * @param selections
      */
-    const callBackOnCellModification = (
-      id: SheetID,
-      activeCell: CellInterface,
-      selections: SelectionArea[]
-    ) => {
-      const sheetName = getSheetRef.current?.(id)?.name;
-      if (!sheetName) return;
-      const sel = selections.length
-        ? selections
-        : [{ bounds: getCellBounds(activeCell) as AreaProps }];
+    const callBackOnCellModification = useCallback(
+      (
+        id: SheetID,
+        activeCell: CellInterface,
+        selections?: SelectionArea[]
+      ) => {
+        const sheetName = getSheetRef.current?.(id)?.name;
+        if (!sheetName) return;
+        const sel =
+          selections && selections.length
+            ? selections
+            : [{ bounds: getCellBounds(activeCell) as AreaProps }];
 
-      const values: CellsBySheet = {
-        [sheetName]: {}
-      };
-      for (let i = 0; i < sel.length; i++) {
-        const { bounds } = sel[i];
-        for (let j = bounds?.top; j <= bounds?.bottom; j++) {
-          for (let k = bounds?.left; k <= bounds?.right; k++) {
-            values[sheetName][j] = values[sheetName][j] ?? {};
-            values[sheetName][j][k] = {};
+        const changes: CellsBySheet = {
+          [sheetName]: {}
+        };
+
+        /**
+         * Use RAF so we can pick the right state from store
+         */
+        window.requestAnimationFrame(() => {
+          for (let i = 0; i < sel.length; i++) {
+            const { bounds } = sel[i];
+            for (let j = bounds?.top; j <= bounds?.bottom; j++) {
+              for (let k = bounds?.left; k <= bounds?.right; k++) {
+                changes[sheetName][j] = changes[sheetName][j] ?? {};
+                changes[sheetName][j][k] =
+                  getCellConfigRef.current?.(id, {
+                    rowIndex: j,
+                    columnIndex: k
+                  }) ?? {};
+              }
+            }
           }
-        }
-      }
 
-      /* Trigger */
-      window.requestAnimationFrame(() =>
-        triggerBatchCalculation(values, sheetName)
-      );
-    };
+          /* Trigger Batch Calculation */
+          if (!disableFormula) triggerBatchCalculation(sheetName, changes);
+
+          /* OnChange cell */
+          onChangeCells?.(id, changes);
+        });
+      },
+      [disableFormula]
+    );
 
     /**
      * Delete cell values

@@ -50,7 +50,7 @@ export const addressToCell = (address: string): CellInterface | null => {
   const [columnAlpha, rowIndex] = matches;
   return {
     rowIndex: parseInt(rowIndex),
-    columnIndex: alpha2number(columnAlpha),
+    columnIndex: alpha2number(columnAlpha)
   };
 };
 
@@ -88,7 +88,7 @@ export const createPosition = (id: Sheet, row = 1, col = 1): Position => {
   return {
     sheet: id,
     row,
-    col,
+    col
   };
 };
 
@@ -99,4 +99,9 @@ export const createPosition = (id: Sheet, row = 1, col = 1): Position => {
 export const castToString = (value: any): string | undefined => {
   if (value === null || value === void 0) return void 0;
   return typeof value !== "string" ? "" + value : value;
+};
+
+export const log = (...args: any[]) => {
+  if (process.env.NODE_ENV === "production") return;
+  console.log(...args);
 };

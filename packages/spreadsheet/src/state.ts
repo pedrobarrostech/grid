@@ -333,7 +333,8 @@ export const createStateReducer = ({
               sheet.cells[cell.rowIndex] = sheet.cells[cell.rowIndex] ?? {};
               sheet.cells[cell.rowIndex][cell.columnIndex] =
                 sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
-              const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
+              const currentCell =
+                sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
               const hasFormulaChanged = currentCell.text !== value;
               currentCell.text = value;
               currentCell.datatype = datatype;
@@ -386,6 +387,8 @@ export const createStateReducer = ({
                         ) {
                           continue;
                         }
+                        sheet.cells[rowIndex][columnIndex] =
+                          sheet.cells[rowIndex][columnIndex] ?? {};
                         sheet.cells[rowIndex][columnIndex][key] = value;
                       }
                     }
