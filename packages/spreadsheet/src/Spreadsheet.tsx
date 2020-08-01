@@ -1321,33 +1321,35 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /**
          * Use RAF so we can pick the right state from store
          */
-        return new Promise(async resolve => {
-          for (let i = 0; i < sel.length; i++) {
-            const { bounds } = sel[i];
-            for (let j = bounds?.top; j <= bounds?.bottom; j++) {
-              for (let k = bounds?.left; k <= bounds?.right; k++) {
-                const cellConfig =
-                  getCellConfigRef.current?.(id, {
-                    rowIndex: j,
-                    columnIndex: k
-                  }) ?? {};
-                cellChanges[j] = cellChanges[j] ?? {};
-                cellChanges[j][j] = cellConfig;
-                changes[sheetName][j] = changes[sheetName][j] ?? {};
-                changes[sheetName][j][k] = cellConfig;
+        return new Promise(resolve => {
+          window.requestAnimationFrame(async () => {
+            for (let i = 0; i < sel.length; i++) {
+              const { bounds } = sel[i];
+              for (let j = bounds?.top; j <= bounds?.bottom; j++) {
+                for (let k = bounds?.left; k <= bounds?.right; k++) {
+                  const cellConfig =
+                    getCellConfigRef.current?.(id, {
+                      rowIndex: j,
+                      columnIndex: k
+                    }) ?? {};
+                  cellChanges[j] = cellChanges[j] ?? {};
+                  cellChanges[j][j] = cellConfig;
+                  changes[sheetName][j] = changes[sheetName][j] ?? {};
+                  changes[sheetName][j][k] = cellConfig;
+                }
               }
             }
-          }
 
-          /* Trigger Batch Calculation */
-          if (!disableFormula) {
-            await triggerBatchCalculation(sheetName, changes);
-          }
+            /* Trigger Batch Calculation */
+            if (!disableFormula) {
+              await triggerBatchCalculation(sheetName, changes);
+            }
 
-          /* OnChange cell */
-          onChangeCells?.(id, cellChanges);
+            /* OnChange cell */
+            onChangeCells?.(id, cellChanges);
 
-          resolve();
+            resolve();
+          });
         });
       },
       [disableFormula]
