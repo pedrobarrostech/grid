@@ -933,6 +933,9 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         const config = getValue(cell);
         const type = getEditorType(config?.dataValidation?.type);
         const options = config?.dataValidation?.formulae;
+        const horizontalAlign =
+          config?.horizontalAlign ??
+          (config?.datatype === "number" && !config?.plaintext && "right");
         return (props: EditorProps) => (
           <CellEditor
             {...props}
@@ -941,7 +944,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
             fontSize={config?.fontSize}
             fontFamily={config?.fontFamily}
             underline={config?.underline}
-            horizontalAlign={config?.horizontalAlign}
+            horizontalAlign={horizontalAlign}
             scale={scale}
             wrap={config?.wrap}
             editorType={type}

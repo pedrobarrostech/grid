@@ -341,7 +341,6 @@ export const createStateReducer = ({
               delete currentCell.parentCell;
 
               /* Check for formula range */
-
               const formulaRange = currentCell.formulaRange;
               if (hasFormulaChanged && formulaRange) {
                 const [right, bottom] = formulaRange;
@@ -387,8 +386,6 @@ export const createStateReducer = ({
                         ) {
                           continue;
                         }
-                        sheet.cells[rowIndex][columnIndex] =
-                          sheet.cells[rowIndex][columnIndex] ?? {};
                         sheet.cells[rowIndex][columnIndex][key] = value;
                       }
                     }
