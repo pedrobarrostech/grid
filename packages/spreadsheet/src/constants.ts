@@ -300,9 +300,7 @@ const dpr = canUseDOM ? window.devicePixelRatio : 1;
 const dprRounded = Math.floor(dpr / 2);
 const dashDotWidth = Math.max(Math.floor(dpr / 2), 0.5);
 export const dotArray =
-  dpr === 1
-    ? [dashDotWidth, dashDotWidth + dpr]
-    : [dashDotWidth + dprRounded, dashDotWidth + dprRounded];
+  dpr === 1 ? [dashDotWidth, dashDotWidth + dpr] : [dashDotWidth, dashDotWidth];
 export const dashArray = [2, 2];
 export const cellsInSelectionVariant = (
   selections: SelectionArea[],
@@ -325,7 +323,7 @@ export const cellsInSelectionVariant = (
       : [];
 
   const dashEnabled = dash.length > 0;
-  const lineCap = dashEnabled ? "butt" : "square";
+  const lineCap = dashEnabled ? "butt" : "butt";
   const cells: Cells = {};
   for (let i = 0; i < selections.length; i++) {
     const { bounds } = selections[i];
