@@ -1020,7 +1020,23 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           /* Trigger single calculation */
-          callBackOnCellModification(id, cell);
+          dispatch({
+            type: ACTION_TYPE.SET_LOADING,
+            id,
+            cell,
+            value: true,
+            undoable: false
+          });
+
+          await callBackOnCellModification(id, cell);
+
+          dispatch({
+            type: ACTION_TYPE.SET_LOADING,
+            id,
+            cell,
+            value: false,
+            undoable: false
+          });
         });
       },
       [disableFormula]
@@ -1279,7 +1295,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * @param selections
      */
     const callBackOnCellModification = useCallback(
-      (
+      async (
         id: SheetID,
         activeCell: CellInterface,
         selections?: SelectionArea[]
@@ -1305,7 +1321,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /**
          * Use RAF so we can pick the right state from store
          */
-        window.requestAnimationFrame(() => {
+        return new Promise(async resolve => {
           for (let i = 0; i < sel.length; i++) {
             const { bounds } = sel[i];
             for (let j = bounds?.top; j <= bounds?.bottom; j++) {
@@ -1324,10 +1340,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           }
 
           /* Trigger Batch Calculation */
-          if (!disableFormula) triggerBatchCalculation(sheetName, changes);
+          if (!disableFormula) {
+            await triggerBatchCalculation(sheetName, changes);
+          }
 
           /* OnChange cell */
           onChangeCells?.(id, cellChanges);
+
+          resolve();
         });
       },
       [disableFormula]
