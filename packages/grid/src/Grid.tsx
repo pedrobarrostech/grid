@@ -1388,7 +1388,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const handleWheel = useCallback((event: globalThis.MouseWheelEvent) => {
       /* If user presses shift key, scroll horizontally */
-      const isHorizontalScrollOnly = event.shiftKey;
+      const isScrollingHorizontally = event.shiftKey;
 
       /* Prevent browser back in Mac */
       event.preventDefault();
@@ -1396,12 +1396,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       /* Scroll natively */
       if (wheelingRef.current) return;
 
-      let dx = deltaX;
+      let dx = isScrollingHorizontally ? deltaY : deltaX;
       let dy = deltaY;
 
       /* Scroll only in one direction */
       const isHorizontal =
-        isHorizontalScrollOnly || Math.abs(dx) > Math.abs(dy);
+        isScrollingHorizontally || Math.abs(dx) > Math.abs(dy);
 
       /* If snaps are active */
       if (snap) {
