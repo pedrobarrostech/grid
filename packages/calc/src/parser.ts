@@ -1,7 +1,7 @@
 import FastFormulaParser from "fast-formula-parser";
 import { DepParser } from "fast-formula-parser/grammar/dependency/hooks";
 import FormulaError from "fast-formula-parser/formulas/error";
-import { detectDataType, DATATYPES, castToString } from "./helpers";
+import { detectDataType, DATATYPES, castToString, isNull } from "./helpers";
 import { CellsBySheet } from "./calc";
 import merge from "lodash.merge";
 import { CellConfig, CellConfigGetter } from "./types";
@@ -97,11 +97,10 @@ class FormulaParser {
       null;
 
     if (config === null) return config;
-    if (config?.datatype === "formula") {
+    if (config?.datatype === "formula" || !isNull(config?.formulatype)) {
       return config?.result;
     }
-    return (config && config.datatype === "number") ||
-      config?.formulatype === "number"
+    return config && config.datatype === "number"
       ? parseFloat(castToString(config.text) || "0")
       : config.text ?? null;
   };
