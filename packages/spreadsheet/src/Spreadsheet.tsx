@@ -1286,6 +1286,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       ) => {
         const sheetName = getSheetRef.current?.(id)?.name;
         if (!sheetName) return;
+        /**
+         * If formula mode onChangeCells callback is empty, Skip
+         */
+        if (!onChangeCells && !disableFormula) {
+          return;
+        }
         const sel =
           selections && selections.length
             ? selections
