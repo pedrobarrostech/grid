@@ -135,7 +135,12 @@ class FormulaParser {
     let color;
     let formulatype: DATATYPES | undefined;
     try {
-      result = await this.formulaParser.parseAsync(text, position, true);
+      result = await this.formulaParser
+        .parseAsync(text, position, true)
+        .catch((err: FormulaError) => {
+          error = err.error;
+          errorMessage = err.message;
+        });
 
       /* Check if its JSON */
       result = extractIfJSON(result);
