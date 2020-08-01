@@ -1019,24 +1019,43 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           });
         }
 
-        /* Trigger single calculation */
-        dispatch({
-          type: ACTION_TYPE.SET_LOADING,
-          id,
-          cell,
-          value: true,
-          undoable: false
-        });
+        /**
+         * Simple trick to delay showing loading indicator
+         * If async results come too soon.
+         */
+        let receivedResponse = false;
+        let loadingShown = false;
+        const LOADING_INDICATOR_DELAY = 100;
+
+        setTimeout(() => {
+          if (receivedResponse) {
+            return;
+          }
+          /* Trigger single calculation */
+          dispatch({
+            type: ACTION_TYPE.SET_LOADING,
+            id,
+            cell,
+            value: true,
+            undoable: false
+          });
+
+          loadingShown = true;
+        }, LOADING_INDICATOR_DELAY);
 
         await callBackOnCellModification(id, cell);
 
-        dispatch({
-          type: ACTION_TYPE.SET_LOADING,
-          id,
-          cell,
-          value: false,
-          undoable: false
-        });
+        receivedResponse = true;
+
+        if (loadingShown) {
+          dispatch({
+            type: ACTION_TYPE.SET_LOADING,
+            id,
+            cell,
+            value: false,
+            undoable: false
+          });
+        }
       },
       [disableFormula]
     );
