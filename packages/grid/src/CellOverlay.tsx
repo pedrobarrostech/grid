@@ -156,7 +156,7 @@ const CellRenderer = (props: RendererProps) => {
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square",
+    lineCap = "butt",
     key
   } = props;
   const userStroke =

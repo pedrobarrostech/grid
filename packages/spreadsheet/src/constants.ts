@@ -323,7 +323,7 @@ export const cellsInSelectionVariant = (
       : [];
 
   const dashEnabled = dash.length > 0;
-  const lineCap = dashEnabled ? "butt" : "butt";
+  const lineCap = "butt";
   const cells: Cells = {};
   for (let i = 0; i < selections.length; i++) {
     const { bounds } = selections[i];
