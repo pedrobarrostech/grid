@@ -1289,7 +1289,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /**
          * If formula mode onChangeCells callback is empty, Skip
          */
-        if (!onChangeCells && !disableFormula) {
+        if (!onChangeCells && disableFormula) {
           return;
         }
         const sel =
