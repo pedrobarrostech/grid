@@ -875,10 +875,11 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
         o.scale}px ${o.fontFamily}`;
     }
   };
-  const getWidthOfLongestText = (text: string) => {
-    const lines = text.split("\n");
+  const getWidthOfLongestText = (text: string | undefined) => {
     let width = 0;
     let height = 0;
+    if (text === void 0) return { width, height };
+    const lines = text.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const lineWidth = context?.measureText(line).width ?? 0;
@@ -887,7 +888,8 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
     }
     return { width: Math.ceil(width), height: Math.ceil(height) };
   };
-  const measureText = (text: string) => getWidthOfLongestText(text);
+  const measureText = (text: React.ReactText) =>
+    getWidthOfLongestText(castToString(text));
   const reset = () => setFont(defaults);
   /* Set font in constructor */
   setFont(o);
