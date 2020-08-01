@@ -186,7 +186,7 @@ Callback fired when a single cell or a group of cells are changed. Fired during 
 
 ```jsx
 <SpreadSheet
-  onChangeCells={(activeSheetId: string, changes: CellsBySheet) => {
+  onChangeCells={(activeSheetId: string, changes: Cells) => {
     // Persist in your data model
   }}
 >

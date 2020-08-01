@@ -1294,6 +1294,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         const changes: CellsBySheet = {
           [sheetName]: {}
         };
+        const cellChanges: Cells = {};
 
         /**
          * Use RAF so we can pick the right state from store
@@ -1303,12 +1304,15 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             const { bounds } = sel[i];
             for (let j = bounds?.top; j <= bounds?.bottom; j++) {
               for (let k = bounds?.left; k <= bounds?.right; k++) {
-                changes[sheetName][j] = changes[sheetName][j] ?? {};
-                changes[sheetName][j][k] =
+                const cellConfig =
                   getCellConfigRef.current?.(id, {
                     rowIndex: j,
                     columnIndex: k
                   }) ?? {};
+                cellChanges[j] = cellChanges[j] ?? {};
+                cellChanges[j][j] = cellConfig;
+                changes[sheetName][j] = changes[sheetName][j] ?? {};
+                changes[sheetName][j][k] = cellConfig;
               }
             }
           }
@@ -1317,7 +1321,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           if (!disableFormula) triggerBatchCalculation(sheetName, changes);
 
           /* OnChange cell */
-          onChangeCells?.(id, changes);
+          onChangeCells?.(id, cellChanges);
         });
       },
       [disableFormula]
