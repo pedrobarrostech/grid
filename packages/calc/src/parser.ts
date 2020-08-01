@@ -98,10 +98,12 @@ class FormulaParser {
 
     if (config === null) return config;
     if (config?.datatype === "formula" || !isNull(config?.formulatype)) {
-      return config?.result;
+      return config?.formulatype === "number"
+        ? Number(castToString(config?.result) ?? "0")
+        : config?.result;
     }
     return config && config.datatype === "number"
-      ? parseFloat(castToString(config.text) || "0")
+      ? Number(castToString(config.text) ?? "0")
       : config.text ?? null;
   };
 

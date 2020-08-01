@@ -996,47 +996,46 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         onChangeCell?.(id, value, cell);
 
         /* Validate */
-        requestAnimationFrame(async () => {
-          const validationResponse = await onValidate(value, id, cell, config);
 
-          /* If validations service fails, lets not update the store */
-          if (validationResponse !== void 0) {
-            /**
-             * Extract valid: boolean response and message
-             */
-            const { valid, message } = validationResponse as ValidationResponse;
+        const validationResponse = await onValidate(value, id, cell, config);
 
-            /**
-             * Update the state
-             */
-            dispatch({
-              type: ACTION_TYPE.VALIDATION_SUCCESS,
-              cell,
-              id,
-              valid,
-              prompt: message,
-              undoable: false
-            });
-          }
+        /* If validations service fails, lets not update the store */
+        if (validationResponse !== void 0) {
+          /**
+           * Extract valid: boolean response and message
+           */
+          const { valid, message } = validationResponse as ValidationResponse;
 
-          /* Trigger single calculation */
+          /**
+           * Update the state
+           */
           dispatch({
-            type: ACTION_TYPE.SET_LOADING,
-            id,
+            type: ACTION_TYPE.VALIDATION_SUCCESS,
             cell,
-            value: true,
+            id,
+            valid,
+            prompt: message,
             undoable: false
           });
+        }
 
-          await callBackOnCellModification(id, cell);
+        /* Trigger single calculation */
+        dispatch({
+          type: ACTION_TYPE.SET_LOADING,
+          id,
+          cell,
+          value: true,
+          undoable: false
+        });
 
-          dispatch({
-            type: ACTION_TYPE.SET_LOADING,
-            id,
-            cell,
-            value: false,
-            undoable: false
-          });
+        await callBackOnCellModification(id, cell);
+
+        dispatch({
+          type: ACTION_TYPE.SET_LOADING,
+          id,
+          cell,
+          value: false,
+          undoable: false
         });
       },
       [disableFormula]
@@ -1295,7 +1294,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * @param selections
      */
     const callBackOnCellModification = useCallback(
-      async (
+      (
         id: SheetID,
         activeCell: CellInterface,
         selections?: SelectionArea[]
