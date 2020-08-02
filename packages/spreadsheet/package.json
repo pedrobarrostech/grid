@@ -9,7 +9,7 @@
     "check:types": "tsc --noEmit",
     "prepublish": "yarn build",
     "prettier": "prettier src/**/*.{ts,tsx} --write",
-    "storybook": "start-storybook -p 9003 -s ./public",
+    "storybook-spreadsheet": "start-storybook -p 9003 -s ./public",
     "test": "jest"
   },
   "publishConfig": {

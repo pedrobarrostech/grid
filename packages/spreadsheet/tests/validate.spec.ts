@@ -41,7 +41,12 @@ describe("validation", () => {
   });
 
   it("returns undefined if validation is not defined", async () => {
-    const valid = await validate("b", "B", null, undefined);
+    const valid = await validate(
+      "b",
+      "B",
+      { rowIndex: 1, columnIndex: 1 },
+      undefined
+    );
     expect(valid).toBeUndefined();
   });
 });
