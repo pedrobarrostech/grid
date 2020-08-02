@@ -1349,7 +1349,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
                       columnIndex: k
                     }) ?? {};
                   cellChanges[j] = cellChanges[j] ?? {};
-                  cellChanges[j][j] = cellConfig;
+                  cellChanges[j][k] = cellConfig;
                   changes[sheetName][j] = changes[sheetName][j] ?? {};
                   changes[sheetName][j][k] = cellConfig;
                 }
