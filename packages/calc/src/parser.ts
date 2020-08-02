@@ -140,7 +140,7 @@ class FormulaParser {
       result = await this.formulaParser
         .parseAsync(text, position, true)
         .catch((err: FormulaError) => {
-          error = err.error;
+          error = err.error || err.message;
           errorMessage = err.message;
         });
 

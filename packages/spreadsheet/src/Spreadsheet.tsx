@@ -565,6 +565,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       false
     );
     const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0);
+    /* Add it to ref to prevent closures */
+    const getCellConfigRef = useRef<CellConfigGetter>();
+    const getCellConfigBySheetNameRef = useRef<CellConfigBySheetNameGetter>();
+    const getSheetRef = useRef<(id: SheetID) => Sheet | undefined>();
     const [valueState, setValueState] = useState<StateInterface>(() => {
       return {
         currentSelections: null,
@@ -725,11 +729,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       [sheetsById]
     );
-
-    /* Add it to ref to prevent closures */
-    const getCellConfigRef = useRef<CellConfigGetter>();
-    const getCellConfigBySheetNameRef = useRef<CellConfigBySheetNameGetter>();
-    const getSheetRef = useRef<(id: SheetID) => Sheet | undefined>();
 
     useEffect(() => {
       getCellConfigRef.current = getCellConfig;
@@ -933,7 +932,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     useEffect(() => {
       const initial: CellsBySheet = {};
       const changes = sheets.reduce((acc, sheet) => {
-        // @ts-nocheck
         acc[sheet.name] = sheet.cells;
         return acc;
       }, initial);
