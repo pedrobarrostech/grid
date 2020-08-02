@@ -21,6 +21,7 @@ const newSheet = ({ count }: { count: number }): Sheet => ({
 
 export const Default = () => {
   const App = () => {
+    const [sheets, setSheets] = useState(defaultSheets);
     return (
       <div
         style={{
@@ -31,11 +32,9 @@ export const Default = () => {
         }}
       >
         <Spreadsheet
-          // sheets={sheets}
-          // onNewSheet={handleNewSheet}
-          onChange={(...args) => {
-            // console.log('called', args)
-          }}
+          sheets={sheets}
+          onChangeCells={console.log}
+          onChange={setSheets}
         />
       </div>
     );

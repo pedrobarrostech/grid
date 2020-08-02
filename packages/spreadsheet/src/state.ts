@@ -1,13 +1,13 @@
-import produce, { enablePatches, applyPatches, Patch, original } from "immer";
+import produce, { enablePatches, applyPatches, Patch } from "immer";
 import {
   uuid,
-  detectDataType,
   cellsInSelectionVariant,
   createCustomValidation,
   cloneCellConfig,
   cloneRow,
+  formattingTypeKeys,
 } from "./constants";
-import { Sheet, SheetID, Cells, CellConfig, CellsBySheet } from "./Spreadsheet";
+import { Sheet, SheetID, CellConfig, CellsBySheet } from "./Spreadsheet";
 import {
   PatchInterface,
   CellInterface,
@@ -28,12 +28,18 @@ import {
   BORDER_STYLE,
   BORDER_VARIANT,
   DATATYPES,
-  DataValidation,
 } from "./types";
-import SheetGrid from "./Grid/Grid";
 
 /* Enabled patches in immer */
 enablePatches();
+
+/* Delete cell config, but keep formatting rules */
+export const clearCellKeepFormatting = (config: CellConfig) => {
+  for (let key in config) {
+    if (key in formattingTypeKeys) continue;
+    delete config[key];
+  }
+};
 
 export const defaultSheets: Sheet[] = [
   {
@@ -644,32 +650,18 @@ export const createStateReducer = ({
                   if (sheet.cells[j] === void 0) continue;
                   for (let k = bounds.left; k <= bounds.right; k++) {
                     if (sheet.cells[j][k] === void 0) continue;
-                    sheet.cells[j][k].text = "";
-                    /**
-                     * TODO: Some way to get all the keys to delete,
-                     * Since this action is performed by the user
-                     * Formatting should be preserved
-                     * For hyperlinks, default colors, underline should be removed
-                     */
-                    delete sheet.cells[j][k]?.result;
-                    delete sheet.cells[j][k]?.image;
-                    delete sheet.cells[j][k]?.error;
-                    delete sheet.cells[j][k]?.datatype;
-                    delete sheet.cells[j][k]?.errorMessage;
-                    delete sheet.cells[j][k]?.parentCell;
-                    delete sheet.cells[j][k]?.formulatype;
-                    delete sheet.cells[j][k]?.hyperlink;
+                    const formulaRange = sheet.cells?.[j]?.[k]?.formulaRange;
+
+                    clearCellKeepFormatting(sheet.cells[j][k]);
 
                     /* Check for formula range */
-                    const formulaRange = sheet.cells?.[j]?.[k]?.formulaRange;
                     if (formulaRange) {
                       const [right, bottom] = formulaRange;
                       for (let a = 0; a < bottom; a++) {
                         for (let b = 0; b < right; b++) {
-                          delete sheet.cells?.[j + a]?.[k + b]?.result;
-                          delete sheet.cells?.[j + a]?.[k + b]?.error;
-                          delete sheet.cells?.[j + a]?.[k + b]?.parentCell;
-                          delete sheet.cells?.[j + a]?.[k + b]?.formulatype;
+                          clearCellKeepFormatting(
+                            sheet.cells?.[j + a]?.[k + b]
+                          );
                         }
                       }
                     }
@@ -1001,7 +993,6 @@ export const createStateReducer = ({
               (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
-              const { selections } = sheet;
               const { rows, activeCell, selection } = action;
               const { rowIndex, columnIndex } = activeCell;
               const { cells } = sheet;
