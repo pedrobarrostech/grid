@@ -26,7 +26,11 @@ export interface ListEditorProps {
 }
 const EMPTY_ARRAY: string[] = [];
 
-const ListEditor: React.FC<ListEditorProps> = memo(
+export type RefAttribute = {
+  ref?: React.MutableRefObject<HTMLInputElement>;
+};
+
+const ListEditor: React.FC<ListEditorProps & RefAttribute> = memo(
   forwardRef((props, forwardedRef) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const {
@@ -50,6 +54,10 @@ const ListEditor: React.FC<ListEditorProps> = memo(
       inputRef.current.focus();
       /* Focus cursor at the end */
       inputRef.current.selectionStart = initialValue.length;
+
+      if (forwardedRef)
+        (forwardedRef as React.MutableRefObject<HTMLInputElement>).current =
+          inputRef.current;
     }, []);
     const theme = useTheme();
     const { colorMode } = useColorMode();

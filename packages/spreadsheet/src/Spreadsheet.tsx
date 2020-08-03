@@ -571,9 +571,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const [scale, setScale] = useState(initialScale);
     const currentGrid = useRef<WorkbookGridRef>(null);
     const [formulaInput, setFormulaInput] = useState("");
-    const [isFormulaInputMode, setIsFormulaInputMode] = useState<boolean>(
-      false
-    );
     const { current: isControlled } = useRef<boolean>(sheetsProp !== void 0);
     /* Add it to ref to prevent closures */
     const getCellConfigRef = useRef<CellConfigGetter>();

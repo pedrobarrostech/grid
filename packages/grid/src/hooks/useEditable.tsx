@@ -22,6 +22,7 @@ import {
 } from "../helpers";
 
 export interface UseEditableOptions {
+  editorProps?: () => any;
   /**
    * Inject custom editors based on a cell
    */
@@ -395,7 +396,8 @@ const useEditable = ({
   selectionTopBound = 0,
   selectionBottomBound = rowCount - 1,
   selectionLeftBound = 0,
-  selectionRightBound = columnCount - 1
+  selectionRightBound = columnCount - 1,
+  editorProps
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -760,6 +762,7 @@ const useEditable = ({
   const editorComponent =
     isEditorShown && Editor ? (
       <Editor
+        {...editorProps?.()}
         /* This is the cell that is currently being edited */
         cell={editingCell}
         activeCell={activeCell}

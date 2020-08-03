@@ -192,6 +192,10 @@ export type RefAttributeGrid = {
   ref?: React.Ref<WorkbookGridRef>;
 };
 
+export interface ExtraEditorProps {
+  selectedSheetName?: string;
+}
+
 export type WorkbookGridRef = {
   getNextFocusableCell: (
     cell: CellInterface,
@@ -303,6 +307,10 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     const rowCount = initialRowCount + 1;
     const columnCount = initialColumnCount + 1;
     const currentlyEditingSheetId = useRef<SheetID>();
+    const editorRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(
+      null
+    );
+    const [isFormulaMode, setFormulaMode] = useState(false);
 
     /**
      * Keep track of variables in `refs` cos we bound events to `document`
@@ -861,11 +869,16 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       setSelections(initialSelections);
       /* Hide filter */
       hideFilter();
-      /* Hide editor */
-      // hideEditor();
-
       /* Focus on the grid */
       gridRef.current?.focus();
+
+      /* Hide editor */
+
+      if (isFormulaMode) {
+        editorRef.current?.focus();
+      } else {
+        hideEditor();
+      }
     }, [selectedSheet]);
 
     const handleSubmit = useCallback(
@@ -874,10 +887,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         cell: CellInterface,
         nextActiveCell?: CellInterface | null
       ) => {
-        if (!currentlyEditingSheetId.current) {
+        if (currentlyEditingSheetId.current === void 0) {
           return;
         }
         /* Switch to new sheet */
+
         onChangeSelectedSheet?.(currentlyEditingSheetId.current);
 
         /* Trigger onChange */
@@ -899,6 +913,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         if (height !== minRowHeight) {
           onResize?.(AXIS.Y, rowIndex, height);
         }
+        /* Switch off formula mode */
+        setFormulaMode(false);
       },
       [selectedSheet, scale, rowSizes]
     );
@@ -945,6 +961,21 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     });
 
     /**
+     * When active cell changes
+     */
+    const handleActiveCellValueChange = useCallback(
+      (value: string, cell: CellInterface) => {
+        onActiveCellValueChange?.(value, cell);
+        const isFormula = value.startsWith("=");
+        if (isFormulaMode === isFormula) {
+          return;
+        }
+        setFormulaMode(isFormula);
+      },
+      [isFormulaMode]
+    );
+
+    /**
      * Editable
      */
     const {
@@ -960,6 +991,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       showEditor,
       ...editableProps
     } = useEditable({
+      editorProps: (): ExtraEditorProps => {
+        return {
+          selectedSheetName: sheetName
+        };
+      },
       getEditor: (cell: CellInterface | null) => {
         const config = getValue(cell);
         const type = getEditorType(config?.dataValidation?.type);
@@ -974,6 +1010,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         return (props: EditorProps) => (
           <CellEditor
             {...props}
+            ref={editorRef}
             background={config?.fill}
             color={config?.color}
             fontSize={config?.fontSize}
@@ -1002,7 +1039,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       selectionLeftBound,
       onSubmit: handleSubmit,
       getValue: getValueText,
-      onChange: onActiveCellValueChange,
+      onChange: handleActiveCellValueChange,
       canEdit: (cell: CellInterface) => {
         /* If sheet is locked */
         if (isLockedRef.current === true) return false;

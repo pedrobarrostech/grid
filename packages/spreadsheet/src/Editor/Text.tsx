@@ -16,7 +16,11 @@ export interface TextEditorProps {
   underline?: boolean;
 }
 
-const TextEditor: React.FC<TextEditorProps> = memo(
+export type RefAttribute = {
+  ref?: React.MutableRefObject<HTMLTextAreaElement>;
+};
+
+const TextEditor: React.FC<TextEditorProps & RefAttribute> = memo(
   forwardRef((props, forwardedRef) => {
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
     useEffect(() => {
@@ -24,6 +28,9 @@ const TextEditor: React.FC<TextEditorProps> = memo(
       inputRef.current.focus();
       /* Focus cursor at the end */
       inputRef.current.selectionStart = value.length;
+      if (forwardedRef)
+        (forwardedRef as React.MutableRefObject<HTMLTextAreaElement>).current =
+          inputRef.current;
     }, []);
     const {
       value,
