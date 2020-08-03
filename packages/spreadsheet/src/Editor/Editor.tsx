@@ -15,7 +15,8 @@ import {
   DARK_MODE_COLOR_LIGHT,
   DEFAULT_FONT_FAMILY,
   cellToAddress,
-  DEFAULT_CELL_PADDING
+  DEFAULT_CELL_PADDING,
+  sanitizeSheetName
 } from "../constants";
 import { EditorType } from "../types";
 import { ExtraEditorProps } from "../Grid/Grid";
@@ -191,7 +192,7 @@ const Editor: React.FC<CustomEditorProps & RefAttribute> = forwardRef(
               whiteSpace: "nowrap"
             }}
           >
-            {hasSheetChanged.current ? sheetName + "!" : ""}
+            {hasSheetChanged.current ? sanitizeSheetName(sheetName) + "!" : ""}
             {address}
           </div>
         ) : null}
