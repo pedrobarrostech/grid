@@ -13,12 +13,6 @@ export default {
   component: Spreadsheet
 };
 
-// @ts-ignore
-const newSheet = ({ count }: { count: number }): Sheet => ({
-  name: `Sheet${count}`,
-  cells: {}
-});
-
 export const Default = () => {
   const App = () => {
     const [sheets, setSheets] = useState(defaultSheets);

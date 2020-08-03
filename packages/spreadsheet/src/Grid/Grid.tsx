@@ -46,7 +46,8 @@ import {
   ROW_HEADER_WIDTH,
   COLUMN_HEADER_HEIGHT,
   DEFAULT_CELL_PADDING,
-  CELL_BORDER_WIDTH
+  CELL_BORDER_WIDTH,
+  cellToAddress
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -77,7 +78,7 @@ export interface GridProps {
   width?: number;
   height?: number;
   cells: Cells;
-  onChange: (value: React.ReactText, cell: CellInterface) => void;
+  onChange?: (id: SheetID, value: React.ReactText, cell: CellInterface) => void;
   onFill?: (
     activeCell: CellInterface,
     currentSelection: SelectionArea | null,
@@ -172,6 +173,14 @@ export interface GridProps {
    * Background color of grid
    */
   gridBackgroundColor?: string;
+  /**
+   * Active sheet name
+   */
+  sheetName?: string;
+  /**
+   * Change selected sheet
+   */
+  onChangeSelectedSheet?: (id: SheetID) => void;
 }
 
 export interface RowColSelection {
@@ -283,7 +292,9 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       locked,
       rowHeaderWidth = ROW_HEADER_WIDTH,
       columnHeaderHeight = COLUMN_HEADER_HEIGHT,
-      gridLineColor
+      gridLineColor,
+      sheetName,
+      onChangeSelectedSheet
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
@@ -291,6 +302,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     const onSheetChangeRef = useRef<(props: any) => void>();
     const rowCount = initialRowCount + 1;
     const columnCount = initialColumnCount + 1;
+    const currentlyEditingSheetId = useRef<SheetID>();
+
     /**
      * Keep track of variables in `refs` cos we bound events to `document`
      * : mousemove, mouseup
@@ -849,7 +862,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       /* Hide filter */
       hideFilter();
       /* Hide editor */
-      hideEditor();
+      // hideEditor();
 
       /* Focus on the grid */
       gridRef.current?.focus();
@@ -861,10 +874,19 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         cell: CellInterface,
         nextActiveCell?: CellInterface | null
       ) => {
-        onChange?.(value, cell);
+        if (!currentlyEditingSheetId.current) {
+          return;
+        }
+        /* Switch to new sheet */
+        onChangeSelectedSheet?.(currentlyEditingSheetId.current);
+
+        /* Trigger onChange */
+        onChange?.(currentlyEditingSheetId.current, value, cell);
 
         /* Focus on next active cell */
-        if (nextActiveCell) setActiveCell(nextActiveCell, true);
+        if (nextActiveCell) {
+          setActiveCell(nextActiveCell, true);
+        }
 
         /* Resize if height has changed */
         const { rowIndex } = cell;
@@ -945,6 +967,10 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         const horizontalAlign =
           config?.horizontalAlign ??
           (config?.datatype === "number" && !config?.plaintext && "right");
+        const address = cellToAddress(cell);
+        /* Update active sheet */
+        currentlyEditingSheetId.current = selectedSheet;
+
         return (props: EditorProps) => (
           <CellEditor
             {...props}
@@ -958,6 +984,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
             wrap={config?.wrap}
             editorType={type}
             options={options}
+            sheetName={sheetName}
+            address={address}
           />
         );
       },
@@ -1139,7 +1167,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           return;
         }
         const text = formulae[checked ? 0 : 1];
-        onChange?.(text, cell);
+        onChange?.(selectedSheet, text, cell);
         onActiveCellValueChange?.(text, cell);
       },
       [selectedSheet]

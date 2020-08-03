@@ -213,7 +213,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
       columnCount = DEFAULT_COLUMN_COUNT,
-      locked
+      locked,
+      name: sheetName
     } = currentSheet;
 
     /* Current sheet ref */
@@ -221,13 +222,6 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
     useEffect(() => {
       selectedSheetRef.current = selectedSheet;
     });
-    const handleChange = useCallback(
-      (value, cell) => {
-        if (isNull(selectedSheetRef.current)) return;
-        onChange?.(selectedSheetRef.current, value, cell);
-      },
-      [currentSheet]
-    );
     const handleFill = useCallback(
       (
         cell: CellInterface,
@@ -368,7 +362,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             width={width}
             height={height}
             cells={cells}
-            onChange={handleChange}
+            onChange={onChange}
             onFill={handleFill}
             minColumnWidth={minColumnWidth}
             minRowHeight={minRowHeight}
@@ -408,6 +402,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             columnHeaderHeight={columnHeaderHeight}
             gridLineColor={gridLineColor}
             gridBackgroundColor={gridBackgroundColor}
+            sheetName={sheetName}
+            onChangeSelectedSheet={onChangeSelectedSheet}
           />
         </Flex>
         {showTabStrip || showStatusBar ? (

@@ -681,8 +681,19 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Call back */
         onChange?.(newState.sheets);
 
+        if (newState.selectedSheet !== currentStateRef.current?.selectedSheet) {
+          setValueState(prev => {
+            return {
+              ...prev,
+              selectedSheet: newState.selectedSheet
+            };
+          });
+        }
+        /**
+         * If active cell changes
+         * For undo/redo
+         */
         if (
-          newState.selectedSheet !== currentStateRef.current?.selectedSheet ||
           newState.currentActiveCell !==
             currentStateRef.current?.currentActiveCell ||
           newState.currentSelections !==
@@ -691,7 +702,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           setValueState(prev => {
             return {
               ...prev,
-              selectedSheet: newState.selectedSheet,
               currentActiveCell:
                 newState.currentActiveCell || prev.currentActiveCell,
               currentSelections:
@@ -848,7 +858,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Selected sheet */
     const setSelectedSheet = useCallback(
       (id: React.ReactText) => {
-        if (id === selectedSheet) return;
         dispatch({
           type: ACTION_TYPE.SELECT_SHEET,
           id

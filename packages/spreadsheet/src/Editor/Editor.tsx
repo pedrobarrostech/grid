@@ -29,6 +29,8 @@ export interface CustomEditorProps extends EditorProps {
   editorType?: EditorType;
   options?: string[];
   underline?: boolean;
+  sheetName?: string;
+  address?: string | null;
 }
 
 /**
@@ -58,6 +60,8 @@ const Editor: React.FC<CustomEditorProps> = props => {
     scale = 1,
     editorType = "text",
     options,
+    sheetName,
+    address,
     ...rest
   } = props;
   const wrapping: any = cellWrap === "wrap" ? "wrap" : "nowrap";
@@ -118,10 +122,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
     /* Set mounted ref */
     isMounted.current = true;
   }, []);
-  const address = useMemo(
-    () => hasScrollPositionChanged.current && cellToAddress(activeCell),
-    [activeCell, hasScrollPositionChanged.current]
-  );
+  const showAddress = hasScrollPositionChanged.current;
   /* Change */
   const handleChange = useCallback(
     value => {
@@ -155,7 +156,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
         background: backgroundColor
       }}
     >
-      {address ? (
+      {showAddress ? (
         <div
           style={{
             position: "absolute",
@@ -172,7 +173,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
             color: "white"
           }}
         >
-          {address}
+          {sheetName} {address}
         </div>
       ) : null}
       {editorType === "text" ? (

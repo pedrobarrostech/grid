@@ -2,7 +2,7 @@
 title: Initialization
 ---
 import { useState, useEffect } from 'react'
-import SpreadSheet from "@rowsncolumns/spreadsheet";
+import SpreadSheet, { defaultSheets } from "@rowsncolumns/spreadsheet";
 
 Initializing SpreadSheet is as easy as importing the component in your React app. SpreadSheet will pickup the height/width of the parent container automatically. It will also resize when parent container dimensions change.
 
@@ -130,7 +130,7 @@ export const SheetFromJSON = () => {
 
 
 export const SheetFromJSON = () => {
-  const [sheets, setSheets] = useState()
+  const [sheets, setSheets] = useState(defaultSheets)
   useEffect(() => {
     async function fetchJSON () {
       const resource = await (await fetch('/data.json').then(res => res.json()))
