@@ -173,7 +173,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
             color: "white"
           }}
         >
-          {sheetName} {address}
+          {sheetName}!{address}
         </div>
       ) : null}
       {editorType === "text" ? (
