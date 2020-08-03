@@ -678,9 +678,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const updateState = useCallback(
       (newState: StateInterface) => {
-        /* Call back */
-        onChange?.(newState.sheets);
-
         if (newState.selectedSheet !== currentStateRef.current?.selectedSheet) {
           setValueState(prev => {
             return {
@@ -709,6 +706,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             };
           });
         }
+
+        /* Call back */
+        onChange?.(newState.sheets);
 
         if (newState.selectedSheet !== state.selectedSheet) {
           onChangeSelectedSheet?.(newState.selectedSheet as React.ReactText);
