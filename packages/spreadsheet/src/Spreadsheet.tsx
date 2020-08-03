@@ -370,6 +370,14 @@ export interface SpreadSheetProps {
    * Disable formula calculation
    */
   disableFormula?: boolean;
+  /**
+   * Color of the grid lines
+   */
+  gridLineColor?: string;
+  /**
+   * Background color of grid
+   */
+  gridBackgroundColor?: string;
 }
 
 export type FormulaMap = Record<string, (...args: any[]) => any>;
@@ -552,7 +560,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onFrozenRowsChange,
       onFrozenColumnsChange,
       onClearFormatting,
-      disableFormula
+      disableFormula,
+      gridLineColor,
+      gridBackgroundColor
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -1909,6 +1919,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onChangeTabColor={handleChangeTabColor}
             rowHeaderWidth={rowHeaderWidth}
             columnHeaderHeight={columnHeaderHeight}
+            gridLineColor={gridLineColor}
+            gridBackgroundColor={gridBackgroundColor}
           />
         </Flex>
       </>

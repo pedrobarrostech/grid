@@ -186,7 +186,9 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onUnProtectSheet,
       onChangeTabColor,
       rowHeaderWidth,
-      columnHeaderHeight
+      columnHeaderHeight,
+      gridLineColor,
+      gridBackgroundColor
     } = props;
 
     const { colorMode } = useColorMode();
@@ -344,14 +346,12 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       },
       [currentSheet]
     );
+    const finalGridBackground =
+      gridBackgroundColor || (isLight ? "white" : DARK_MODE_COLOR_LIGHT);
 
     return (
       <>
-        <Flex
-          flex={1}
-          ref={containerRef}
-          background={isLight ? "white" : DARK_MODE_COLOR_LIGHT}
-        >
+        <Flex flex={1} ref={containerRef} background={finalGridBackground}>
           <Grid
             scale={scale}
             isLightMode={isLight}
@@ -406,6 +406,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             locked={locked}
             rowHeaderWidth={rowHeaderWidth}
             columnHeaderHeight={columnHeaderHeight}
+            gridLineColor={gridLineColor}
+            gridBackgroundColor={gridBackgroundColor}
           />
         </Flex>
         {showTabStrip || showStatusBar ? (

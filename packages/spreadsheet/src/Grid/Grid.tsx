@@ -164,6 +164,14 @@ export interface GridProps {
    * Row header width
    */
   rowHeaderWidth?: number;
+  /**
+   * Color of the grid lines
+   */
+  gridLineColor?: string;
+  /**
+   * Background color of grid
+   */
+  gridBackgroundColor?: string;
 }
 
 export interface RowColSelection {
@@ -274,7 +282,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       snap,
       locked,
       rowHeaderWidth = ROW_HEADER_WIDTH,
-      columnHeaderHeight = COLUMN_HEADER_HEIGHT
+      columnHeaderHeight = COLUMN_HEADER_HEIGHT,
+      gridLineColor
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
@@ -1280,9 +1289,9 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       gridRef.current?.focus();
     }, []);
     const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
-    const gridLineColor = isLightMode
-      ? CELL_BORDER_COLOR
-      : theme?.colors.gray[600];
+    const finalGridLineColor =
+      gridLineColor ||
+      (isLightMode ? CELL_BORDER_COLOR : theme?.colors.gray[600]);
     const shadowStroke = isLightMode
       ? HEADER_BORDER_COLOR
       : theme?.colors.gray[600];
@@ -1302,7 +1311,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           enableCellOverlay
           shadowSettings={shadowSettings}
           showFrozenShadow
-          gridLineColor={gridLineColor}
+          gridLineColor={finalGridLineColor}
           showGridLines={showGridLines}
           ref={gridRef}
           rowCount={rowCount}
