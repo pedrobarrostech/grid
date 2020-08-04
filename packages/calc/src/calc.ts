@@ -107,9 +107,20 @@ class CalcEngine {
     try {
       dependencies = this.parser.getDependencies(formula, position);
     } catch (err) {
+      let error;
+      let errorMessage;
+
+      if ((err as any) instanceof FormulaError) {
+        error = err.error;
+        errorMessage = err.message;
+      } else {
+        error = new FormulaError("#ERROR").toString();
+        errorMessage = err.toString();
+      }
       log("Error parsing formula: ", formula, cell);
       changes[sheet][cell.rowIndex][cell.columnIndex] = {
-        error: "Error parsing formula " + err.toString()
+        error,
+        errorMessage
       };
       /* Remove all caches after calculation is complete */
       this.parser.clearCachedValues();
@@ -322,7 +333,6 @@ class CalcEngine {
         changes[sheet][cell.rowIndex] = changes[sheet][cell.rowIndex] ?? {};
         const collisionAddress = cellToAddress(collides as CellInterface);
         changes[sheet][cell.rowIndex][cell.columnIndex] = {
-          formulatype: "error",
           errorMessage: `Array result was not expanded because it would overwrite data in ${collisionAddress}`,
           error: new FormulaError("#REF").toString()
         };
