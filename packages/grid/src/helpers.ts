@@ -696,7 +696,9 @@ export const numberToAlphabet = (i: number): string => {
  * Convert selections to html and csv data
  * @param rows
  */
-export const prepareClipboardData = (rows: string[][]): [string, string] => {
+export const prepareClipboardData = (
+  rows: (string | undefined)[][]
+): [string, string] => {
   const html = ["<table>"];
   const csv: string[] = [];
   rows.forEach(row => {
@@ -704,7 +706,7 @@ export const prepareClipboardData = (rows: string[][]): [string, string] => {
     const csvRow: string[] = [];
     row.forEach(cell => {
       html.push(`<td>${cell}</td>`);
-      csvRow.push(`"${cell.replace(/"/g, '""')}"`);
+      csvRow.push(`${castToString(cell)?.replace(/"/g, '""')}`);
     });
     csv.push(csvRow.join(","));
     html.push("</tr>");

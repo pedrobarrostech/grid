@@ -17,6 +17,10 @@ export interface CopyProps {
    */
   getValue: (cell: CellInterface) => any;
   /**
+   * Get text value
+   */
+  getText: (config: any) => string | undefined;
+  /**
    * Grid reference to access grid methods
    */
   gridRef: React.MutableRefObject<GridRef | null>;
@@ -41,6 +45,8 @@ export interface CopyResults {
   cut: () => void;
 }
 
+const defaultGetText = (text: any) => text;
+
 /**
  * Copy paste hook
  * Usage
@@ -57,6 +63,7 @@ const useCopyPaste = ({
   gridRef,
   onPaste,
   onCut,
+  getText = defaultGetText
 }: CopyProps): CopyResults => {
   const selectionRef = useRef({ selections, activeCell, getValue });
   const cutSelections = useRef<SelectionArea>();
@@ -103,21 +110,27 @@ const useCopyPaste = ({
       const { bounds } = currentSelections();
       const { top, left, right, bottom } = bounds;
       const rows = [];
+      const cells = [];
       for (let i = top; i <= bottom; i++) {
         const row = [];
+        const cell = [];
         for (let j = left; j <= right; j++) {
-          const value =
-            selectionRef.current.getValue({ rowIndex: i, columnIndex: j }) ??
-            "";
+          const config = selectionRef.current.getValue({
+            rowIndex: i,
+            columnIndex: j
+          });
+          const value = getText(config);
+          cell.push(config);
           row.push(value);
         }
         rows.push(row);
+        cells.push(cell);
       }
       const [html, csv] = prepareClipboardData(rows);
       e.clipboardData?.setData(MimeType.html, html);
       e.clipboardData?.setData(MimeType.plain, csv);
       e.clipboardData?.setData(MimeType.csv, csv);
-      e.clipboardData?.setData(MimeType.json, JSON.stringify(rows));
+      e.clipboardData?.setData(MimeType.json, JSON.stringify(cells));
       e.preventDefault();
     },
     [currentSelections]
@@ -129,7 +142,12 @@ const useCopyPaste = ({
     }
     const items = e.clipboardData?.items;
     if (!items) return;
-    const mimeTypes = [MimeType.html, MimeType.csv, MimeType.plain];
+    const mimeTypes = [
+      MimeType.json,
+      MimeType.html,
+      MimeType.csv,
+      MimeType.plain
+    ];
     let type;
     let value;
     for (type of mimeTypes) {
@@ -140,7 +158,7 @@ const useCopyPaste = ({
       console.warn("No clipboard data to paste");
       return;
     }
-    const rows: any[] = [];
+    let rows: any[] = [];
     if (/^text\/html/.test(type)) {
       const domparser = new DOMParser();
       const doc = domparser.parseFromString(value, type as SupportedType);
@@ -149,7 +167,7 @@ const useCopyPaste = ({
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         if (node.nodeName === "TABLE") {
-          const tableRows = doc.querySelectorAll("tr");
+          const tableRows = node.querySelectorAll("tr");
           for (let i = 0; i < tableRows.length; i++) {
             const tableRow = tableRows[i];
             const row = [];
@@ -165,6 +183,8 @@ const useCopyPaste = ({
           rows.push([node.textContent]);
         }
       }
+    } else if (type === MimeType.json) {
+      rows = JSON.parse(value);
     } else {
       const values = value.split("\n");
       for (const val of values) {
@@ -207,7 +227,7 @@ const useCopyPaste = ({
   return {
     copy: handleProgramaticCopy,
     paste: handleProgramaticPaste,
-    cut: handleCut,
+    cut: handleCut
   };
 };
 

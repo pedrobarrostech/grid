@@ -472,12 +472,23 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       getValueRef.current = getValue;
     }, [getValue]);
 
+    /**
+     * Get text of a cell
+     */
     const getValueText = useCallback(
       cell => {
         return getValue(cell)?.text;
       },
       [getValue]
     );
+    /**
+     * Get display text of a cell. Applicable to visible text display in the cell
+     */
+    const getDisplayText = useCallback((cellConfig: CellConfig) => {
+      const isFormula = cellConfig?.datatype === "formula";
+      const text = isFormula ? cellConfig?.result : cellConfig?.text;
+      return text !== void 0 ? castToString(text) : text;
+    }, []);
 
     /**
      * Apply filter on the cells
@@ -561,11 +572,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
             : 0;
         return { ...cellConfig, text: formattedValue, spacing };
       },
-      getText: (cellConfig: CellConfig) => {
-        const isFormula = cellConfig?.datatype === "formula";
-        const text = isFormula ? cellConfig?.result : cellConfig?.text;
-        return text !== void 0 ? castToString(text) : text;
-      },
+      getText: getDisplayText,
       columnSizes,
       autoResize: false,
       resizeOnScroll: false
@@ -725,7 +732,8 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       gridRef,
       selections,
       activeCell,
-      getValue: getValueText,
+      getValue: getValue,
+      getText: getDisplayText,
       onPaste,
       onCut
     });

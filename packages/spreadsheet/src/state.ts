@@ -253,7 +253,7 @@ export type ActionTypes =
   | {
       type: ACTION_TYPE.PASTE;
       id: SheetID;
-      rows: (string | null)[][];
+      rows: (string | null | CellConfig)[][];
       activeCell: CellInterface;
       selection?: SelectionArea;
       undoable?: boolean;
@@ -1005,7 +1005,13 @@ export const createStateReducer = ({
                   const text = row[j];
                   const c = columnIndex + j;
                   cells[r][c] = cells[r][c] ?? {};
-                  cells[r][c].text = text === null || isNull(text) ? "" : text;
+                  if (typeof text === "object" && text !== void 0) {
+                    const { parentCell, ...config } = text as CellConfig;
+                    cells[r][c] = config;
+                  } else {
+                    cells[r][c].text =
+                      text === null || isNull(text) ? "" : text;
+                  }
                 }
               }
               /* Remove cut selections */
