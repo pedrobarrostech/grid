@@ -173,6 +173,7 @@ export const SheetFromJSON = () => {
   return (
     <SpreadSheet
       sheets={sheets}
+      onChange={setSheets}
     />
   )
 }
