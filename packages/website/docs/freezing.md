@@ -20,7 +20,7 @@ const initialSheets = [
 ]
 
 <SpreadSheet
-  sheets={initialSheets}
+  initialSheets={initialSheets}
 />
 
 ```
@@ -41,5 +41,5 @@ const initialSheets = [
 ]
 
 <SpreadSheet
-  sheets={initialSheets}
+  initialSheets={initialSheets}
 />

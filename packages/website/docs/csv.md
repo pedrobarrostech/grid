@@ -26,6 +26,7 @@ const App = () => {
       <input type="file" onChange={handleFileSelect} />
       <Spreadsheet
         sheets={sheets}
+        onChange={setSheets}
       />
     </>
   )

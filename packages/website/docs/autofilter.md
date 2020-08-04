@@ -61,7 +61,7 @@ const initialSheets = [
   }
 ]
 <SpreadSheet
-  sheets={initialSheets}
+  initialSheets={initialSheets}
 />
 ```
 
@@ -121,7 +121,7 @@ export const App = () => {
   ]
   return (
     <SpreadSheet
-      sheets={initialSheets}
+      initialSheets={initialSheets}
     />
   )
 }

@@ -23,13 +23,13 @@ const initialSheets = [
   }
 ]
 <SpreadSheet
-  sheets={initialSheets}
+  initialSheets={initialSheets}
 />
 
 ```
 
 <SpreadSheet
-  sheets={
+  initialSheets={
     [
       {
         name: 'Sheet 1',

@@ -32,7 +32,7 @@ export const MySpreadSheet = () => {
   const [ sheets, setSheets ] = useState(initialSheets)
   return (
     <SpreadSheet
-      sheets={sheets}
+      initialSheets={sheets}
       CellRenderer={(props) => {
         const { text } = props
         return <DefaultCell {...props} fill={text} color={text === 'black' ? 'white' : undefined} />
@@ -72,7 +72,7 @@ export const MySpreadSheet = () => {
   return (
     <SpreadSheet
       ref={gridRef}
-      sheets={sheets}
+      initialSheets={sheets}
       CellRenderer={(props) => {
         const { text } = props
         return <DefaultCell {...props} fill={text} color={text === 'black' ? 'white' : undefined} />

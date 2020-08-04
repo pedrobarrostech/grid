@@ -36,7 +36,7 @@ const sheets = [
 ]
 return (
   <SpreadSheet
-    sheets={sheets}
+    initialSheets={sheets}
   />
 )
 ```
@@ -70,7 +70,7 @@ export const Demo1 = ()  => {
   ]
   return (
     <SpreadSheet
-      sheets={sheets}
+      initialSheets={sheets}
     />
   )
 }

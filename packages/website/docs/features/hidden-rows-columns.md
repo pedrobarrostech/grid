@@ -23,5 +23,5 @@ const sheets = [
   },
 ]
 
-<SpreadSheet sheets={sheets} />
+<SpreadSheet initialSheets={sheets} />
 ```

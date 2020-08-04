@@ -40,7 +40,7 @@ const Cell = (props) => {
       }
     }
   ]
-  return <SpreadSheet CellRenderer={Cell} sheets={sheets} />
+  return <SpreadSheet CellRenderer={Cell} initialSheets={sheets} />
 ```
 
 export const App = () => {
@@ -71,7 +71,7 @@ export const App = () => {
       }
     }
   ]
-  return <SpreadSheet CellRenderer={Cell} sheets={sheets} />
+  return <SpreadSheet CellRenderer={Cell} initialSheets={sheets} />
 }
 
 <App />

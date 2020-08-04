@@ -59,7 +59,7 @@ export const NumberType = () => {
       }
     },
   ]
-  return <SpreadSheet sheets={sheets} />
+  return <SpreadSheet initialSheets={sheets} />
 }
 
 <NumberType />
@@ -98,7 +98,7 @@ export const StringType = () => {
       }
     },
   ]
-  return <SpreadSheet sheets={sheets} />
+  return <SpreadSheet initialSheets={sheets} />
 }
 
 <StringType />
@@ -150,7 +150,7 @@ export const Boolean = () => {
       }
     },
   ]
-  return <SpreadSheet sheets={sheets} />
+  return <SpreadSheet initialSheets={sheets} />
 }
 
 <Boolean />
@@ -196,7 +196,7 @@ export const HyperLink = () => {
       }
     },
   ]
-  return <SpreadSheet sheets={sheets} />
+  return <SpreadSheet initialSheets={sheets} />
 }
 
 <HyperLink />
@@ -244,7 +244,7 @@ export const Error = () => {
       }
     },
   ]
-  return <SpreadSheet sheets={sheets} />
+  return <SpreadSheet initialSheets={sheets} />
 }
 
 <Error />

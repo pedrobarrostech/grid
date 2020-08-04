@@ -37,7 +37,7 @@ export const App = () => {
       }
     },
   ]
-  return <SpreadSheet sheets={sheets} />
+  return <SpreadSheet initialSheets={sheets} />
 }
 
 <App />

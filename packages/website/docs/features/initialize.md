@@ -18,7 +18,7 @@ return (
 
 ## Initialize Sheets
 
-Pass `sheets` prop to SpreadSheet to initialize
+Pass `sheets` prop to SpreadSheet to initialize (for controlled) and `initialSheets` for un-controlled component
 
 ```jsx
 import SpreadSheet, { uuid } from "@rowsncolumns/spreadsheet";
@@ -41,7 +41,7 @@ const sheets = [
 ]
 return (
   <SpreadSheet
-    sheets={sheets}
+    initialSheets={sheets}
   />
 )
 ```
@@ -65,7 +65,7 @@ export const Demo1 = ()  => {
   ]
   return (
     <SpreadSheet
-      sheets={sheets}
+      initialSheets={sheets}
     />
   )
 }
@@ -123,6 +123,7 @@ export const SheetFromJSON = () => {
   return (
     <SpreadSheet
       sheets={sheets}
+      onChange={setSheets}
     />
   )
 }

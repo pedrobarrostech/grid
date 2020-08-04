@@ -54,7 +54,7 @@ export const App = () => {
   ]
   return (
     <SpreadSheet
-      sheets={sheets}
+      initialSheets={sheets}
       fontLoaderConfig={{
         google: {
           families: ['Source Sans Pro']
@@ -94,7 +94,7 @@ const sheets = [
 ]
 
 <SpreadSheet
-  sheets={sheets}
+  initialSheets={sheets}
   fontLoaderConfig={{
     google: {
       families: ['Source Sans Pro']
