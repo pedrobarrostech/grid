@@ -42,7 +42,7 @@ const StatusBar: React.FC<StatusBarProps> = memo(
         const right = Math.min(maxCol, bounds.right);
         for (let k = left; k <= right; k++) {
           const cell = cells[j]?.[k];
-          if (cell === void 0) continue;
+          if (cell === void 0 || isNull(cell)) continue;
           if (!isNull(cell.text) && isNumeric(cell)) {
             count += 1;
             sum += Number(cell.text);

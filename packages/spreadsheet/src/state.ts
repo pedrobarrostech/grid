@@ -1006,6 +1006,10 @@ export const createStateReducer = ({
                   const c = columnIndex + j;
                   cells[r][c] = cells[r][c] ?? {};
                   if (typeof text === "object") {
+                    // Empty cells in JSON will be `null`
+                    if (isNull(text)) {
+                      continue;
+                    }
                     // TODO: Array formulas does not work well with copy/paste
                     // const { parentCell, ...config } = text as CellConfig;
                     cells[r][c] = text as CellConfig;
