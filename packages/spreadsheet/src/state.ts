@@ -1005,9 +1005,10 @@ export const createStateReducer = ({
                   const text = row[j];
                   const c = columnIndex + j;
                   cells[r][c] = cells[r][c] ?? {};
-                  if (typeof text === "object" && text !== void 0) {
-                    const { parentCell, ...config } = text as CellConfig;
-                    cells[r][c] = config;
+                  if (typeof text === "object") {
+                    // TODO: Array formulas does not work well with copy/paste
+                    // const { parentCell, ...config } = text as CellConfig;
+                    cells[r][c] = text as CellConfig;
                   } else {
                     cells[r][c].text =
                       text === null || isNull(text) ? "" : text;
