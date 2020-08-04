@@ -891,7 +891,6 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           return;
         }
         /* Switch to new sheet */
-
         onChangeSelectedSheet?.(currentlyEditingSheetId.current);
 
         /* Trigger onChange */
@@ -902,17 +901,21 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           setActiveCell(nextActiveCell, true);
         }
 
-        /* Resize if height has changed */
-        const { rowIndex } = cell;
-        const height =
-          rowSizes[rowIndex] ??
-          Math.max(
-            minRowHeight,
-            (getTextMetrics(value).height + DEFAULT_CELL_PADDING) / scale
-          );
-        if (height !== minRowHeight) {
-          onResize?.(AXIS.Y, rowIndex, height);
+        /* Resize if height has changed: Skip merged cells */
+        const isMergedCell = gridRef.current?.isMergedCell(cell);
+        if (!isMergedCell) {
+          const { rowIndex } = cell;
+          const height =
+            rowSizes[rowIndex] ??
+            Math.max(
+              minRowHeight,
+              (getTextMetrics(value).height + DEFAULT_CELL_PADDING) / scale
+            );
+          if (height !== minRowHeight) {
+            onResize?.(AXIS.Y, rowIndex, height);
+          }
         }
+
         /* Switch off formula mode */
         setFormulaMode(false);
       },
@@ -966,11 +969,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     const handleActiveCellValueChange = useCallback(
       (value: string, cell: CellInterface) => {
         onActiveCellValueChange?.(value, cell);
-        const isFormula = value.startsWith("=");
+        const isFormula = castToString(value)?.startsWith("=");
         if (isFormulaMode === isFormula) {
           return;
         }
-        setFormulaMode(isFormula);
+        setFormulaMode(!!isFormula);
       },
       [isFormulaMode]
     );

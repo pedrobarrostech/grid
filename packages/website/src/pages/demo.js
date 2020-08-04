@@ -11,7 +11,7 @@ import { Global, css } from "@emotion/core";
 
 const initialState = [
   {
-    name: "Sheet 1",
+    name: "Sheet1",
     id: uuid(),
     activeCell: null,
     selections: [],
